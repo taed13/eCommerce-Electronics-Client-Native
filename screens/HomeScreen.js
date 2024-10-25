@@ -313,7 +313,7 @@ const HomeScreen = () => {
                     </View>
 
                     <Pressable
-                        onPress={() => setModalVisible(!modalVisible)}
+
                         style={{
                             flexDirection: "row",
                             alignItems: "center",
@@ -324,14 +324,16 @@ const HomeScreen = () => {
                     >
                         <Ionicons name="location-outline" size={24} color="black" />
 
-                        <Pressable>
+                        <Pressable
+                            onPress={() => setModalVisible(!modalVisible)}
+                        >
                             {selectedAddress ? (
                                 <Text>
                                     Deliver to {selectedAddress?.name} - {selectedAddress?.street}
                                 </Text>
                             ) : (
                                 <Text style={{ fontSize: 13, fontWeight: "500" }}>
-                                    Add a Address
+                                    Add a delivery address
                                 </Text>
                             )}
                         </Pressable>

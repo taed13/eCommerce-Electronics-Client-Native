@@ -138,6 +138,7 @@ const ProfileScreen = () => {
                 </Pressable>
 
                 <Pressable
+                    onPress={() => navigation.navigate("Account")}
                     style={{
                         padding: 10,
                         backgroundColor: "#E0E0E0",
@@ -200,7 +201,7 @@ const ProfileScreen = () => {
                             key={order._id}
                         >
                             {/* Render the order information here */}
-                            {order.products.slice(0, 1)?.map((product) => (
+                            {order?.products?.length > 0 && order?.products.slice(0, 1)?.map((product) => (
                                 <View style={{ marginVertical: 10 }} key={product._id}>
                                     <Image
                                         source={{ uri: product.image }}

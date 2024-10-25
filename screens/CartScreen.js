@@ -17,6 +17,7 @@ import {
     removeFromCart,
 } from "../redux/CartReducer";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen = () => {
     const dispatch = useDispatch();
@@ -37,7 +38,6 @@ const CartScreen = () => {
     const deleteItem = (item) => {
         dispatch(removeFromCart(item));
     };
-
     return (
         <ScrollView style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}>
             <View
