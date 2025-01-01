@@ -1,18 +1,33 @@
-import { Text, SafeAreaView } from "react-native";
-import React, { useEffect } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
+import React from "react";
 // import LottieView from "lottie-react-native";
-import { useNavigation } from "@react-navigation/native";
+// import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Header from "../components/Header";
+import { useGetMyOrder } from "../api/order";
+import { OrderItem } from "../components/OrderItem";
+import Loading from "../components/Loading";
 
 const OrderScreen = () => {
-  const navigation = useNavigation();
-  useEffect(() => {
-    setTimeout(() => {
-      navigation.replace("Main");
-    }, 1300);
-  }, []);
+  // const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
+  const { data, isLoading, error } = useGetMyOrder();
+  console.log({ data, isLoading, error });
+
   return (
-    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
-      {/* <LottieView
+    <>
+      <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
+        <Header />
+        <ScrollView>
+          <View style={[MainContentStyle.orderList]}>
+            {data &&
+              data.map((item, index) => {
+                return <OrderItem key={index} item={item} />;
+              })}
+          </View>
+        </ScrollView>
+        {/* <LottieView
                 source={require("../assets/thumbs.json")}
                 // ref={animation}
                 style={{
@@ -26,17 +41,8 @@ const OrderScreen = () => {
                 loop={false}
                 speed={0.7}
             /> */}
-      <Text
-        style={{
-          marginTop: 20,
-          fontSize: 19,
-          fontWeight: "600",
-          textAlign: "center",
-        }}
-      >
-        Your Order Has been Recieved
-      </Text>
-      {/* <LottieView
+
+        {/* <LottieView
                 source={require("../assets/sparkle.json")}
                 style={{
                     height: 300,
@@ -49,8 +55,27 @@ const OrderScreen = () => {
                 loop={false}
                 speed={0.7}
             /> */}
-    </SafeAreaView>
+      </View>
+      {isLoading && <Loading />}
+    </>
   );
 };
 
 export default OrderScreen;
+
+const WrapperContentStyle = (paddingBottom = 0, paddingTop = 0) =>
+  StyleSheet.create({
+    content: {
+      paddingBottom: paddingBottom + 16,
+      paddingTop,
+      backgroundColor: "white",
+      flex: 1,
+      paddingHorizontal: 8,
+    },
+  });
+
+const MainContentStyle = StyleSheet.create({
+  orderList: {
+    gap: 8,
+  },
+});

@@ -4,16 +4,19 @@ import StackNavigator from "./navigation/StackNavigator";
 import store from "./store";
 import { UserContext } from "./UserContext";
 import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function App() {
   return (
     <>
-      <Provider store={store}>
-        <UserContext>
-          <StackNavigator />
-          {/* <ModalPortal /> */}
-        </UserContext>
-      </Provider>
+      <SafeAreaProvider>
+        <Provider store={store}>
+          <UserContext>
+            <StackNavigator />
+            {/* <ModalPortal /> */}
+          </UserContext>
+        </Provider>
+      </SafeAreaProvider>
     </>
   );
 }

@@ -1,4 +1,5 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+/* eslint-disable react/prop-types */
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 
 // icons
@@ -7,7 +8,7 @@ import Octicons from "react-native-vector-icons/Octicons";
 import { iconSize } from "../constants/dimensions";
 import { useNavigation, useTheme } from "@react-navigation/native";
 
-const Header = () => {
+const Header = ({ isHasSetting = false, title = "" }) => {
   const { colors } = useTheme();
   const navigation = useNavigation();
 
@@ -19,10 +20,13 @@ const Header = () => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name={"arrow-back"} color={colors.iconPrimary} size={iconSize.md} />
       </TouchableOpacity>
+      {title && <Text>{title}</Text>}
 
-      <TouchableOpacity onPress={hanleOpenSetting}>
-        <Octicons name={"gear"} color={colors.iconPrimary} size={iconSize.md} />
-      </TouchableOpacity>
+      {isHasSetting && (
+        <TouchableOpacity onPress={hanleOpenSetting}>
+          <Octicons name={"gear"} color={colors.iconPrimary} size={iconSize.md} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
