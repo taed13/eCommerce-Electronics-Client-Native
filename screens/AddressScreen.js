@@ -1,237 +1,217 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    ScrollView,
-    TextInput,
-    Pressable,
-    Alert,
-} from "react-native";
+import { Text, View, ScrollView, TextInput, Pressable, Alert } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import { UserType } from "../UserContext";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import { base_url, authMiddleware } from "../utils/axiosConfig";
+import { base_url } from "../utils/axiosConfig";
 
 const AddressScreen = () => {
-    const navigation = useNavigation();
-    const [name, setName] = useState("");
-    const [mobileNo, setMobileNo] = useState("");
-    const [houseNo, setHouseNo] = useState("");
-    const [street, setStreet] = useState("");
-    const [landmark, setLandmark] = useState("");
-    const [postalCode, setPostalCode] = useState("");
-    const { userId, setUserId } = useContext(UserType);
-    const [token, setToken] = useState("");
+  const navigation = useNavigation();
+  const [name, setName] = useState("");
+  const [mobileNo, setMobileNo] = useState("");
+  const [houseNo, setHouseNo] = useState("");
+  const [street, setStreet] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const { userId, setUserId } = useContext(UserType);
+  const [token, setToken] = useState("");
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const token = await AsyncStorage.getItem("authToken");
-            const decodedToken = jwtDecode(token);
-            const userId = decodedToken.id;
-            setUserId(userId);
-            setToken(token);
-        };
-
-        fetchUser();
-    }, []);
-    console.log(`userId:::`, userId);
-    console.log(`token:::`, token);
-
-    const handleAddAddress = () => {
-        const address = {
-            name,
-            mobileNo,
-            houseNo,
-            street,
-            landmark,
-            postalCode,
-        };
-        axios
-            .put(
-                `${base_url}user/save-address`,
-                { userId, address },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                }
-            )
-            .then((response) => {
-                Alert.alert("Success", "Addresses added successfully");
-                setName("");
-                setMobileNo("");
-                setHouseNo("");
-                setStreet("");
-                setLandmark("");
-                setPostalCode("");
-
-                setTimeout(() => {
-                    navigation.goBack();
-                }, 500);
-            })
-            .catch((error) => {
-                Alert.alert("Error", "Failed to add address");
-                console.log("error", error);
-            });
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.id;
+      setUserId(userId);
+      setToken(token);
     };
 
-    return (
-        <ScrollView style={{ marginTop: 50 }}>
-            <View style={{ height: 50, backgroundColor: "#00CED1" }} />
+    fetchUser();
+  }, []);
+  console.log(`userId:::`, userId);
+  console.log(`token:::`, token);
 
-            <View style={{ padding: 10 }}>
-                <Text style={{ fontSize: 17, fontWeight: "bold" }}>
-                    Add a new Address
-                </Text>
+  const handleAddAddress = () => {
+    const address = {
+      name,
+      mobileNo,
+      houseNo,
+      street,
+      landmark,
+      postalCode,
+    };
+    axios
+      .put(
+        `${base_url}user/save-address`,
+        { userId, address },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      )
+      .then(() => {
+        Alert.alert("Success", "Addresses added successfully");
+        setName("");
+        setMobileNo("");
+        setHouseNo("");
+        setStreet("");
+        setLandmark("");
+        setPostalCode("");
 
-                <TextInput
-                    placeholderTextColor={"black"}
-                    placeholder="India"
-                    style={{
-                        padding: 10,
-                        borderColor: "#D0D0D0",
-                        borderWidth: 1,
-                        marginTop: 10,
-                        borderRadius: 5,
-                    }}
-                />
+        setTimeout(() => {
+          navigation.goBack();
+        }, 500);
+      })
+      .catch((error) => {
+        Alert.alert("Error", "Failed to add address");
+        console.log("error", error);
+      });
+  };
 
-                <View style={{ marginVertical: 10 }}>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                        Full name (First and last name)
-                    </Text>
+  return (
+    <ScrollView style={{ marginTop: 50 }}>
+      <View style={{ height: 50, backgroundColor: "#00CED1" }} />
 
-                    <TextInput
-                        value={name}
-                        onChangeText={(text) => setName(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder="enter your name"
-                    />
-                </View>
+      <View style={{ padding: 10 }}>
+        <Text style={{ fontSize: 17, fontWeight: "bold" }}>Add a new Address</Text>
 
-                <View>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                        Mobile number
-                    </Text>
+        <TextInput
+          placeholderTextColor={"black"}
+          placeholder="India"
+          style={{
+            padding: 10,
+            borderColor: "#D0D0D0",
+            borderWidth: 1,
+            marginTop: 10,
+            borderRadius: 5,
+          }}
+        />
 
-                    <TextInput
-                        value={mobileNo}
-                        onChangeText={(text) => setMobileNo(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder="Mobile No"
-                    />
-                </View>
+        <View style={{ marginVertical: 10 }}>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Full name (First and last name)</Text>
 
-                <View style={{ marginVertical: 10 }}>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                        Flat,House No,Building,Company
-                    </Text>
+          <TextInput
+            value={name}
+            onChangeText={(text) => setName(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder="enter your name"
+          />
+        </View>
 
-                    <TextInput
-                        value={houseNo}
-                        onChangeText={(text) => setHouseNo(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder=""
-                    />
-                </View>
+        <View>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Mobile number</Text>
 
-                <View>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                        Area,Street,sector,village
-                    </Text>
-                    <TextInput
-                        value={street}
-                        onChangeText={(text) => setStreet(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder=""
-                    />
-                </View>
+          <TextInput
+            value={mobileNo}
+            onChangeText={(text) => setMobileNo(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder="Mobile No"
+          />
+        </View>
 
-                <View style={{ marginVertical: 10 }}>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>Landmark</Text>
-                    <TextInput
-                        value={landmark}
-                        onChangeText={(text) => setLandmark(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder="Eg near appollo hospital"
-                    />
-                </View>
+        <View style={{ marginVertical: 10 }}>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Flat,House No,Building,Company</Text>
 
-                <View>
-                    <Text style={{ fontSize: 15, fontWeight: "bold" }}>Pincode</Text>
+          <TextInput
+            value={houseNo}
+            onChangeText={(text) => setHouseNo(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder=""
+          />
+        </View>
 
-                    <TextInput
-                        value={postalCode}
-                        onChangeText={(text) => setPostalCode(text)}
-                        placeholderTextColor={"black"}
-                        style={{
-                            padding: 10,
-                            borderColor: "#D0D0D0",
-                            borderWidth: 1,
-                            marginTop: 10,
-                            borderRadius: 5,
-                        }}
-                        placeholder="Enter Pincode"
-                    />
-                </View>
+        <View>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Area,Street,sector,village</Text>
+          <TextInput
+            value={street}
+            onChangeText={(text) => setStreet(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder=""
+          />
+        </View>
 
-                <Pressable
-                    onPress={handleAddAddress}
-                    style={{
-                        backgroundColor: "#FFC72C",
-                        padding: 19,
-                        borderRadius: 6,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginTop: 20,
-                    }}
-                >
-                    <Text style={{ fontWeight: "bold" }}>Add Address</Text>
-                </Pressable>
-            </View>
-        </ScrollView>
-    );
+        <View style={{ marginVertical: 10 }}>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Landmark</Text>
+          <TextInput
+            value={landmark}
+            onChangeText={(text) => setLandmark(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder="Eg near appollo hospital"
+          />
+        </View>
+
+        <View>
+          <Text style={{ fontSize: 15, fontWeight: "bold" }}>Pincode</Text>
+
+          <TextInput
+            value={postalCode}
+            onChangeText={(text) => setPostalCode(text)}
+            placeholderTextColor={"black"}
+            style={{
+              padding: 10,
+              borderColor: "#D0D0D0",
+              borderWidth: 1,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+            placeholder="Enter Pincode"
+          />
+        </View>
+
+        <Pressable
+          onPress={handleAddAddress}
+          style={{
+            backgroundColor: "#FFC72C",
+            padding: 19,
+            borderRadius: 6,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <Text style={{ fontWeight: "bold" }}>Add Address</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
 };
 
 export default AddressScreen;
-
-const styles = StyleSheet.create({});

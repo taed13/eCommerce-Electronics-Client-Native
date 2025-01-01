@@ -1,18 +1,18 @@
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { Text, SafeAreaView } from "react-native";
 import React, { useEffect } from "react";
-import LottieView from "lottie-react-native";
+// import LottieView from "lottie-react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const OrderScreen = () => {
-    const navigation = useNavigation();
-    useEffect(() => {
-        setTimeout(() => {
-            navigation.replace("Main");
-        }, 1300);
-    }, []);
-    return (
-        <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
-            <LottieView
+  const navigation = useNavigation();
+  useEffect(() => {
+    setTimeout(() => {
+      navigation.replace("Main");
+    }, 1300);
+  }, []);
+  return (
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+      {/* <LottieView
                 source={require("../assets/thumbs.json")}
                 // ref={animation}
                 style={{
@@ -25,18 +25,18 @@ const OrderScreen = () => {
                 autoPlay
                 loop={false}
                 speed={0.7}
-            />
-            <Text
-                style={{
-                    marginTop: 20,
-                    fontSize: 19,
-                    fontWeight: "600",
-                    textAlign: "center",
-                }}
-            >
-                Your Order Has been Recieved
-            </Text>
-            <LottieView
+            /> */}
+      <Text
+        style={{
+          marginTop: 20,
+          fontSize: 19,
+          fontWeight: "600",
+          textAlign: "center",
+        }}
+      >
+        Your Order Has been Recieved
+      </Text>
+      {/* <LottieView
                 source={require("../assets/sparkle.json")}
                 style={{
                     height: 300,
@@ -48,11 +48,9 @@ const OrderScreen = () => {
                 autoPlay
                 loop={false}
                 speed={0.7}
-            />
-        </SafeAreaView>
-    );
+            /> */}
+    </SafeAreaView>
+  );
 };
 
 export default OrderScreen;
-
-const styles = StyleSheet.create({});

@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "eCommerce-Electronics-Client-Mobile",
     "slug": "eCommerce-Electronics-Client-Mobile",
     "version": "1.0.0",
