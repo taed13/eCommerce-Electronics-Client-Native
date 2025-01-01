@@ -1,6 +1,5 @@
 import { Text, View, ScrollView, Pressable, Alert } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { UserType } from "../UserContext";
 import { Entypo } from "@expo/vector-icons";
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
@@ -10,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 // import RazorpayCheckout from "react-native-razorpay";
 import { base_url } from "../utils/axiosConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "../api/axiosInstance";
 
 const ConfirmationScreen = () => {
   const navigation = useNavigation();
@@ -36,7 +36,7 @@ const ConfirmationScreen = () => {
     console.log("token:::", token);
 
     try {
-      const response = await axios.get(`${base_url}user/addresses/${userId}`, {
+      const response = await axiosInstance.get(`user/addresses/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -55,8 +55,6 @@ const ConfirmationScreen = () => {
   const [option, setOption] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const handlePlaceOrder = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-
     try {
       const orderData = {
         userId: userId,
@@ -65,12 +63,7 @@ const ConfirmationScreen = () => {
         shippingAddress: selectedAddress,
         paymentMethod: selectedOption,
       };
-      const response = await axios.post(`${base_url}checkout/create-order`, orderData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
+      const response = await axiosInstance.post(`checkout/create-order`, orderData);
       if (response.status === 200) {
         navigation.navigate("Order");
         dispatch(cleanCart());
@@ -84,8 +77,6 @@ const ConfirmationScreen = () => {
   };
 
   const pay = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-
     try {
       // const options = {
       //   description: "Adding To Wallet",
@@ -113,12 +104,7 @@ const ConfirmationScreen = () => {
         paymentMethod: "card",
       };
 
-      const response = await axios.post(`${base_url}checkout/create-order`, orderData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
+      const response = await axiosInstance.post(`${base_url}checkout/create-order`, orderData);
       if (response.status === 200) {
         navigation.navigate("Order");
         dispatch(cleanCart());

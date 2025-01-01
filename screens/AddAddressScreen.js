@@ -4,10 +4,9 @@ import { Feather, AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import axios from "axios";
 import { UserType } from "../UserContext";
-import { base_url } from "../utils/axiosConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "../api/axiosInstance";
 
 const AddAddressScreen = () => {
   const navigation = useNavigation();
@@ -23,7 +22,7 @@ const AddAddressScreen = () => {
     const token = await AsyncStorage.getItem("authToken");
     console.log("token:::", token);
     try {
-      const response = await axios.get(`${base_url}user/addresses/${userId}`, {
+      const response = await axiosInstance.get(`user/addresses/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",

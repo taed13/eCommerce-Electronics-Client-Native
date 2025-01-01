@@ -27,6 +27,7 @@ import { UserType } from "../UserContext";
 import { jwtDecode } from "jwt-decode";
 import { base_url } from "../utils/axiosConfig";
 import { getAllProducts } from "../feature/products/productSlice";
+import axiosInstance from "../api/axiosInstance";
 // import ReactStars from "react-native-stars";
 
 const HomeScreen = () => {
@@ -122,7 +123,7 @@ const HomeScreen = () => {
   const fetchAddresses = async () => {
     try {
       console.log(`token:::`, token);
-      const response = await axios.get(`${base_url}user/addresses/${userId}`, {
+      const response = await axiosInstance.get(`user/addresses/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",

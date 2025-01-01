@@ -2,10 +2,9 @@ import { Image, Text, View, ScrollView, Pressable } from "react-native";
 import React, { useLayoutEffect, useEffect, useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
-import axios from "axios";
 import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { base_url } from "../utils/axiosConfig";
+import axiosInstance from "../api/axiosInstance";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -47,16 +46,9 @@ const ProfileScreen = () => {
   }, []);
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const token = await AsyncStorage.getItem("authToken");
-
       const id = userId;
       try {
-        const response = await axios.get(`${base_url}user/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
+        const response = await axiosInstance.get(`user/${id}`);
         const { user } = response.data;
         setUser(user);
       } catch (error) {
@@ -82,12 +74,7 @@ const ProfileScreen = () => {
       const id = userId;
       try {
         // /getorderbyuser/:id
-        const response = await axios.get(`${base_url}user/getorderbyuser/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
+        const response = await axiosInstance.get(`user/getorderbyuser/${id}`);
         console.log("response:::->>", response.data);
         const orders = response.data.userOrders;
         setOrders(orders);
