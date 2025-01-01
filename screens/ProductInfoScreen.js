@@ -39,7 +39,7 @@ const ProductInfoScreen = () => {
         >
             <View
                 style={{
-                    backgroundColor: "#00CED1",
+                    backgroundColor: "#131921",
                     padding: 10,
                     flexDirection: "row",
                     alignItems: "center",
@@ -63,10 +63,8 @@ const ProductInfoScreen = () => {
                         size={22}
                         color="black"
                     />
-                    <TextInput placeholder="Search Amazon.in" />
+                    <TextInput placeholder="Tìm kiếm sản phẩm..." />
                 </Pressable>
-
-                <Feather name="mic" size={24} color="black" />
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>

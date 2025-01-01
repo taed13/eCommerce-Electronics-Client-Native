@@ -26,7 +26,7 @@ const CartScreen = () => {
     const cart = useSelector((state) => state.cart.cart);
     console.log(`cart:::`, cart);
 
-    const total = cart
+    const total = cart && cart
         ?.map((item) => item.price * item.quantity)
         .reduce((curr, prev) => curr + prev, 0);
     const increaseQuantity = (item) => {
@@ -103,7 +103,7 @@ const CartScreen = () => {
             />
 
             <View style={{ marginHorizontal: 10 }}>
-                {cart?.map((item, index) => (
+                {cart && cart?.map((item, index) => (
                     <View
                         style={{
                             backgroundColor: "white",

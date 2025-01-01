@@ -32,8 +32,7 @@ const ConfirmationScreen = () => {
     const [addresses, setAddresses] = useState([]);
     const { userId, setUserId } = useContext(UserType);
     const cart = useSelector((state) => state.cart.cart);
-    const total = cart
-        ?.map((item) => item.price * item.quantity)
+    const total = cart && cart?.map((item) => item.price * item.quantity)
         .reduce((curr, prev) => curr + prev, 0);
 
     useEffect(() => {
@@ -159,7 +158,7 @@ const ConfirmationScreen = () => {
                         justifyContent: "space-between",
                     }}
                 >
-                    {steps?.map((step, index) => (
+                    {steps && steps?.map((step, index) => (
                         <View style={{ justifyContent: "center", alignItems: "center" }}>
                             {index > 0 && (
                                 <View
@@ -211,7 +210,7 @@ const ConfirmationScreen = () => {
                     </Text>
 
                     <Pressable>
-                        {addresses?.map((item, index) => (
+                        {addresses && addresses?.map((item, index) => (
                             <Pressable
                                 style={{
                                     borderWidth: 1,

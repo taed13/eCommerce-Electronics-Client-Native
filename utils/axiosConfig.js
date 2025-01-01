@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const base_url = "http://192.168.1.48:5001/api/";
+export const base_url = "http://192.168.1.9:5001/api/";
 // export const base_url = "https://e-commerce-electronics-server.vercel.app/api/";
 
 const getTokenFromLocalStorage = AsyncStorage.getItem("authToken");
@@ -18,4 +18,14 @@ export const config = {
         Authorization: `Bearer ${getTokenFromLocalStorage}`,
         Accept: "application/json",
     },
+};
+
+export const getConfig = async () => {
+    try {
+        const token = await AsyncStorage.getItem("authToken");
+        return token ? token : null;
+    } catch (err) {
+        console.error("Error retrieving auth token:", err);
+        return null;
+    }
 };

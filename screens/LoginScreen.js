@@ -31,11 +31,12 @@ const LoginScreen = () => {
                     navigation.replace("Main");
                 }
             } catch (err) {
-                console.log("error message", err);
+                console.log("Lỗi kiểm tra trạng thái đăng nhập:", err);
             }
         };
         checkLoginStatus();
     }, []);
+
     const handleLogin = () => {
         const user = {
             email: email,
@@ -45,16 +46,17 @@ const LoginScreen = () => {
         axios
             .post(`${base_url}user/login`, user)
             .then((response) => {
-                console.log(`response:::`, response.data);
+                console.log(`Phản hồi:`, response.data);
                 const token = response.data?.findUser?.token;
                 AsyncStorage.setItem("authToken", token);
                 navigation.replace("Main");
             })
             .catch((error) => {
-                Alert.alert("Login Error", "Invalid Email");
+                Alert.alert("Lỗi đăng nhập", "Email không hợp lệ");
                 console.log(error);
             });
     };
+
     return (
         <SafeAreaView
             style={{
@@ -83,7 +85,7 @@ const LoginScreen = () => {
                             color: "#041E42",
                         }}
                     >
-                        Login In to your Account
+                        Đăng nhập tài khoản của bạn
                     </Text>
                 </View>
 
@@ -115,7 +117,7 @@ const LoginScreen = () => {
                                 width: 300,
                                 fontSize: email ? 16 : 16,
                             }}
-                            placeholder="Enter your Email"
+                            placeholder="Nhập email của bạn"
                         />
                     </View>
                 </View>
@@ -149,7 +151,7 @@ const LoginScreen = () => {
                                 width: 300,
                                 fontSize: password ? 16 : 16,
                             }}
-                            placeholder="Enter your Password"
+                            placeholder="Nhập mật khẩu của bạn"
                         />
                     </View>
                 </View>
@@ -162,10 +164,10 @@ const LoginScreen = () => {
                         justifyContent: "space-between",
                     }}
                 >
-                    <Text>Keep me logged in</Text>
+                    <Text>Giữ tôi đăng nhập</Text>
 
                     <Text style={{ color: "#007FFF", fontWeight: "500" }}>
-                        Forgot Password
+                        Quên mật khẩu
                     </Text>
                 </View>
 
@@ -190,7 +192,7 @@ const LoginScreen = () => {
                             fontWeight: "bold",
                         }}
                     >
-                        Login
+                        Đăng nhập
                     </Text>
                 </Pressable>
 
@@ -199,7 +201,7 @@ const LoginScreen = () => {
                     style={{ marginTop: 15 }}
                 >
                     <Text style={{ textAlign: "center", color: "gray", fontSize: 16 }}>
-                        Don't have an account? Sign Up
+                        Bạn chưa có tài khoản? Đăng ký ngay
                     </Text>
                 </Pressable>
             </KeyboardAvoidingView>

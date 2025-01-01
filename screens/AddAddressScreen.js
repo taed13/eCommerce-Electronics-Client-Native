@@ -111,7 +111,7 @@ const AddAddressScreen = () => {
 
                 <Pressable>
                     {/* all the added adresses */}
-                    {addresses?.map((item, index) => (
+                    {addresses && addresses?.map((item, index) => (
                         <Pressable
                             style={{
                                 borderWidth: 1,
