@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import { fontFamily } from "../constants/fontFamily";

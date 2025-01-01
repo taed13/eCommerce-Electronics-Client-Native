@@ -108,6 +108,7 @@ const ProfileScreen = () => {
             borderRadius: 25,
             flex: 1,
           }}
+          onPress={() => navigation.navigate("Order")}
         >
           <Text style={{ textAlign: "center" }}>Your orders</Text>
         </Pressable>
