@@ -17,6 +17,7 @@ import ConfirmationScreen from "../screens/ConfirmationScreen";
 import OrderScreen from "../screens/OrderScreen";
 import AccountScreen from "../screens/AccountScreen";
 import SettingScreen from "../screens/SettingScreen";
+import AxiosProvider from "../providers/axiosProvider";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -75,21 +76,23 @@ const StackNavigator = () => {
   }
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-        <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Add" component={AddressScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
+      <AxiosProvider>
+        <Stack.Navigator>
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
+          <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Add" component={AddressScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
 
-        <Stack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
 
-        <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
 
-        <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
-      </Stack.Navigator>
+          <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      </AxiosProvider>
     </NavigationContainer>
   );
 };
