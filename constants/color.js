@@ -8,4 +8,5 @@ export const colors = {
   gray: "#F0F0F0",
   darkGray: "#808080",
   red: "#DC143C",
+  yellow: "#facc15",
 };

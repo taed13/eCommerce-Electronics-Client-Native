@@ -43,6 +43,7 @@ const AxiosProvider = ({ children }) => {
           try {
             await AsyncStorage.removeItem("authToken");
             navigate.navigate("Login");
+            // show toast error ("Session expired !!!!")
           } catch (removeError) {
             console.error("Failed to remove token:", removeError);
           }
