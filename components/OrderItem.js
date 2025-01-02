@@ -4,7 +4,6 @@ import { colors } from "../constants/color";
 
 export const OrderItem = (item) => {
   const Icon = generateIconStatus(item.item.order_status, 30, colors.darkGray);
-  console.log({ item }, item.item.order_status, Icon);
   return (
     <TouchableOpacity style={OrderItemStyle.wrapper}>
       <View style={OrderItemStyle.status}>

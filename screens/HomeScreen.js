@@ -97,8 +97,6 @@ const HomeScreen = () => {
     getProducts();
   }, []);
 
-  console.log("products:::", productState);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -122,7 +120,6 @@ const HomeScreen = () => {
 
   const fetchAddresses = async () => {
     try {
-      console.log(`token:::`, token);
       const response = await axiosInstance.get(`user/addresses/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -153,8 +150,6 @@ const HomeScreen = () => {
       ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "featured"))
       ?.slice(0, 4);
 
-  // console.log("userId:::", userId);
-  console.log("address", addresses);
   return (
     <>
       <SafeAreaView

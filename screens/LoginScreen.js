@@ -37,7 +37,6 @@ const LoginScreen = () => {
     axios
       .post(`${base_url}user/login`, user)
       .then((response) => {
-        console.log(`Phản hồi:`, response.data);
         const token = response.data?.findUser?.token;
         AsyncStorage.setItem("authToken", token);
         navigation.replace("Main");

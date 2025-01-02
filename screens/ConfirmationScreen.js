@@ -49,8 +49,6 @@ const ConfirmationScreen = () => {
     }
   };
 
-  console.log("addresses:::", addresses);
-
   const [selectedAddress, setSelectedAdress] = useState("");
   const [option, setOption] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
