@@ -16,3 +16,7 @@ export const generateIconStatus = (type, size = 24, color = "black") => {
       return <MaterialIcons name="cancel-presentation" size={size} color={color} />;
   }
 };
+
+export const strippedString = (value) => {
+  return value.replace(/<\/?p>/g, "");
+};

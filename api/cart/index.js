@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getMyOrder } from "./order.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
+import { getMyCart } from "./cart.api";
 
-export const useGetMyOrder = () => {
+export const useGetMyCart = () => {
   const axiosClient = useAxiosClient();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -11,9 +11,9 @@ export const useGetMyOrder = () => {
 
   useEffect(() => {
     if (!axiosClient) return;
-    const fetchOrders = async () => {
+    const fetchCart = async () => {
       try {
-        const result = await getMyOrder(axiosClient);
+        const result = await getMyCart(axiosClient);
         if (result.data) {
           setData(result.data);
         } else {
@@ -26,7 +26,7 @@ export const useGetMyOrder = () => {
       }
     };
 
-    fetchOrders();
+    fetchCart();
   }, [axiosClient]);
 
   return { data, isLoading, error };
