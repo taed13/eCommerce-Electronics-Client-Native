@@ -5,17 +5,22 @@ import store from "./store";
 import { UserContext } from "./UserContext";
 import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { MenuProvider } from "react-native-popup-menu";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   return (
     <>
       <SafeAreaProvider>
-        <Provider store={store}>
-          <UserContext>
-            <StackNavigator />
-            {/* <ModalPortal /> */}
-          </UserContext>
-        </Provider>
+        <MenuProvider>
+          <Provider store={store}>
+            <UserContext>
+              <StackNavigator />
+              {/* <ModalPortal /> */}
+              <Toast />
+            </UserContext>
+          </Provider>
+        </MenuProvider>
       </SafeAreaProvider>
     </>
   );
