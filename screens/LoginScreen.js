@@ -6,9 +6,14 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { base_url } from "../utils/axiosConfig";
+import { useLogin } from "../api/user";
+import { useDispatch } from "react-redux";
+import { fetchCurrentUser } from "../feature/users/userSlice";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { login, isLoading, error } = useLogin();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,23 +33,22 @@ const LoginScreen = () => {
     checkLoginStatus();
   }, []);
 
-  const handleLogin = () => {
-    const user = {
-      email: email,
-      password: password,
-    };
+  const handleLogin = async () => {
+    const user = { email, password };
 
-    axios
-      .post(`${base_url}user/login`, user)
-      .then((response) => {
-        const token = response.data?.findUser?.token;
-        AsyncStorage.setItem("authToken", token);
-        navigation.replace("Main");
-      })
-      .catch((error) => {
-        // Alert.alert("Lỗi đăng nhập", "Email không hợp lệ");
-        console.log(error);
-      });
+    const result = await login(user);
+
+    console.log("result::", result);
+
+    if (result?.findUser?.token) {
+      await AsyncStorage.setItem("authToken", result.findUser.token);
+
+      dispatch(fetchCurrentUser());
+
+      navigation.replace("Main");
+    } else {
+      alert(error || "Đăng nhập thất bại. Vui lòng thử lại!");
+    }
   };
 
   return (

@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
     },
     textsContainer: {
         flex: 1,
-        marginStart: 8
+        marginStart: 8,
+        marginEnd: 8,
     },
     iconContainer: {
         width: 32,

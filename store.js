@@ -1,24 +1,51 @@
 import { configureStore } from "@reduxjs/toolkit";
 import CartReducer from "./redux/CartReducer";
 import productReducer from "./feature/products/productSlice";
-// import counterReducer from "../features/counter/counterSlice";
-// import authReducer from "../features/user/userSlice";
-// import blogReducer from "../features/blogs/blogSlice";
-// import contactReducer from "../features/contact/contactSlice";
-// import bCategoryReducer from "../features/bCategory/bCategorySlice";
-// import pCategoryReducer from "../features/pCategory/pCategorySlice";
-// import discountReducer from "../features/discount/discountSlice";
+import userReducer from "./feature/users/userSlice";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { APP_CONFIG } from "./config/common";
+
+const axiosClient = axios.create({
+    baseURL: APP_CONFIG.BASE_URL,
+    headers: {
+        Accept: "application/json",
+    },
+    timeout: 60 * 1000,
+});
+
+axiosClient.interceptors.request.use(
+    async (config) => {
+        const token = await AsyncStorage.getItem("authToken");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+axiosClient.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error?.response?.status === 401) {
+            await AsyncStorage.removeItem("authToken");
+            console.error("Session expired. Redirecting to login.");
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default configureStore({
     reducer: {
         cart: CartReducer,
         product: productReducer,
-        // auth: authReducer,
-        // blog: blogReducer,
-        // contact: contactReducer,
-        // counter: counterReducer,
-        // bCategory: bCategoryReducer,
-        // pCategory: pCategoryReducer,
-        // discount: discountReducer,
+        user: userReducer,
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            thunk: {
+                extraArgument: { axiosClient },
+            },
+        }),
 });

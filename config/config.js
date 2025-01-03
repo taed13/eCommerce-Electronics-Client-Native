@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-export const API_URL = 'http://192.168.1.11:5001';
+export const API_URL = 'http://10.10.75.23:5001';
 export const SOCKET = io(API_URL);
 
 export const allUsersRoute = `${API_URL}/api/user/allusers`;

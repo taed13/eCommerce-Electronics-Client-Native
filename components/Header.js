@@ -12,18 +12,24 @@ const Header = ({ isHasSetting = false, title = "" }) => {
   const { colors } = useTheme();
   const navigation = useNavigation();
 
-  const hanleOpenSetting = () => {
+  const handleOpenSetting = () => {
     navigation.navigate("Setting");
   };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name={"arrow-back"} color={colors.iconPrimary} size={iconSize.md} />
       </TouchableOpacity>
-      {title && <Text>{title}</Text>}
+
+      {title && (
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+          {title}
+        </Text>
+      )}
 
       {isHasSetting && (
-        <TouchableOpacity onPress={hanleOpenSetting}>
+        <TouchableOpacity onPress={handleOpenSetting}>
           <Octicons name={"gear"} color={colors.iconPrimary} size={iconSize.md} />
         </TouchableOpacity>
       )}
@@ -36,7 +42,18 @@ export default Header;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
     padding: 10,
+    paddingVertical: 20,
+    marginTop: 10,
+  },
+  title: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    fontSize: 23,
+    fontWeight: "bold",
   },
 });
