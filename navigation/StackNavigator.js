@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
+import ListAdmin from "../screens/ListAdmin/ListAdmin";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -18,6 +19,10 @@ import OrderScreen from "../screens/OrderScreen";
 import AccountScreen from "../screens/AccountScreen";
 import SettingScreen from "../screens/SettingScreen";
 import AxiosProvider from "../providers/axiosProvider";
+import Chat from "../screens/Chat";
+import ChatHeader from "../components/ChatHeader";
+import ChatMenu from "../components/ChatMenu";
+import { View } from "react-native";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -71,6 +76,21 @@ const StackNavigator = () => {
               ),
           }}
         />
+
+        <Tab.Screen
+          name="Chat Với Admin"
+          component={ListAdmin}
+          options={{
+            tabBarLabel: "Chat",
+            tabBarLabelStyle: { color: "#008E97" },
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="chatbubbles" size={24} color="#008E97" />
+              ) : (
+                <Ionicons name="chatbubbles-outline" size={24} color="black" />
+              ),
+          }}
+        />
       </Tab.Navigator>
     );
   }
@@ -91,6 +111,18 @@ const StackNavigator = () => {
           <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
 
           <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={({ route }) => ({
+              headerTitle: () => <ChatHeader chatName={route.params.chatName} chatId={route.params.id} />,
+              headerRight: () => (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <ChatMenu chatName={route.params.chatName} chatId={route.params.id} />
+                </View>
+              ),
+            })}
+          />
         </Stack.Navigator>
       </AxiosProvider>
     </NavigationContainer>
