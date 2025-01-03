@@ -1,14 +1,11 @@
-import { createContext, useState } from "react";
+/* eslint-disable react/prop-types */
+import React, { createContext, useState } from "react";
 
 const UserType = createContext();
 
 const UserContext = ({ children }) => {
-    const [userId, setUserId] = useState("");
-    return (
-        <UserType.Provider value={{ userId, setUserId }}>
-            {children}
-        </UserType.Provider>
-    );
+  const [userId, setUserId] = useState("");
+  return <UserType.Provider value={{ userId, setUserId }}>{children}</UserType.Provider>;
 };
 
 export { UserType, UserContext };
