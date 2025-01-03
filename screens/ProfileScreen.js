@@ -5,6 +5,7 @@ import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
+import Header from "../components/Header";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -114,7 +115,7 @@ const ProfileScreen = () => {
         </Pressable>
 
         <Pressable
-          onPress={() => navigation.navigate("Account")}
+          onPress={() => navigation.navigate("Setting")}
           style={{
             padding: 10,
             backgroundColor: "#E0E0E0",
@@ -122,7 +123,7 @@ const ProfileScreen = () => {
             flex: 1,
           }}
         >
-          <Text style={{ textAlign: "center" }}>Your Account</Text>
+          <Text style={{ textAlign: "center" }}>Settings Your Account</Text>
         </Pressable>
       </View>
 

@@ -25,6 +25,7 @@
     "axios": "^1.7.7",
     "deprecated-react-native-prop-types": "^5.0.0",
     "expo": "~52.0.20",
+    "expo-checkbox": "~4.0.0",
     "expo-font": "~13.0.2",
     "expo-image-picker": "^16.0.3",
     "expo-status-bar": "~2.0.0",
@@ -38,13 +39,13 @@
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
     "react-native-stars": "^1.2.2",
+    "react-native-svg": "^15.10.1",
     "react-native-toast-message": "^2.2.1",
     "react-native-uuid": "^2.0.3",
     "react-native-vector-icons": "^10.2.0",
     "react-redux": "^9.1.2",
     "socket.io-client": "^4.8.1",
-    "typescript": "~5.3.3",
-    "expo-checkbox": "~4.0.0"
+    "typescript": "~5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

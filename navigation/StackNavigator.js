@@ -14,6 +14,8 @@ import AddAddressScreen from "../screens/AddAddressScreen";
 import AddressScreen from "../screens/AddressScreen";
 import CartScreen from "../screens/CartScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import ProfileUserScreen from "../screens/ProfileUserScreen";
+import HelpScreen from "../screens/HelpScreen";
 import ConfirmationScreen from "../screens/ConfirmationScreen";
 import OrderScreen from "../screens/OrderScreen";
 import AccountScreen from "../screens/AccountScreen";
@@ -111,14 +113,16 @@ const StackNavigator = () => {
           <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
 
           <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ProfileUser" component={ProfileUserScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
           <Stack.Screen
             name="Chat"
             component={Chat}
             options={({ route }) => ({
-              headerTitle: () => <ChatHeader chatName={route.params.chatName} chatId={route.params.id} />,
+              headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?.id} />,
               headerRight: () => (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <ChatMenu chatName={route.params.chatName} chatId={route.params.id} />
+                  <ChatMenu chatName={route?.params?.chatName} chatId={route?.params?.id} />
                 </View>
               ),
             })}

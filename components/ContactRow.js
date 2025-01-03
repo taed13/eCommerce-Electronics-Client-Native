@@ -1,9 +1,10 @@
 import React from "react";
-import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons'
 import { colors } from "../config/constants";
+import * as Svg from 'react-native-svg';
 
-const ContactRow = ({ name, subtitle, onPress, style, onLongPress, selected, showForwardIcon = true, subtitle2, newMessageCount }) => {
+const ContactRow = ({ name, subtitle, onPress, style, onLongPress, selected, showForwardIcon = true, subtitle2, newMessageCount, image }) => {
     return (
         <TouchableOpacity style={[styles.row, style]} onPress={onPress} onLongPress={onLongPress}>
             <View style={styles.avatar}>

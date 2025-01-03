@@ -65,7 +65,7 @@ function Chat({ route }) {
         };
 
         fetchMessages();
-    }, [route.params.id]);
+    }, [route?.params?.id]);
 
     // const onSend = useCallback(async (m = []) => {
     //     // Get messages

@@ -1,169 +1,98 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
+import { Text, View, StyleSheet, Alert, ScrollView } from "react-native";
+import { colors } from "../config/constants";
+import Separator from "../components/Separator";
+import Cell from "../components/Cell";
+// import { deleteUser, signOut } from 'firebase/auth';
+import { auth, database } from '../config/firebase';
 import Header from "../components/Header";
-import { fontSize, iconSize, spacing } from "../constants/dimensions";
-import dpImage from "../assets/dp.png";
-import { fontFamily } from "../constants/fontFamily";
-import CustomInput from "../components/CustomInput";
+import { useLogout } from "../api/user";
+// import { deleteDoc, doc } from "firebase/firestore";
 
-import Feather from "react-native-vector-icons/Feather";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import { useTheme } from "@react-navigation/native";
+const AccountScreen = ({ navigation }) => {
+    const { logout } = useLogout();
 
-const AccountScreen = () => {
-  const { colors } = useTheme();
+    const onSignOut = async () => {
+        // signOut(auth).catch(error => console.log('Error logging out: ', error));
+        // useLogout();
+        const result = await logout();
+        if (result.success) {
+            console.log("Đăng xuất thành công!");
+        } else {
+            console.log("Đăng xuất thất bại:", result.error);
+        }
+    };
 
-  return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{
-        paddingBottom: 2 * spacing.xl,
-      }}
-    >
-      <Header />
+    const deleteAccount = () => {
+        // deleteUser(auth?.currentUser).catch(error => console.log('Error deleting: ', error));
+        // deleteDoc(doc(database, 'users', auth?.currentUser.email));
+    };
 
-      <View style={styles.profileImageContainer}>
-        <Image source={dpImage} style={styles.profileImage} />
-        <TouchableOpacity
-          style={[
-            styles.editIconContainer,
-            {
-              backgroundColor: colors.orange,
-            },
-          ]}
-        >
-          <Feather name={"edit-3"} size={iconSize.md} color={colors.iconWhite} />
-        </TouchableOpacity>
-      </View>
+    return (
+        <ScrollView>
+            <Header title='Tài khoản' />
+            {/* <Cell
+                title='Blocked Users'
+                icon='close-circle-outline'
+                tintColor={colors.primary}
+                onPress={() => {
+                    alert('Blocked users touched')
+                }}
+            /> */}
+            <Cell
+                title='Đăng xuất'
+                icon='log-out-outline'
+                tintColor={colors.grey}
+                onPress={() => {
+                    Alert.alert('Đăng xuất',
+                        'Bạn có chắc chắn muốn đăng xuất?',
+                        [
+                            {
+                                text: "Đăng xuất",
+                                onPress: () => { onSignOut() },
+                            },
+                            {
+                                text: "Hủy",
+                            },
+                        ],
+                        { cancelable: true })
+                }}
+                showForwardIcon={false}
+            />
+            <Cell
+                title='Xóa tài khoản'
+                icon='trash-outline'
+                tintColor={colors.red}
+                onPress={() => {
+                    Alert.alert('Xóa tài khoản',
+                        'Bạn có chắc chắn muốn xóa tài khoản?',
+                        'Tất cả dữ liệu của bạn sẽ bị xóa và không thể khôi phục.',
+                        [
+                            {
+                                text: "Xóa tài khoản",
+                                onPress: () => { deleteAccount() },
+                            },
+                            {
+                                text: "Hủy",
+                            },
+                        ],
+                        { cancelable: true })
+                }}
+                showForwardIcon={false}
+                style={{ marginTop: 20 }}
+            />
 
-      {/* profile details container */}
-      <View style={styles.nameRoleContainer}>
-        <Text
-          style={[
-            styles.name,
-            {
-              color: colors.textPrimary,
-            },
-          ]}
-        >
-          GFXAgency
-        </Text>
-        <Text
-          style={[
-            styles.role,
-            {
-              color: colors.textSecondary,
-            },
-          ]}
-        >
-          UI UX DESIGN
-        </Text>
-      </View>
-
-      {/* infult fiels container */}
-      <View style={styles.inputFieldsContainer}>
-        {/* add all the input fields */}
-        <CustomInput
-          label="Your Email"
-          placeholder="zerodegreecoder@gmail.com"
-          icon={<Ionicons name={"mail-outline"} size={iconSize.md} color={colors.iconSecondary} style={styles.icon} />}
-          // value
-          // handleChange
-        />
-
-        <CustomInput
-          label="Phone Number"
-          placeholder="+93123135"
-          icon={<Feather name={"phone"} size={iconSize.md} color={colors.iconSecondary} style={styles.icon} />}
-        />
-
-        <CustomInput label="Website" placeholder="www.zerodegreecoder.in" />
-
-        <CustomInput
-          label="Password"
-          placeholder="*******"
-          icon={<AntDesign name={"lock1"} size={iconSize.md} color={colors.iconSecondary} style={styles.icon} />}
-          type="password"
-        />
-      </View>
-      {/* logutbutt */}
-      <TouchableOpacity
-        style={[
-          styles.logoutButton,
-          {
-            borderColor: colors.orange,
-          },
-        ]}
-      >
-        <Text
-          style={[
-            styles.logoutText,
-            {
-              color: colors.orange,
-            },
-          ]}
-        >
-          Logout
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-};
-
-export default AccountScreen;
+        </ScrollView>
+    )
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  profileImageContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: spacing.md,
-  },
-  profileImage: {
-    height: 140,
-    width: 140,
-  },
-  editIconContainer: {
-    height: 35,
-    width: 35,
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: -22,
-    marginLeft: 45,
-  },
-  nameRoleContainer: {
-    alignItems: "center",
-    marginVertical: spacing.sm,
-  },
-  name: {
-    fontFamily: fontFamily.semiBold,
-    fontSize: fontSize.lg,
-  },
-  role: {
-    fontFamily: fontFamily.regular,
-    fontSize: fontSize.md,
-  },
-  inputFieldsContainer: {
-    marginVertical: spacing.md,
-  },
-  icon: {
-    marginHorizontal: spacing.sm,
-  },
-  logoutButton: {
-    borderWidth: 1,
-    padding: spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-    marginVertical: spacing.md,
-  },
-  logoutText: {
-    fontSize: fontSize.lg,
-    fontFamily: fontFamily.bold,
-  },
-});
+    contactRow: {
+        backgroundColor: 'white',
+        marginTop: 10,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderColor: colors.border
+    }
+})
+
+export default AccountScreen;
