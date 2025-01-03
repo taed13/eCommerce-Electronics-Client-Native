@@ -9,4 +9,5 @@ export const colors = {
   darkGray: "#808080",
   red: "#DC143C",
   yellow: "#facc15",
+  btn: "#232f3e",
 };

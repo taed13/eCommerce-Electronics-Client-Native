@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput, StyleSheet, Modal } from "react-native";
 import React, { useMemo, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -10,31 +10,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
+import WebView from "react-native-webview";
+import { useNavigation } from "@react-navigation/native";
+import { convertCartData } from "../utils/common";
 
 const CartScreen = () => {
   // const dispatch = useDispatch();
+  const [isOpenCheckout, setIsOpenCheckout] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [itemChecked, setItemChecked] = useState([]);
   const { data, isLoading } = useGetMyCart();
-  // const navigation = useNavigation();
+  const navigation = useNavigation();
+  console.log({ data: data?.data, isLoading });
   const insets = useSafeAreaInsets();
 
-  const handleCheck = (itemId, value) => {
-    if (value) {
-      setItemChecked((pre) => {
-        const isExisted = pre.includes(itemId);
-        return isExisted ? pre : [...pre, itemId];
-      });
-      return;
-    }
-    setItemChecked((pre) => {
-      return pre.filter((item) => item !== itemId);
-    });
-  };
-
   const listItems = useMemo(() => {
-    if (!Array.isArray(data?.cart_products)) return [];
-    return data.cart_products.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()));
+    if (!Array.isArray(data?.data?.cart_products)) return [];
+    return data?.data?.cart_products.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()));
   }, [data, searchValue]);
 
   const renderCartList = useMemo(() => {
@@ -42,12 +33,7 @@ const CartScreen = () => {
       return (
         <View style={CartListStyle.orderList}>
           {listItems.map((item) => (
-            <CartItem
-              key={item._id}
-              item={item}
-              isChecked={itemChecked.includes(item._id)}
-              onValueChange={handleCheck}
-            />
+            <CartItem key={item._id} item={item} />
           ))}
         </View>
       );
@@ -58,7 +44,7 @@ const CartScreen = () => {
         <Text style={CartListStyle.emptyText}>Cart is empty</Text>
       </View>
     );
-  }, [listItems, itemChecked]);
+  }, [listItems]);
   // const increaseQuantity = (item) => {
   //   dispatch(incementQuantity(item));
   // };
@@ -111,8 +97,13 @@ const CartScreen = () => {
 
         <Pressable
           onPress={() => {
-            console.log(itemChecked);
             // navigation.navigate("Confirm")
+            // setIsOpenCheckout(true);'
+
+            data?.data &&
+              navigation.navigate("OrderSummary", {
+                cartData: data?.data,
+              });
           }}
           style={{
             backgroundColor: "#FFC72C",
@@ -124,10 +115,18 @@ const CartScreen = () => {
             marginTop: 10,
           }}
         >
-          <Text>{`Proceed to Buy (${itemChecked.length}) items`}</Text>
+          <Text>{`Proceed to Buy (${data?.data?.cart_products?.length ?? 0}) items`}</Text>
         </Pressable>
       </View>
       {isLoading && <Loading />}
+      <Modal visible={isOpenCheckout}>
+        <WebView
+          style={{ flex: 1 }}
+          source={{
+            uri: "https://checkout.stripe.com/c/pay/cs_test_b1qV3fMIZ1co0kXdzOr1XLWdqfG9w9a11Ihd5BycQb4AIKVQqwXxu3ViY0#fidkdWxOYHwnPyd1blpxYHZxWjA0VERzVHdCMk5WZG1HRlY9PTF0aGQ9b3dCMF9kQzR8YElXMWJUYX9HNTJrTX00VG1hVEJfS2RyPUw9RkJcSE1wPWBoRjRAMkpNTVFtdUY2bFFWMn1Iajd1NTVUb3ZrYUhmcCcpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPydocGlxbFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl",
+          }}
+        />
+      </Modal>
     </>
   );
 };

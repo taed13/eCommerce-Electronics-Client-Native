@@ -2,35 +2,35 @@
 import React, { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors } from "../constants/color";
-export const CartItem = ({ item }) => {
+export const CheckoutItem = ({ item }) => {
   return (
-    <View style={CartItemStyle.container}>
-      <TouchableOpacity style={CartItemStyle.wrapper}>
-        <View style={[CartItemStyle.item]}>
-          <Image source={{ uri: item.productId.product_images[0].url }} style={CartItemStyle.image} />
+    <View style={CheckoutItemStyle.container}>
+      <TouchableOpacity style={CheckoutItemStyle.wrapper}>
+        <View style={[CheckoutItemStyle.item]}>
+          <Image source={{ uri: item.productId.product_images[0].url }} style={CheckoutItemStyle.image} />
           <View>
             <Text>{item.name}</Text>
-            <View style={CartItemStyle.star}>
+            <View style={CheckoutItemStyle.star}>
               <Text>{item.productId.product_totalRating}</Text>
               <AntDesign name="star" size={16} color={colors.yellow} />
             </View>
           </View>
         </View>
-        <View style={CartItemStyle.infor}>
-          <Text style={CartItemStyle.price}>{item.price} đ</Text>
-          <Text style={CartItemStyle.quantity}>x {item.quantity}</Text>
+        <View style={CheckoutItemStyle.infor}>
+          <Text style={CheckoutItemStyle.price}>{item.price} đ</Text>
+          <Text style={CheckoutItemStyle.quantity}>x {item.quantity}</Text>
         </View>
-        <View style={CartItemStyle.total}>
+        {/* <View style={CheckoutItemStyle.total}>
           <Text>Total:</Text>
-          <Text style={CartItemStyle.totalPrice}>{Number(item.price) * Number(item.quantity)}</Text>
+          <Text style={CheckoutItemStyle.totalPrice}>{Number(item.price) * Number(item.quantity)}</Text>
         </View>
-        <View style={CartItemStyle.divider} />
+        <View style={CheckoutItemStyle.divider} /> */}
       </TouchableOpacity>
     </View>
   );
 };
 
-const CartItemStyle = StyleSheet.create({
+const CheckoutItemStyle = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",

@@ -1,33 +1,13 @@
-import { useEffect, useState } from "react";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import { getMyCart } from "./cart.api";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../../config/common";
 
 export const useGetMyCart = () => {
   const axiosClient = useAxiosClient();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!axiosClient) return;
-    const fetchCart = async () => {
-      try {
-        const result = await getMyCart(axiosClient);
-        if (result.data) {
-          setData(result.data);
-        } else {
-          setError(result.error || "Something went wrong");
-        }
-      } catch (error) {
-        setError(error.message || "An unexpected error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCart();
-  }, [axiosClient]);
-
-  return { data, isLoading, error };
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_CART],
+    queryFn: () => getMyCart(axiosClient),
+  });
 };
