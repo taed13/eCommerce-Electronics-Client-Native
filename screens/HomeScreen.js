@@ -1,20 +1,19 @@
 /* eslint-disable no-unused-vars */
 import {
-  StyleSheet,
   Text,
   View,
   SafeAreaView,
-  Platform,
   ScrollView,
-  Pressable,
   TextInput,
+  Pressable,
   Image,
   FlatList,
+  StyleSheet,
+  Platform,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 // import { SliderBox } from "react-native-image-slider-box";
 import axios from "axios";
 import ProductItem from "../components/ProductItem";
@@ -25,9 +24,9 @@ import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserType } from "../UserContext";
 import { jwtDecode } from "jwt-decode";
-import { base_url } from "../utils/axiosConfig";
 import { getAllProducts } from "../feature/products/productSlice";
 import axiosInstance from "../api/axiosInstance";
+import { APP_CONFIG } from "../config/common";
 // import ReactStars from "react-native-stars";
 
 const HomeScreen = () => {
@@ -152,13 +151,7 @@ const HomeScreen = () => {
 
   return (
     <>
-      <SafeAreaView
-        style={{
-          paddinTop: Platform.OS === "android" ? 40 : 0,
-          flex: 1,
-          backgroundColor: "white",
-        }}
-      >
+      <SafeAreaView style={{ flex: 1, backgroundColor: "white", marginTop: Platform.OS === "android" ? 40 : 0 }}>
         <ScrollView>
           <View
             style={{
@@ -184,7 +177,6 @@ const HomeScreen = () => {
               <TextInput placeholder="Tìm kiếm sản phẩm..." />
             </Pressable>
           </View>
-
           <Pressable
             style={{
               flexDirection: "row",
@@ -202,7 +194,7 @@ const HomeScreen = () => {
                   Deliver to {selectedAddress?.name} - {selectedAddress?.street}
                 </Text>
               ) : (
-                <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>Add a delivery address</Text>
+                <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
               )}
             </Pressable>
 
