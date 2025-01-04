@@ -25,6 +25,7 @@ import ChatHeader from "../components/ChatHeader";
 import ChatMenu from "../components/ChatMenu";
 import { View } from "react-native";
 import OrderSummaryScreen from "../screens/OrderSummaryScreen";
+import OrderSuccessScreen from "../screens/OrderSuccessScreen";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -121,6 +122,7 @@ const StackNavigator = () => {
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ProfileUser" component={ProfileUserScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
           <Stack.Screen
             name="Chat"
             component={Chat}
