@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal } from "react-native";
-import { convertCartData } from "../utils/common";
+import { convertCartData, getSessionId } from "../utils/common";
 import { useSelector } from "react-redux";
 import { useCreateOrder, usePurchase } from "../api/checkout";
 import Loading from "../components/Loading";
@@ -11,13 +11,16 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { PURCHASE_RESPONSE } from "../config/common";
+import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const OrderSummaryScreen = ({ route }) => {
   const { cartData } = route.params;
   const insets = useSafeAreaInsets();
+  const navigate = useNavigation();
   const [isOpenPayment, setIsOpenPayment] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
-
   const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
 
   const {
@@ -75,7 +78,6 @@ const OrderSummaryScreen = ({ route }) => {
     }
     if (dataPurchase) {
       setIsOpenPayment(true);
-      console.log("okoko", dataPurchase?.url);
       return;
     }
   }, [erorrPurchase, dataPurchase]);
@@ -162,6 +164,27 @@ const OrderSummaryScreen = ({ route }) => {
               style={{ flex: 1 }}
               source={{
                 uri: dataPurchase?.url,
+              }}
+              onNavigationStateChange={(navigation) => {
+                if (navigation.url === PURCHASE_RESPONSE.success) {
+                  // setIsOpenPayment(false)
+                  const sessionID = getSessionId(dataPurchase?.url);
+                  navigate.navigate("OrderSuccess", { sessionID });
+                  Toast.show({
+                    type: "success",
+                    text1: "Thanh toán thành công.",
+                  });
+                  setIsOpenPayment(false);
+                  return;
+                }
+                if (navigation.url === PURCHASE_RESPONSE.cancel) {
+                  setIsOpenPayment(false);
+                  Toast.show({
+                    type: "error",
+                    text1: "Thanh toán thất bại.",
+                  });
+                  return;
+                }
               }}
             />
           ) : (

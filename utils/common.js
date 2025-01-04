@@ -36,3 +36,7 @@ export const convertCartData = (data) => {
     };
   });
 };
+
+export const getSessionId = (url) => {
+  return url.split("/pay/")[1];
+};

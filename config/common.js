@@ -11,4 +11,10 @@ export const QUERY_KEYS = {
 export const MUTAION_KEYS = {
   CREATE_ORDER: "CREATE_ORDER",
   PURCHASE: "PURCHASE",
+  PURCHASE_SUCCESS: "PURCHASE_SUCCESS",
+};
+
+export const PURCHASE_RESPONSE = {
+  success: "https://www.w3schools.com/",
+  cancel: "https://www.google.com/",
 };

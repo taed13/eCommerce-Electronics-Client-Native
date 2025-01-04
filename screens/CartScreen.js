@@ -1,25 +1,18 @@
-import { Text, View, ScrollView, Pressable, TextInput, StyleSheet, Modal } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
 import React, { useMemo, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-// import { useDispatch } from "react-redux";
-// import { decrementQuantity, incementQuantity, removeFromCart } from "../redux/CartReducer";
-// import { useNavigation } from "@react-navigation/native";
 import { useGetMyCart } from "../api/cart";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
-import WebView from "react-native-webview";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const CartScreen = () => {
-  // const dispatch = useDispatch();
-  const [isOpenCheckout, setIsOpenCheckout] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { data, isLoading, refetch } = useGetMyCart();
+  const { data, isLoading, refetch, error } = useGetMyCart();
   const navigation = useNavigation();
-  console.log({ data: data?.data, isLoading });
   const insets = useSafeAreaInsets();
 
   const listItems = useMemo(() => {
@@ -44,20 +37,13 @@ const CartScreen = () => {
       </View>
     );
   }, [listItems]);
-  // const increaseQuantity = (item) => {
-  //   dispatch(incementQuantity(item));
-  // };
-  // const decreaseQuantity = (item) => {
-  //   dispatch(decrementQuantity(item));
-  // };
-  // const deleteItem = (item) => {
-  //   dispatch(removeFromCart(item));
-  // };
 
-  console.log({ data });
   useFocusEffect(() => {
-    refetch();
+    if (!error) {
+      refetch();
+    }
   });
+
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
@@ -101,9 +87,6 @@ const CartScreen = () => {
 
         <Pressable
           onPress={() => {
-            // navigation.navigate("Confirm")
-            // setIsOpenCheckout(true);'
-
             data?.data &&
               navigation.navigate("OrderSummary", {
                 cartData: data?.data,
