@@ -20,3 +20,19 @@ export const generateIconStatus = (type, size = 24, color = "black") => {
 export const strippedString = (value) => {
   return value.replace(/<\/?p>/g, "");
 };
+
+export const convertCartData = (data) => {
+  return data.map((item) => {
+    return {
+      productId: item?.productId?._id,
+      product_colors: item.product_color.map((color) => ({
+        code: color.code,
+        name: color.name,
+      })),
+      quantity: item.quantity,
+      name: item.name,
+      price: item.price,
+      _id: item._id,
+    };
+  });
+};

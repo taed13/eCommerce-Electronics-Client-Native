@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput, StyleSheet, Modal } from "react-native";
 import React, { useMemo, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -10,31 +10,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
+import WebView from "react-native-webview";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const CartScreen = () => {
   // const dispatch = useDispatch();
+  const [isOpenCheckout, setIsOpenCheckout] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [itemChecked, setItemChecked] = useState([]);
-  const { data, isLoading } = useGetMyCart();
-  // const navigation = useNavigation();
+  const { data, isLoading, refetch } = useGetMyCart();
+  const navigation = useNavigation();
+  console.log({ data: data?.data, isLoading });
   const insets = useSafeAreaInsets();
 
-  const handleCheck = (itemId, value) => {
-    if (value) {
-      setItemChecked((pre) => {
-        const isExisted = pre.includes(itemId);
-        return isExisted ? pre : [...pre, itemId];
-      });
-      return;
-    }
-    setItemChecked((pre) => {
-      return pre.filter((item) => item !== itemId);
-    });
-  };
-
   const listItems = useMemo(() => {
-    if (!Array.isArray(data?.cart_products)) return [];
-    return data.cart_products.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()));
+    if (!Array.isArray(data?.data?.cart_products)) return [];
+    return data?.data?.cart_products.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()));
   }, [data, searchValue]);
 
   const renderCartList = useMemo(() => {
@@ -42,12 +32,7 @@ const CartScreen = () => {
       return (
         <View style={CartListStyle.orderList}>
           {listItems.map((item) => (
-            <CartItem
-              key={item._id}
-              item={item}
-              isChecked={itemChecked.includes(item._id)}
-              onValueChange={handleCheck}
-            />
+            <CartItem key={item._id} item={item} />
           ))}
         </View>
       );
@@ -58,7 +43,7 @@ const CartScreen = () => {
         <Text style={CartListStyle.emptyText}>Cart is empty</Text>
       </View>
     );
-  }, [listItems, itemChecked]);
+  }, [listItems]);
   // const increaseQuantity = (item) => {
   //   dispatch(incementQuantity(item));
   // };
@@ -68,6 +53,11 @@ const CartScreen = () => {
   // const deleteItem = (item) => {
   //   dispatch(removeFromCart(item));
   // };
+
+  console.log({ data });
+  useFocusEffect(() => {
+    refetch();
+  });
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
@@ -111,8 +101,13 @@ const CartScreen = () => {
 
         <Pressable
           onPress={() => {
-            console.log(itemChecked);
             // navigation.navigate("Confirm")
+            // setIsOpenCheckout(true);'
+
+            data?.data &&
+              navigation.navigate("OrderSummary", {
+                cartData: data?.data,
+              });
           }}
           style={{
             backgroundColor: "#FFC72C",
@@ -124,7 +119,7 @@ const CartScreen = () => {
             marginTop: 10,
           }}
         >
-          <Text>{`Proceed to Buy (${itemChecked.length}) items`}</Text>
+          <Text>{`Proceed to Buy (${data?.data?.cart_products?.length ?? 0}) items`}</Text>
         </Pressable>
       </View>
       {isLoading && <Loading />}

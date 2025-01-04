@@ -25,6 +25,7 @@ import Chat from "../screens/Chat";
 import ChatHeader from "../components/ChatHeader";
 import ChatMenu from "../components/ChatMenu";
 import { View } from "react-native";
+import OrderSummaryScreen from "../screens/OrderSummaryScreen";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -109,6 +110,11 @@ const StackNavigator = () => {
           <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
 
           <Stack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
+          <Stack.Screen
+            name="OrderSummary"
+            component={OrderSummaryScreen}
+            options={{ headerShown: true, title: "Order Summary" }}
+          />
 
           <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
 
@@ -121,8 +127,8 @@ const StackNavigator = () => {
             options={({ route }) => ({
               headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?.id} />,
               headerRight: () => (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <ChatMenu chatName={route?.params?.chatName} chatId={route?.params?.id} />
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <ChatMenu chatName={route.params.chatName} chatId={route.params.id} />
                 </View>
               ),
             })}
