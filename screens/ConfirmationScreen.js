@@ -6,10 +6,9 @@ import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { cleanCart } from "../redux/CartReducer";
 import { useNavigation } from "@react-navigation/native";
-// import RazorpayCheckout from "react-native-razorpay";
-import { base_url } from "../utils/axiosConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
+import { APP_CONFIG } from "../config/common";
 
 const ConfirmationScreen = () => {
   const navigation = useNavigation();
@@ -102,7 +101,7 @@ const ConfirmationScreen = () => {
         paymentMethod: "card",
       };
 
-      const response = await axiosInstance.post(`${base_url}checkout/create-order`, orderData);
+      const response = await axiosInstance.post(`${APP_CONFIG.BASE_URL}checkout/create-order`, orderData);
       if (response.status === 200) {
         navigation.navigate("Order");
         dispatch(cleanCart());

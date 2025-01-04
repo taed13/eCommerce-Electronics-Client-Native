@@ -8,7 +8,6 @@ export const fetchCurrentUser = createAsyncThunk(
             const axiosClient = thunkAPI.extra?.axiosClient;
             if (!axiosClient) throw new Error("AxiosClient is not initialized");
             const response = await getCurrentUser(axiosClient);
-            console.log('response', response);
             return response.data;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.message);

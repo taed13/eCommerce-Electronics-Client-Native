@@ -41,7 +41,7 @@ function Chat({ route }) {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const response = await axiosInstance.post(getAllMessageRoute, {
+                const response = await axiosInstance.post('messages/getmsg', {
                     from: currentUser?._id,
                     to: route.params.id,
                 });
@@ -92,15 +92,15 @@ function Chat({ route }) {
     const onSend = useCallback((newMessages = []) => {
         // Append the new messages to the local state
         setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
-    
+
         // Prepare the message for potential future sending to Firebase or API
         console.log("New message to send:", newMessages);
-    
+
         // You can later uncomment and modify this part to send to Firebase or an API
         // Example:
         // sendMessageToFirebase(newMessages[0]);
     }, []);
-    
+
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({

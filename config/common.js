@@ -11,4 +11,7 @@ export const QUERY_KEYS = {
 export const MUTAION_KEYS = {
   CREATE_ORDER: "CREATE_ORDER",
   PURCHASE: "PURCHASE",
+  // BASE_URL: "https://e-commerce-electronics-server.vercel.app/api/",
+  BASE_URL: "http://192.168.100.133:5001/api/",
+  API_URL: "http://192.168.100.133:5001",
 };

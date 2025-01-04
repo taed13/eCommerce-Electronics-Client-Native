@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser, editUser, loginUserService } from "./user.api";
+import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService } from "./user.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -97,4 +97,49 @@ export const useLogout = () => {
   };
 
   return { logout };
+};
+
+export const useRegister = () => {
+  const axiosClient = useAxiosClient();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState({});
+  const [error, setError] = useState(null);
+
+  const register = async (userData) => {
+    setIsLoading(true);
+    try {
+      const response = await registerUserService(axiosClient, userData);
+      setData(response.data);
+      return response.data;
+    }
+    catch (error) {
+      setError(error.message || "An unexpected error occurred");
+      return null;
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { register, isLoading, data, error };
+}
+
+export const useForgotPassword = () => {
+  const axiosClient = useAxiosClient();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendForgotPasswordEmail = async (userData) => {
+    setIsLoading(true);
+    try {
+      const response = await forgotPasswordService(axiosClient, userData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Lỗi không xác định");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { sendForgotPasswordEmail, isLoading };
 };

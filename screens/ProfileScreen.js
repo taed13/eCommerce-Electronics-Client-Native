@@ -6,6 +6,7 @@ import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
 import Header from "../components/Header";
+import { colors } from "../config/constants";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -17,15 +18,14 @@ const ProfileScreen = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "",
       headerStyle: {
-        backgroundColor: "#00CED1",
+        backgroundColor: colors.primary,
       },
       headerLeft: () => (
         <Image
           style={{ width: 140, height: 120, resizeMode: "contain" }}
           source={{
-            uri: "https://assets.stickpng.com/thumbs/580b57fcd9996e24bc43c518.png",
+            uri: "https://www.ec.tuwien.ac.at/sites/ec.tuwien.ac.at/files/ec-schrift-300dpi.png",
           }}
         />
       ),
@@ -35,12 +35,12 @@ const ProfileScreen = () => {
             flexDirection: "row",
             alignItems: "center",
             gap: 6,
-            marginRight: 12,
+            marginRight: 10,
           }}
         >
           <Ionicons name="notifications-outline" size={24} color="black" />
 
-          <AntDesign name="search1" size={24} color="black" />
+          <AntDesign name="search1" size={24} color="black" onPress={() => navigation.navigate("Search")} />
         </View>
       ),
     });
@@ -123,7 +123,7 @@ const ProfileScreen = () => {
             flex: 1,
           }}
         >
-          <Text style={{ textAlign: "center" }}>Settings Your Account</Text>
+          <Text style={{ textAlign: "center" }}>Cài Đặt Tài Khoản</Text>
         </Pressable>
       </View>
 
