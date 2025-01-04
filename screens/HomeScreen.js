@@ -11,8 +11,10 @@ import {
   StyleSheet,
   Platform,
   ActivityIndicator,
+  ImageBackground,
+  Dimensions
 } from "react-native";
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
 import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 // import { SliderBox } from "react-native-image-slider-box";
 import axios from "axios";
@@ -87,11 +89,20 @@ const HomeScreen = () => {
     { id: "11", name: "Xiaomi", image: "https://inansaigon.vn/ckfinder/userfiles/images/logo-xiaomi-3.png" },
     { id: "12", name: "Canon", image: "https://rubee.com.vn/wp-content/uploads/2021/06/logo-canon.png" },
   ];
-  // const images = [
-  //   "https://img.etimg.com/thumb/msid-93051525,width-1070,height-580,imgsize-2243475,overlay-economictimes/photo.jpg",
-  //   "https://images-eu.ssl-images-amazon.com/images/G/31/img22/Wireless/devjyoti/PD23/Launches/Updated_ingress1242x550_3.gif",
-  //   "https://images-eu.ssl-images-amazon.com/images/G/31/img23/Books/BB/JULY/1242x550_Header-BB-Jul23.jpg",
-  // ];
+  const banners = [
+    {
+      id: 0,
+      image: "https://m.media-amazon.com/images/I/61jPN0bUdjL._SR1236,1080_.jpg",
+    },
+    {
+      id: 1,
+      image: "https://m.media-amazon.com/images/I/61Kjqx6RDYL._SR1236,1080_.jpg",
+    },
+    {
+      id: 2,
+      image: "https://m.media-amazon.com/images/I/61JCIqSyWzL._SR1236,1080_.jpg",
+    },
+  ];
 
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.product);
@@ -112,6 +123,23 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const { userId, setUserId } = useContext(UserType);
   console.log(selectedAddress);
+
+  const { width } = Dimensions.get("window");
+
+  const scrollViewRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => {
+        const nextIndex = (prevIndex + 1) % banners.length;
+        scrollViewRef.current.scrollTo({ x: nextIndex * width, animated: true });
+        return nextIndex;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [banners.length, width]);
 
   const getProducts = () => {
     dispatch(getAllProducts());
@@ -157,6 +185,7 @@ const HomeScreen = () => {
       console.log("error", error);
     }
   };
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = await AsyncStorage.getItem("authToken");
@@ -165,7 +194,6 @@ const HomeScreen = () => {
       setUserId(userId);
       setToken(token);
     };
-
     fetchUser();
   }, []);
 
@@ -181,18 +209,36 @@ const HomeScreen = () => {
       ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "special"))
       ?.slice(0, 4);
 
+  const popularProducts =
+    productState &&
+    productState
+      .filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "popular"))
+      .slice(0, 10);
+
+  const [selectedProduct, setSelectedProduct] = useState(popularProducts[0]);
+
+  useEffect(() => {
+    setSelectedProduct(popularProducts[0]);
+  }, [productState]);
+
+  const handlePress = (product) => {
+    setSelectedProduct(product);
+  };
+
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white", marginTop: Platform.OS === "android" ? 40 : 0 }}>
         <ScrollView>
+          {/* Search Input */}
           <>
-            <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center", }}>
-              <Pressable style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 7, gap: 10, backgroundColor: "white", borderRadius: 3, height: 38, flex: 1, }}>
+            <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center" }}>
+              <Pressable style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 3, gap: 10, backgroundColor: "white", borderRadius: 50, height: 40, flex: 1, }}>
                 <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
-                <TextInput placeholder="Tìm kiếm sản phẩm..." />
+                <TextInput style={{ fontSize: 16 }} placeholder="Tìm kiếm sản phẩm..." />
               </Pressable>
             </View>
           </>
+          {/* Add shipping address */}
           <>
             <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#222F3E", }}>
               <Ionicons name="location-outline" size={24} color="white" />
@@ -208,6 +254,7 @@ const HomeScreen = () => {
               <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
             </Pressable>
           </>
+          {/* Categories */}
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {list.map((item, index) => (
@@ -220,25 +267,29 @@ const HomeScreen = () => {
               ))}
             </ScrollView>
           </>
+          {/* Banner Image */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15 }} />
-            <Image
-              style={{ width: '100%', height: 200, resizeMode: 'cover', marginVertical: 10 }}
-              source={{ uri: 'https://www.shutterstock.com/shutterstock/photos/649498960/display_1500/stock-photo-today-super-sale-banner-mobile-phone-discount-coupon-label-banner-vector-illustration-sale-649498960.jpg' }} // Replace with your banner image URL
-            />
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 2, marginTop: 15, }} />
+            <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} pagingEnabled>
+              {banners?.map((item, index) => (
+                <ImageBackground
+                  key={index}
+                  style={{ width: Dimensions.get('window').width, height: 350, resizeMode: "cover" }}
+                  source={{ uri: item?.image }}
+                />
+              ))}
+            </ScrollView>
           </>
-
           {/* <SliderBox
-                        images={images}
-                        autoPlay
-                        circleLoop
-                        dotColor={"#13274F"}
-                        inactiveDotColor="#90A4AE"
-                        ImageComponentStyle={{ width: "100%" }}
-                    /> */}
-
-          <View style={{ marginHorizontal: 10, marginTop: 20, width: "45%", marginBottom: open ? 50 : 15, }}>
-            {/* <DropDownPicker
+            images={images}
+            autoPlay
+            circleLoop
+            dotColor={"#13274F"}
+            inactiveDotColor="#90A4AE"
+            ImageComponentStyle={{ width: "100%" }}
+          /> */}
+          {/* <View style={{ marginHorizontal: 10, marginTop: 20, width: "45%", marginBottom: open ? 50 : 15, }}>
+            <DropDownPicker
               style={{
                 borderColor: "#B7B7B7",
                 height: 30,
@@ -256,10 +307,10 @@ const HomeScreen = () => {
               // onChangeValue={onChange}
               zIndex={3000}
               zIndexInverse={1000}
-            /> */}
-          </View>
-
-          <>
+            />
+          </View> */}
+          {/* Fake Data */}
+          {/* <>
             <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", }}>
               {products
                 ?.filter((item) => item.category === category)
@@ -267,7 +318,8 @@ const HomeScreen = () => {
                   <ProductItem item={item} key={index} />
                 ))}
             </View>
-          </>
+          </> */}
+          {/* Special Products */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
@@ -305,6 +357,34 @@ const HomeScreen = () => {
               )}
             />
           </>
+          {/* Popular Products */}
+          <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm trending</Text>
+            <Pressable onPress={() => { navigation.navigate("Info", { id: selectedProduct?._id }); }}>
+              <View style={styles.imageContainer}>
+                <Image
+                  style={{ width: '60%', height: 250, resizeMode: 'cover', marginBottom: 10 }}
+                  source={{ uri: selectedProduct?.product_images[0]?.url }}
+                />
+              </View>
+              <View style={{ marginVertical: 10 }}>
+                <Text style={{ marginHorizontal: 10, fontSize: 16, color: '#666' }}>{selectedProduct?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
+                <Text style={{ marginHorizontal: 10, fontSize: 22, fontWeight: 700 }} numberOfLines={1} ellipsizeMode="tail">
+                  {selectedProduct?.product_name}
+                </Text>
+              </View>
+              <Text style={{ marginHorizontal: 10, marginBottom: 10, fontSize: 24, fontWeight: 400 }}>{selectedProduct?.product_price.toLocaleString()}₫</Text>
+            </Pressable>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {Array.isArray(popularProducts) && popularProducts.map((product, index) => (
+                <Pressable key={index} style={{ margin: 5, justifyContent: "center", alignItems: "center", borderWidth: 1, borderRadius: 8, borderColor: "#ddd", }} onPress={() => handlePress(product)}>
+                  <Image style={{ width: 100, height: 100, resizeMode: "contain" }} source={{ uri: product?.product_images[0]?.url }} />
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+          {/* Brands */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
@@ -313,7 +393,7 @@ const HomeScreen = () => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {brands.map((brand, index) => (
                 <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
-                  <Image style={{ width: 80, height: 80, resizeMode: "contain" }} source={{ uri: brand.image }} />
+                  <Image style={{ width: 90, height: 90, resizeMode: "contain" }} source={{ uri: brand.image }} />
                   <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "500", marginTop: 3 }}>
                     {brand.name}
                   </Text>
@@ -321,6 +401,7 @@ const HomeScreen = () => {
               ))}
             </ScrollView>
           </>
+          {/* Featured Products */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
