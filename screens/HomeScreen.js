@@ -33,34 +33,59 @@ const HomeScreen = () => {
   const list = [
     {
       id: "0",
-      image: "https://m.media-amazon.com/images/I/41EcYoIZhIL._AC_SY400_.jpg",
-      name: "Home",
+      image: "https://images-na.ssl-images-amazon.com/images/I/71k9-VOxYGL.jpg",
+      name: "TVs",
     },
     {
       id: "1",
-      image: "https://m.media-amazon.com/images/G/31/img20/Events/Jup21dealsgrid/blockbuster.jpg",
-      name: "Deals",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgGz1Dt8sMxdhK9Mb9eRmh4id_RdaeGbwG3g&s",
+      name: "Speakers",
     },
     {
       id: "3",
-      image: "https://images-eu.ssl-images-amazon.com/images/I/31dXEvtxidL._AC_SX368_.jpg",
-      name: "Electronics",
+      image: "https://samcenter.vn/images/thumbs/0009229_samsung-galaxy-tab-s10-ultra-wi-fi-12gb256gb.jpeg",
+      name: "Tablets",
     },
     {
       id: "4",
-      image: "https://m.media-amazon.com/images/G/31/img20/Events/Jup21dealsgrid/All_Icons_Template_1_icons_01.jpg",
-      name: "Mobiles",
+      image: "https://surfaceviet.vn/wp-content/uploads/2024/03/Surface-Laptop-6-Platinum.png",
+      name: "Laptops",
     },
     {
       id: "5",
-      image: "https://m.media-amazon.com/images/G/31/img20/Events/Jup21dealsgrid/music.jpg",
-      name: "Music",
+      image: "https://mobileworld.com.vn/uploads/product/12_2019/thumbs/iphone-11-64gb-qua-su-dung-moi-99-like-new-2.webp",
+      name: "Smartphones",
     },
     {
       id: "6",
-      image: "https://m.media-amazon.com/images/I/51dZ19miAbL._AC_SY350_.jpg",
-      name: "Fashion",
+      image: "https://images-na.ssl-images-amazon.com/images/I/71bHocs0s6L.jpg",
+      name: "Smartwatches",
     },
+    {
+      id: "7",
+      image: "https://vi.abyss-headphones.com/cdn/shop/files/abyss-diana-dz-damascus-w_1800x1800.jpg?v=1734382683",
+      name: "Headphones",
+    },
+    {
+      id: "8",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTR-kLdiaEKFIKeCKIUKvQo_0f44jafA6ucg&s",
+      name: "Airpod",
+    },
+  ];
+  const brands = [
+    { id: "0", name: "LG", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/LG_logo_%282014%29.svg/2560px-LG_logo_%282014%29.svg.png" },
+    { id: "1", name: "Apple", image: "https://1000logos.net/wp-content/uploads/2017/02/Apple-Logosu.png" },
+    { id: "2", name: "Samsung", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/1280px-Samsung_Logo.svg.png" },
+    { id: "3", name: "Sony", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Sony_logo.svg/1200px-Sony_logo.svg.png" },
+    { id: "4", name: "Dell", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Dell_logo.svg/2560px-Dell_logo.svg.png" },
+    { id: "5", name: "HP", image: "https://logos-world.net/wp-content/uploads/2020/11/HP-Logo.png" },
+    { id: "6", name: "Asus", image: "https://logolook.net/wp-content/uploads/2023/09/Asus-Logo.png" },
+    { id: "7", name: "Acer", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/2560px-Acer_2011.svg.png" },
+    { id: "8", name: "Lenovo", image: "https://logos-world.net/wp-content/uploads/2022/07/Lenovo-Logo.png" },
+    { id: "9", name: "MSI", image: "https://logolook.net/wp-content/uploads/2023/10/MSI-Logo.png" },
+    { id: "10", name: "Huawei", image: "https://logos-world.net/wp-content/uploads/2020/04/Huawei-Logo.png" },
+    { id: "11", name: "Xiaomi", image: "https://inansaigon.vn/ckfinder/userfiles/images/logo-xiaomi-3.png" },
+    { id: "12", name: "Canon", image: "https://rubee.com.vn/wp-content/uploads/2021/06/logo-canon.png" },
   ];
   // const images = [
   //   "https://img.etimg.com/thumb/msid-93051525,width-1070,height-580,imgsize-2243475,overlay-economictimes/photo.jpg",
@@ -143,89 +168,65 @@ const HomeScreen = () => {
 
     fetchUser();
   }, []);
-  const filteredProducts =
+
+  const featuredProducts =
     productState &&
     productState
       ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "featured"))
+      ?.slice(0, 4);
+
+  const specialProducts =
+    productState &&
+    productState
+      ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "special"))
       ?.slice(0, 4);
 
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white", marginTop: Platform.OS === "android" ? 40 : 0 }}>
         <ScrollView>
-          <View
-            style={{
-              backgroundColor: "#131921",
-              padding: 10,
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 7,
-                gap: 10,
-                backgroundColor: "white",
-                borderRadius: 3,
-                height: 38,
-                flex: 1,
-              }}
-            >
-              <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
-              <TextInput placeholder="Tìm kiếm sản phẩm..." />
-            </Pressable>
-          </View>
-          <Pressable
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              padding: 10,
-              backgroundColor: "#222F3E",
-            }}
-          >
-            <Ionicons name="location-outline" size={24} color="white" />
-
-            <Pressable onPress={() => setModalVisible(!modalVisible)}>
-              {selectedAddress ? (
-                <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>
-                  Deliver to {selectedAddress?.name} - {selectedAddress?.street}
-                </Text>
-              ) : (
-                <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
-              )}
-            </Pressable>
-
-            <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
-          </Pressable>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {list.map((item, index) => (
-              <Pressable
-                key={index}
-                style={{
-                  margin: 10,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Image style={{ width: 50, height: 50, resizeMode: "contain" }} source={{ uri: item.image }} />
-
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 12,
-                    fontWeight: "500",
-                    marginTop: 5,
-                  }}
-                >
-                  {item?.name}
-                </Text>
+          <>
+            <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center", }}>
+              <Pressable style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 7, gap: 10, backgroundColor: "white", borderRadius: 3, height: 38, flex: 1, }}>
+                <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
+                <TextInput placeholder="Tìm kiếm sản phẩm..." />
               </Pressable>
-            ))}
-          </ScrollView>
+            </View>
+          </>
+          <>
+            <Pressable style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#222F3E", }}>
+              <Ionicons name="location-outline" size={24} color="white" />
+              <Pressable onPress={() => setModalVisible(!modalVisible)}>
+                {selectedAddress ? (
+                  <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>
+                    Deliver to {selectedAddress?.name} - {selectedAddress?.street}
+                  </Text>
+                ) : (
+                  <Text style={{ fontSize: 13, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
+                )}
+              </Pressable>
+              <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+            </Pressable>
+          </>
+          <>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {list.map((item, index) => (
+                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center", }}>
+                  <Image style={{ width: 70, height: 80, resizeMode: "contain" }} source={{ uri: item.image }} />
+                  <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "500", marginTop: 3, }}>
+                    {item?.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+          <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15 }} />
+            <Image
+              style={{ width: '100%', height: 200, resizeMode: 'cover', marginVertical: 10 }}
+              source={{ uri: 'https://www.shutterstock.com/shutterstock/photos/649498960/display_1500/stock-photo-today-super-sale-banner-mobile-phone-discount-coupon-label-banner-vector-illustration-sale-649498960.jpg' }} // Replace with your banner image URL
+            />
+          </>
 
           {/* <SliderBox
                         images={images}
@@ -236,14 +237,7 @@ const HomeScreen = () => {
                         ImageComponentStyle={{ width: "100%" }}
                     /> */}
 
-          <View
-            style={{
-              marginHorizontal: 10,
-              marginTop: 20,
-              width: "45%",
-              marginBottom: open ? 50 : 15,
-            }}
-          >
+          <View style={{ marginHorizontal: 10, marginTop: 20, width: "45%", marginBottom: open ? 50 : 15, }}>
             {/* <DropDownPicker
               style={{
                 borderColor: "#B7B7B7",
@@ -265,45 +259,36 @@ const HomeScreen = () => {
             /> */}
           </View>
 
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            {products
-              ?.filter((item) => item.category === category)
-              .map((item, index) => (
-                <ProductItem item={item} key={index} />
-              ))}
-          </View>
-
-          <Text
-            style={{
-              height: 1,
-              borderColor: "#D0D0D0",
-              borderWidth: 2,
-              marginTop: 15,
-            }}
-          />
-
-          <Text style={{ padding: 10, fontSize: 18, fontWeight: "bold" }}>Từ các bộ sưu tập</Text>
-
-          <FlatList
-            data={filteredProducts}
-            keyExtractor={(item, index) => `${item._id}-${index}`}
-            numColumns={2} // Hiển thị 2 sản phẩm mỗi dòng
-            renderItem={({ item }) => (
-              <Pressable style={styles.card} onPress={() => navigation.navigate("ProductDetails", { id: item?._id })}>
-                <View style={styles.imageContainer}>
-                  <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
-                </View>
-                <View style={styles.details}>
-                  <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
-                  <Text style={styles.title}>{item?.product_name}</Text>
-                  <View style={styles.ratingContainer}>
-                    {/* <ReactStars
+          <>
+            <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", }}>
+              {products
+                ?.filter((item) => item.category === category)
+                .map((item, index) => (
+                  <ProductItem item={item} key={index} />
+                ))}
+            </View>
+          </>
+          <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
+              Sản phẩm đặc biệt
+            </Text>
+            <FlatList
+              data={specialProducts}
+              keyExtractor={(item, index) => `${item._id}-${index}`}
+              numColumns={2} // Hiển thị 2 sản phẩm mỗi dòng
+              renderItem={({ item }) => (
+                <Pressable style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                  <View style={styles.imageContainer}>
+                    <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
+                  </View>
+                  <View style={styles.details}>
+                    <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
+                    <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                      {item?.product_name}
+                    </Text>
+                    <View style={styles.ratingContainer}>
+                      {/* <ReactStars
                                 count={5}
                                 value={+item?.product_totalRating}
                                 size={18}
@@ -312,13 +297,67 @@ const HomeScreen = () => {
                                 emptyStar={<Text>☆</Text>}
                                 disabled
                             /> */}
-                    {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                      {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                    </View>
+                    <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
                   </View>
-                  <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
-                </View>
-              </Pressable>
-            )}
-          />
+                </Pressable>
+              )}
+            />
+          </>
+          <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
+              Từ các thương hiệu hàng đầu
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {brands.map((brand, index) => (
+                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
+                  <Image style={{ width: 80, height: 80, resizeMode: "contain" }} source={{ uri: brand.image }} />
+                  <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "500", marginTop: 3 }}>
+                    {brand.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+          <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
+              Từ các bộ sưu tập
+            </Text>
+            <FlatList
+              data={featuredProducts}
+              keyExtractor={(item, index) => `${item._id}-${index}`}
+              numColumns={2} // Hiển thị 2 sản phẩm mỗi dòng
+              renderItem={({ item }) => (
+                <Pressable style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                  <View style={styles.imageContainer}>
+                    <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
+                  </View>
+                  <View style={styles.details}>
+                    <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
+                    <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                      {item?.product_name}
+                    </Text>
+                    <View style={styles.ratingContainer}>
+                      {/* <ReactStars
+                                count={5}
+                                value={+item?.product_totalRating}
+                                size={18}
+                                half={true}
+                                fullStar={<Text>★</Text>}
+                                emptyStar={<Text>☆</Text>}
+                                disabled
+                            /> */}
+                      {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                    </View>
+                    <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
+                  </View>
+                </Pressable>
+              )}
+            />
+          </>
         </ScrollView>
       </SafeAreaView>
 
@@ -470,7 +509,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    margin: 10,
+    margin: 5,
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
@@ -479,11 +518,11 @@ const styles = StyleSheet.create({
   imageContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    padding: 10,
+    padding: 0,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 160,
+    height: 160,
     resizeMode: "contain",
     marginHorizontal: 5,
   },
@@ -491,11 +530,11 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   brand: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#666",
   },
   title: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: "bold",
     marginVertical: 5,
   },
@@ -509,8 +548,8 @@ const styles = StyleSheet.create({
     color: "#999",
   },
   price: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "semi-bold",
     color: "#041E42",
   },
 });

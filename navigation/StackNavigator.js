@@ -37,7 +37,7 @@ const StackNavigator = () => {
           component={HomeScreen}
           options={{
             tabBarLabel: "Trang chủ",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
@@ -53,7 +53,7 @@ const StackNavigator = () => {
           component={ProfileScreen}
           options={{
             tabBarLabel: "Cá nhân",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <Ionicons name="person" size={24} color="#008E97" />
@@ -68,7 +68,7 @@ const StackNavigator = () => {
           component={CartScreen}
           options={{
             tabBarLabel: "Giỏ hàng",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
@@ -80,11 +80,11 @@ const StackNavigator = () => {
         />
 
         <Tab.Screen
-          name="Chat Với Admin"
+          name="Chat"
           component={ListAdmin}
           options={{
-            tabBarLabel: "Chat với Admin",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabel: "Chat",
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <Ionicons name="chatbubbles" size={24} color="#008E97" />
