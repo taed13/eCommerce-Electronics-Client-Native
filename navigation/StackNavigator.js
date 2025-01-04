@@ -50,7 +50,7 @@ const StackNavigator = () => {
         />
 
         <Tab.Screen
-          name="Profile"
+          name=" "
           component={ProfileScreen}
           options={{
             tabBarLabel: "Cá nhân",
@@ -113,7 +113,7 @@ const StackNavigator = () => {
           <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}
-            options={{ headerShown: true, title: "Order Summary" }}
+            options={{ headerShown: true, title: "Tổng quan đơn hàng" }}
           />
 
           <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />

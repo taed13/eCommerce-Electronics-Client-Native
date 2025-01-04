@@ -7,9 +7,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
 import Header from "../components/Header";
 import { colors } from "../config/constants";
+import { useSelector } from "react-redux";
+import Loading from "../components/Loading";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const currentUser = useSelector((state) => state.user?.currentUser);
 
   const { userId } = useContext(UserType);
   const [orders, setOrders] = useState([]);
@@ -92,7 +95,7 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView style={{ padding: 10, flex: 1, backgroundColor: "white" }}>
-      <Text style={{ fontSize: 16, fontWeight: "bold" }}>Welcome {user?.name}</Text>
+      <Text style={{ fontSize: 16, fontWeight: "bold" }}>Chào mừng {currentUser?.name}</Text>
 
       <View
         style={{
@@ -161,7 +164,7 @@ const ProfileScreen = () => {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {loading ? (
-          <Text>Loading...</Text>
+          <Loading />
         ) : orders?.length > 0 ? (
           orders.map((order) => (
             <Pressable
@@ -187,7 +190,7 @@ const ProfileScreen = () => {
             </Pressable>
           ))
         ) : (
-          <Text>No orders found</Text>
+          <Text style={{ marginTop: 20, fontSize: 16, fontWeight: "bold" }}>Không có đơn hàng nào</Text>
         )}
       </ScrollView>
     </ScrollView>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal } from "react-native";
 import { convertCartData, getSessionId } from "../utils/common";
 import { useSelector } from "react-redux";
@@ -11,17 +11,39 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useApplyDiscount, useCalculateShippingFee } from "../api/discount";
 import { PURCHASE_RESPONSE } from "../config/common";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 
 const OrderSummaryScreen = ({ route }) => {
+  const calculatedAddress = useRef(null);
+
+  const { apply, isLoading: isApplying, error } = useApplyDiscount();
+  const { calculate, isLoading: isCalculating, error: errorShipping } = useCalculateShippingFee();
   const { cartData } = route.params;
   const insets = useSafeAreaInsets();
   const navigate = useNavigation();
   const [isOpenPayment, setIsOpenPayment] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [discountError, setDiscountError] = useState(null);
   const currentUser = useSelector((state) => state.user.currentUser);
+  const [shippingFee, setShippingFee] = useState(0);
+
   const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
+
+  useEffect(() => {
+    if (myAddress?.[0] && calculatedAddress.current !== myAddress[0]) {
+      handleCalculateShippingFee();
+      calculatedAddress.current = myAddress[0];
+    }
+  }, [myAddress]);
+  useEffect(() => {
+    if (myAddress?.[0] && !shippingFee) {
+      handleCalculateShippingFee();
+    }
+  }, [myAddress, shippingFee]);
 
   const {
     mutate: mutateCreateOrder,
@@ -39,13 +61,80 @@ const OrderSummaryScreen = ({ route }) => {
 
   const total = cartData?.cart_products
     ? cartData?.cart_products?.reduce((sum, item) => {
-        return sum + Number(item?.price) * Number(item?.quantity);
-      }, 0)
+      return sum + Number(item?.price) * Number(item?.quantity);
+    }, 0)
     : 0;
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      setDiscountError("Vui lòng nhập mã giảm giá!");
+      return;
+    }
+    setDiscountError(null);
+
+    const cartTotal = cartData?.cart_products?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0;
+
+    const categoryIds = [
+      ...new Set(
+        cartData?.cart_products
+          ?.flatMap((item) => item.productId?.product_category?.map((category) => category._id) || [])
+      ),
+    ];
+
+    const brandIds = [
+      ...new Set(
+        cartData?.cart_products
+          ?.flatMap((item) => item.productId?.product_brand?.map((brand) => brand._id) || [])
+      ),
+    ];
+
+    const payload = {
+      discountCode: discountCode.trim(),
+      cartTotal,
+      categoryIds,
+      brandIds,
+    };
+
+    const result = await apply(payload);
+
+    if (result?.data?.discountAmount) {
+      setAppliedDiscount(result?.data);
+      setDiscountError(null);
+    } else {
+      setAppliedDiscount(null);
+      setDiscountError(result?.error || "Mã giảm giá không hợp lệ!");
+    }
+  };
+
+  const handleCalculateShippingFee = useCallback(async () => {
+    if (!myAddress?.[0]) {
+      alert("Vui lòng chọn địa chỉ giao hàng.");
+      return;
+    }
+
+    const payload = {
+      provinceName: myAddress[0].province.name,
+      districtName: myAddress[0].district.full_name,
+      wardName: myAddress[0].ward.full_name,
+    };
+
+    try {
+      const result = await calculate(payload);
+
+      if (result?.data?.total) {
+        setShippingFee(result.data.total);
+      } else {
+        setShippingFee(0);
+      }
+    } catch (err) {
+      console.error("Error calculating shipping fee:", err);
+      alert("Lỗi khi tính phí vận chuyển. Vui lòng thử lại!");
+    }
+  }, [myAddress]);
 
   const hanldeCheckout = async () => {
     const prepareOrderData = {
-      discountCode: undefined,
+      discountCode: appliedDiscount?.discountCode,
       cartTotal: total,
       order_shipping: myAddress ? myAddress[0] : [],
       order_items: convertCartData(cartData?.cart_products),
@@ -54,13 +143,13 @@ const OrderSummaryScreen = ({ route }) => {
         paymentStatus: "Pending",
       },
       checkoutInfo: {
-        totalPrice: total,
-        totalPriceAfterDiscount: total,
-        feeShip: 0,
-        discountApplied: undefined,
+        totalPrice: total + shippingFee,
+        totalPriceAfterDiscount: appliedDiscount ? appliedDiscount.total : total,
+        feeShip: shippingFee,
+        discountApplied: appliedDiscount ? appliedDiscount.discountAmount : 0,
       },
       estimatedDeliveryDate: new Date(),
-      order_status: "Ordered",
+      // order_status: "Ordered",
       trackingNumber: `TRK${Math.floor(Math.random() * 1000000)}`,
     };
 
@@ -119,31 +208,53 @@ const OrderSummaryScreen = ({ route }) => {
                 })}
             </View>
             <View style={[OrderSummaryScreenStyle.discountWrapper, OrderSummaryScreenStyle.wrapper]}>
-              <TextInput style={OrderSummaryScreenStyle.discountInput} placeholder="Enter your discount code" />
-              <TouchableOpacity style={OrderSummaryScreenStyle.applyBtn}>
-                <Text style={OrderSummaryScreenStyle.applyText}>Apply</Text>
+              <TextInput
+                style={OrderSummaryScreenStyle.discountInput}
+                placeholder="Nhập mã giảm giá"
+                value={discountCode}
+                onChangeText={(text) => setDiscountCode(text)}
+              />
+              <TouchableOpacity onPress={handleApplyDiscount} style={OrderSummaryScreenStyle.applyBtn}>
+                <Text style={OrderSummaryScreenStyle.applyText}>
+                  {isApplying ? "Đang áp dụng..." : "Áp dụng"}
+                </Text>
               </TouchableOpacity>
             </View>
+
+            {discountError && <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>{discountError}</Text>}
+
             <View style={[OrderSummaryScreenStyle.wrapper]}>
-              <Text style={OrderSummaryScreenStyle.titleSummary}>Order Summary</Text>
+              <Text style={OrderSummaryScreenStyle.titleSummary}>Tổng quan đơn hàng</Text>
+
               <View style={OrderSummaryScreenStyle.summaryItem}>
-                <Text style={OrderSummaryScreenStyle.label}>Subtotal: </Text>
-                <Text>{total}</Text>
+                <Text style={OrderSummaryScreenStyle.label}>Tổng tiền ban đầu: </Text>
+                <Text>₫{total.toLocaleString()}</Text>
               </View>
+
               <View style={OrderSummaryScreenStyle.summaryItem}>
-                <Text style={OrderSummaryScreenStyle.label}>Shipping: </Text>
-                <Text>{total}</Text>
+                <Text style={OrderSummaryScreenStyle.label}>Giảm giá: </Text>
+                <Text style={{ color: appliedDiscount ? "green" : "black" }}>
+                  {appliedDiscount ? `-₫${appliedDiscount.discountAmount.toLocaleString()}` : "₫0"}
+                </Text>
               </View>
+
               <View style={OrderSummaryScreenStyle.summaryItem}>
-                <Text style={[OrderSummaryScreenStyle.label]}>Total: </Text>
-                <Text>{total}</Text>
+                <Text style={OrderSummaryScreenStyle.label}>Phí vận chuyển: </Text>
+                <Text>₫{shippingFee.toLocaleString()}</Text>
+              </View>
+
+              <View style={OrderSummaryScreenStyle.summaryItem}>
+                <Text style={[OrderSummaryScreenStyle.label]}>Tổng cộng: </Text>
+                <Text style={{ fontWeight: "bold" }}>
+                  ₫{(appliedDiscount ? appliedDiscount.total + shippingFee : total + shippingFee).toLocaleString()}
+                </Text>
               </View>
             </View>
           </View>
         </ScrollView>
         <View style={[SafeAreaViewStyle(insets).btnCheckout]}>
           <TouchableOpacity onPress={hanldeCheckout} style={[OrderSummaryScreenStyle.btnCheckout]}>
-            <Text style={OrderSummaryScreenStyle.btnCheckoutText}>Checkout</Text>
+            <Text style={OrderSummaryScreenStyle.btnCheckoutText}>Thanh toán</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -245,9 +356,10 @@ const OrderSummaryScreenStyle = StyleSheet.create({
     paddingHorizontal: 16,
   },
   titleSummary: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 600,
     paddingVertical: 8,
+    alignSelf: "center",
   },
   summaryItem: {
     flexDirection: "row",
@@ -262,7 +374,7 @@ const OrderSummaryScreenStyle = StyleSheet.create({
     flex: 1,
   },
   btnCheckout: {
-    backgroundColor: colors.red,
+    backgroundColor: colors.btn,
     paddingVertical: 16,
     borderRadius: 12,
     justifyContent: "center",

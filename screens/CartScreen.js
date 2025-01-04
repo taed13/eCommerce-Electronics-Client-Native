@@ -33,8 +33,8 @@ const CartScreen = () => {
     }
     return (
       <View style={CartListStyle.empty}>
-        <AntDesign name="inbox" size={54} color="black" />
-        <Text style={CartListStyle.emptyText}>Cart is empty</Text>
+        <AntDesign name="inbox" size={50} color="black" />
+        <Text style={CartListStyle.emptyText}>Không có sản phẩm nào trong giỏ hàng!</Text>
       </View>
     );
   }, [listItems]);

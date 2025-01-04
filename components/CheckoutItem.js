@@ -17,7 +17,7 @@ export const CheckoutItem = ({ item }) => {
           </View>
         </View>
         <View style={CheckoutItemStyle.infor}>
-          <Text style={CheckoutItemStyle.price}>{item.price} đ</Text>
+          <Text style={CheckoutItemStyle.price}>₫{item.price.toLocaleString()}</Text>
           <Text style={CheckoutItemStyle.quantity}>x {item.quantity}</Text>
         </View>
         {/* <View style={CheckoutItemStyle.total}>
