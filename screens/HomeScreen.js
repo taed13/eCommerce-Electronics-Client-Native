@@ -29,9 +29,25 @@ import { jwtDecode } from "jwt-decode";
 import { getAllProducts } from "../feature/products/productSlice";
 import axiosInstance from "../api/axiosInstance";
 import { APP_CONFIG } from "../config/common";
+import { useGetCurrentUser } from "../api/user";
+import { useUserAsyncStore } from "../hook/useUserAsyncStore";
+import Loading from "../components/Loading";
 // import ReactStars from "react-native-stars";
 
 const HomeScreen = () => {
+  const { userAsyncStore, setDataForUserAsyncStore } = useUserAsyncStore();
+  const { data, isLoading, refetch, error } = useGetCurrentUser();
+
+  useEffect(() => {
+    if (error) {
+      return;
+    }
+    if (data) {
+      setDataForUserAsyncStore(data?.data);
+      return;
+    }
+  }, [data, error]);
+
   const list = [
     {
       id: "0",
@@ -581,6 +597,7 @@ const HomeScreen = () => {
           </View>
         </ModalContent>
       </BottomModal> */}
+      {isLoading && <Loading />}
     </>
   );
 };

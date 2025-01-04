@@ -3,36 +3,48 @@ import { getCurrentUser, editUser, loginUserService, registerUserService, forgot
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { QUERY_KEYS } from "../../config/common";
+import { useQuery } from "@tanstack/react-query";
 
 export const useGetCurrentUser = () => {
   const axiosClient = useAxiosClient();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState({});
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!axiosClient) return;
-    const fetchCurrentUser = async () => {
-      try {
-        const result = await getCurrentUser(axiosClient);
-        if (result.data) {
-          setData(result.data || {});
-        } else {
-          setError(result.error || "Something went wrong");
-        }
-      } catch (error) {
-        setError(error.message || "An unexpected error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCurrentUser();
-  }, [axiosClient]);
-
-  return { data, isLoading, error };
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+    queryFn: () => getCurrentUser(axiosClient),
+  });
 };
+
+
+// export const useGetCurrentUser = () => {
+//   const axiosClient = useAxiosClient();
+
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [data, setData] = useState({});
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     if (!axiosClient) return;
+//     const fetchCurrentUser = async () => {
+//       try {
+//         const result = await getCurrentUser(axiosClient);
+//         if (result.data) {
+//           setData(result.data || {});
+//         } else {
+//           setError(result.error || "Something went wrong");
+//         }
+//       } catch (error) {
+//         setError(error.message || "An unexpected error occurred");
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchCurrentUser();
+//   }, [axiosClient]);
+
+//   return { data, isLoading, error };
+// };
 
 export const useUpdateUser = () => {
   const axiosClient = useAxiosClient();
