@@ -28,7 +28,7 @@ const HelpScreen = () => {
                 icon='information-circle-outline'
                 tintColor={colors.pink}
                 onPress={() => {
-                    Alert.alert('Đồ Án Tôt Nghiệp (v1.0)', 'Ứng dụng Hệ thống bán hàng điện tử\nLiên hệ: 0967496219\nEmail: taedtech13@gmail.com',
+                    Alert.alert('Đồ Án Tốt Nghiệp (v1.0)', 'Ứng dụng Hệ thống bán hàng điện tử\nLiên hệ: 0967496219\nEmail: taedtech13@gmail.com',
                         [
                             {
                                 text: "OK",

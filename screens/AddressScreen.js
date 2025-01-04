@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { UserType } from "../UserContext";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import { base_url } from "../utils/axiosConfig";
+import { APP_CONFIG } from "../config/common";
 
 const AddressScreen = () => {
   const navigation = useNavigation();
@@ -43,7 +43,7 @@ const AddressScreen = () => {
     };
     axios
       .put(
-        `${base_url}user/save-address`,
+        `${APP_CONFIG.BASE_URL}user/save-address`,
         { userId, address },
         {
           headers: {

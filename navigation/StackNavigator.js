@@ -6,9 +6,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ListAdmin from "../screens/ListAdmin/ListAdmin";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Entypo } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons, AntDesign } from "@expo/vector-icons";
 import ProductInfoScreen from "../screens/ProductInfoScreen";
 import AddAddressScreen from "../screens/AddAddressScreen";
 import AddressScreen from "../screens/AddressScreen";
@@ -20,6 +18,7 @@ import ConfirmationScreen from "../screens/ConfirmationScreen";
 import OrderScreen from "../screens/OrderScreen";
 import AccountScreen from "../screens/AccountScreen";
 import SettingScreen from "../screens/SettingScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 import AxiosProvider from "../providers/axiosProvider";
 import Chat from "../screens/Chat";
 import ChatHeader from "../components/ChatHeader";
@@ -38,8 +37,8 @@ const StackNavigator = () => {
           name="Home"
           component={HomeScreen}
           options={{
-            tabBarLabel: "Home",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabel: "Trang chủ",
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
@@ -54,8 +53,8 @@ const StackNavigator = () => {
           name="Profile"
           component={ProfileScreen}
           options={{
-            tabBarLabel: "Profile",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabel: "Cá nhân",
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <Ionicons name="person" size={24} color="#008E97" />
@@ -69,8 +68,8 @@ const StackNavigator = () => {
           name="Cart"
           component={CartScreen}
           options={{
-            tabBarLabel: "Cart",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabel: "Giỏ hàng",
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
@@ -82,11 +81,11 @@ const StackNavigator = () => {
         />
 
         <Tab.Screen
-          name="Chat Với Admin"
+          name="Chat"
           component={ListAdmin}
           options={{
             tabBarLabel: "Chat",
-            tabBarLabelStyle: { color: "#008E97" },
+            tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <Ionicons name="chatbubbles" size={24} color="#008E97" />
@@ -120,6 +119,7 @@ const StackNavigator = () => {
           <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
 
           <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ProfileUser" component={ProfileUserScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />

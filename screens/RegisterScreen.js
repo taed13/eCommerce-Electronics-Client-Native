@@ -1,194 +1,189 @@
-import { Text, View, SafeAreaView, Pressable, Image, KeyboardAvoidingView, TextInput, Alert } from "react-native";
+import { Text, View, SafeAreaView, Pressable, Image, KeyboardAvoidingView, TextInput, Alert, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
-import { base_url } from "../utils/axiosConfig";
+import { useRegister } from "../api/user";
 
 const RegisterScreen = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const navigation = useNavigation();
-  const handleRegister = () => {
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-    };
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-    // send a POST  request to the backend API to register the user
-    axios
-      .post(`${base_url}user/register`, user)
-      .then((response) => {
-        console.log(response);
-        Alert.alert("Registration successful", "You have been registered Successfully");
-        setName("");
-        setEmail("");
-        setPassword("");
-      })
-      .catch((error) => {
-        Alert.alert("Registration Error", "An error occurred while registering");
-        console.log("registration failed", error);
-      });
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  const navigation = useNavigation();
+  const { register, isLoading } = useRegister();
+
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleRegister = async () => {
+    let valid = true;
+
+    if (name.trim().length < 2) {
+      setNameError("Tên phải có ít nhất 2 ký tự!");
+      valid = false;
+    } else {
+      setNameError("");
+    }
+
+    if (!validateEmail(email.trim())) {
+      setEmailError("Email không đúng định dạng!");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (password.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự!");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Mật khẩu không khớp!");
+      valid = false;
+    } else {
+      setConfirmPasswordError("");
+    }
+
+    if (!valid) return;
+
+    const user = { name, email, password };
+
+    try {
+      const result = await register(user);
+      console.log('result', result);
+
+      if (result?.token) {
+        Alert.alert("Đăng ký thành công", "Chúc mừng bạn đã đăng ký thành công tài khoản!", [
+          {
+            text: "OK",
+            onPress: () => navigation.replace("Login"),
+          },
+        ]);
+      } else if (result?.message) {
+        Alert.alert("Đăng ký thành công", result.message, [
+          {
+            text: "OK",
+            onPress: () => navigation.replace("Login"),
+          },
+        ]);
+      } else if (result?.error) {
+        Alert.alert("Lỗi đăng ký", result.error);
+      } else {
+        throw new Error("Đăng ký thất bại. Vui lòng thử lại!");
+      }
+    } catch (err) {
+      console.error("Lỗi trong quá trình đăng ký:", err.message);
+      Alert.alert("Lỗi", err.message || "Có lỗi xảy ra trong quá trình đăng ký.");
+    }
   };
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "white",
-        alignItems: "center",
-        marginTop: 50,
-      }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white", alignItems: "center", marginTop: 50 }}>
       <View>
         <Image
-          style={{ width: 150, height: 100 }}
-          source={{
-            uri: "https://assets.stickpng.com/thumbs/6160562276000b00045a7d97.png",
-          }}
+          style={{ width: 350, height: 100 }}
+          source={{ uri: "https://www.ec.tuwien.ac.at/sites/ec.tuwien.ac.at/files/ec-schrift-300dpi.png" }}
         />
       </View>
 
       <KeyboardAvoidingView>
         <View style={{ alignItems: "center" }}>
-          <Text
-            style={{
-              fontSize: 17,
-              fontWeight: "bold",
-              marginTop: 12,
-              color: "#041E42",
-            }}
-          >
-            Register to your Account
-          </Text>
+          <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 12, color: "#041E42" }}>Đăng ký tài khoản của bạn</Text>
         </View>
 
         <View style={{ marginTop: 70 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: "#D0D0D0",
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginTop: 30,
-            }}
-          >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
             <Ionicons name="person" size={24} color="gray" style={{ marginLeft: 8 }} />
             <TextInput
               value={name}
-              onChangeText={(text) => setName(text)}
-              style={{
-                color: "gray",
-                marginVertical: 10,
-                width: 300,
-                fontSize: name ? 16 : 16,
+              onChangeText={(text) => {
+                setName(text);
+                if (text.trim().length >= 2) setNameError("");
               }}
-              placeholder="Enter your name"
+              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+              placeholder="Nhập tên của bạn"
             />
           </View>
+          {nameError ? <Text style={{ color: "red", marginTop: 5 }}>{nameError}</Text> : null}
 
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: "#D0D0D0",
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginTop: 30,
-            }}
-          >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
             <MaterialIcons style={{ marginLeft: 8 }} name="email" size={24} color="gray" />
-
             <TextInput
               value={email}
-              onChangeText={(text) => setEmail(text)}
-              style={{
-                color: "gray",
-                marginVertical: 10,
-                width: 300,
-                fontSize: password ? 16 : 16,
+              onChangeText={(text) => {
+                setEmail(text);
+                if (validateEmail(text.trim())) setEmailError("");
               }}
-              placeholder="Enter your Email"
+              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+              placeholder="Nhập email của bạn"
             />
           </View>
-        </View>
+          {emailError ? <Text style={{ color: "red", marginTop: 5 }}>{emailError}</Text> : null}
 
-        <View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: "#D0D0D0",
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginTop: 30,
-            }}
-          >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
             <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
-
             <TextInput
               value={password}
-              onChangeText={(text) => setPassword(text)}
-              secureTextEntry={true}
-              style={{
-                color: "gray",
-                marginVertical: 10,
-                width: 300,
-                fontSize: email ? 16 : 16,
+              onChangeText={(text) => {
+                setPassword(text);
+                if (text.length >= 6) setPasswordError("");
               }}
-              placeholder="Enter your Password"
+              secureTextEntry={true}
+              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+              placeholder="Nhập mật khẩu của bạn"
             />
           </View>
-        </View>
+          {passwordError ? <Text style={{ color: "red", marginTop: 5 }}>{passwordError}</Text> : null}
 
-        <View
-          style={{
-            marginTop: 12,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text>Keep me logged in</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
+            <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
+            <TextInput
+              value={confirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                if (text === password) setConfirmPasswordError("");
+              }}
+              secureTextEntry={true}
+              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+              placeholder="Nhập lại mật khẩu của bạn"
+            />
+          </View>
+          {confirmPasswordError ? <Text style={{ color: "red", marginTop: 5 }}>{confirmPasswordError}</Text> : null}
 
-          <Text style={{ color: "#007FFF", fontWeight: "500" }}>Forgot Password</Text>
-        </View>
-
-        <View style={{ marginTop: 80 }} />
-
-        <Pressable
-          onPress={handleRegister}
-          style={{
-            width: 200,
-            backgroundColor: "#FEBE10",
-            borderRadius: 6,
-            marginLeft: "auto",
-            marginRight: "auto",
-            padding: 15,
-          }}
-        >
-          <Text
+          <Pressable
+            onPress={handleRegister}
             style={{
-              textAlign: "center",
-              color: "white",
-              fontSize: 16,
-              fontWeight: "bold",
+              width: 200,
+              backgroundColor: isLoading ? "#FFD580" : "#FEBE10",
+              borderRadius: 6,
+              marginLeft: "auto",
+              marginRight: "auto",
+              padding: 15,
+              marginTop: 40,
             }}
+            disabled={isLoading}
           >
-            Register
-          </Text>
-        </Pressable>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={{ textAlign: "center", color: "white", fontSize: 16, fontWeight: "bold" }}>Đăng ký</Text>
+            )}
+          </Pressable>
 
-        <Pressable onPress={() => navigation.goBack()} style={{ marginTop: 15 }}>
-          <Text style={{ textAlign: "center", color: "gray", fontSize: 16 }}>Already have an account? Sign In</Text>
-        </Pressable>
+          <Pressable onPress={() => navigation.goBack()} style={{ marginTop: 15 }}>
+            <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }}>
+              Đã có tài khoản?{" "}
+              <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng nhập</Text>
+            </Text>
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

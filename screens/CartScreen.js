@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "../components/Header";
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
+import { colors } from "../config/constants";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const CartScreen = () => {
@@ -47,10 +48,10 @@ const CartScreen = () => {
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
-        <Header />
+        <Header title="Giỏ hàng" />
         <View
           style={{
-            backgroundColor: "#00CED1",
+            backgroundColor: colors.primary,
             padding: 10,
             flexDirection: "row",
             alignItems: "center",
@@ -70,7 +71,7 @@ const CartScreen = () => {
           >
             <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
             <TextInput
-              placeholder="Search Amazon.in"
+              placeholder="Tìm kiếm sản phẩm trong giỏ hàng"
               value={searchValue}
               onChangeText={(text) => setSearchValue(text)}
             />
@@ -80,7 +81,7 @@ const CartScreen = () => {
         </View>
 
         <View style={{ padding: 10, flexDirection: "row", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "400" }}>Subtotal : </Text>
+          <Text style={{ fontSize: 18, fontWeight: "400" }}>Tổng cộng: </Text>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>{data?.cart_count_product ?? 0}</Text>
         </View>
         <ScrollView style={{ flex: 1 }}>{renderCartList}</ScrollView>
@@ -93,7 +94,7 @@ const CartScreen = () => {
               });
           }}
           style={{
-            backgroundColor: "#FFC72C",
+            backgroundColor: colors.primary,
             padding: 10,
             borderRadius: 5,
             justifyContent: "center",
@@ -102,7 +103,7 @@ const CartScreen = () => {
             marginTop: 10,
           }}
         >
-          <Text>{`Proceed to Buy (${data?.data?.cart_products?.length ?? 0}) items`}</Text>
+          <Text>{`Tiến hành đặt hàng (${data?.data?.cart_products?.length ?? 0}) sản phẩm`}</Text>
         </Pressable>
       </View>
       {isLoading && <Loading />}

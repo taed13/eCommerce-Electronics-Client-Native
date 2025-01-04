@@ -1,7 +1,6 @@
 import { Text, View, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Pressable } from "react-native";
-import React, { useState, useEffect } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
+import React, { useState } from "react";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLogin } from "../api/user";
@@ -14,36 +13,47 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
   const { login, isLoading, error } = useLogin();
 
-  const [email, setEmail] = useState("taed.business.13@gmail.com");
+  const [email, setEmail] = useState("");
+  //taed.business.13@gmail.com
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const token = await AsyncStorage.getItem("authToken");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
-        if (token) {
-          navigation.replace("Main");
-        }
-      } catch (err) {
-        console.log("Lỗi kiểm tra trạng thái đăng nhập:", err);
-      }
-    };
-    checkLoginStatus();
-  }, []);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const toggleRememberMe = () => {
+    setRememberMe((prev) => !prev);
+  };
+
+  // Hàm kiểm tra định dạng email
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleLogin = async () => {
+    let valid = true;
+
+    if (!validateEmail(email.trim())) {
+      setEmailError("Email không đúng định dạng!");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!password.trim()) {
+      setPasswordError("Vui lòng nhập mật khẩu của bạn!");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (!valid) return;
+
     const user = { email, password };
-
     const result = await login(user);
-
-    console.log("result::", result);
 
     if (result?.findUser?.token) {
       await AsyncStorage.setItem("authToken", result.findUser.token);
-
       dispatch(fetchCurrentUser());
-
       navigation.replace("Main");
     } else {
       alert(error || "Đăng nhập thất bại. Vui lòng thử lại!");

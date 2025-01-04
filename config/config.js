@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
+import { APP_CONFIG } from './common';
 
-export const API_URL = 'http://10.10.75.23:5001';
-export const SOCKET = io(API_URL);
+export const SOCKET = io(APP_CONFIG.API_URL);
 
-export const allUsersRoute = `${API_URL}/api/user/allusers`;
-export const allAdminsRoute = `${API_URL}/api/user/alladmins`;
-export const getAllMessageRoute = `${API_URL}/api/messages/getmsg`;
-export const sendMessageRoute = `${API_URL}/api/messages/addmsg`;
-export const getAllMessagesRoute = `${API_URL}/api/messages/getmsgs`;
+export const allUsersRoute = `${APP_CONFIG.BASE_URL}user/allusers`;
+export const allAdminsRoute = `${APP_CONFIG.BASE_URL}user/alladmins`;
+export const getAllMessageRoute = `${APP_CONFIG.BASE_URL}messages/getmsg`;
+export const sendMessageRoute = `${APP_CONFIG.BASE_URL}messages/addmsg`;
+export const getAllMessagesRoute = `${APP_CONFIG.BASE_URL}messages/getmsgs`;
