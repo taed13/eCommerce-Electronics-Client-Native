@@ -51,7 +51,7 @@ const ProductInfoScreen = () => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {route.params.carouselImages.map((item, index) => (
+        {route.params.carouselImages?.map((item, index) => (
           <ImageBackground
             style={{ width, height, marginTop: 25, resizeMode: "contain" }}
             source={{ uri: item }}
