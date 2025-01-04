@@ -11,14 +11,13 @@ import Header from "../components/Header";
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
 import WebView from "react-native-webview";
-import { useNavigation } from "@react-navigation/native";
-import { convertCartData } from "../utils/common";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const CartScreen = () => {
   // const dispatch = useDispatch();
   const [isOpenCheckout, setIsOpenCheckout] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { data, isLoading } = useGetMyCart();
+  const { data, isLoading, refetch } = useGetMyCart();
   const navigation = useNavigation();
   console.log({ data: data?.data, isLoading });
   const insets = useSafeAreaInsets();
@@ -54,6 +53,11 @@ const CartScreen = () => {
   // const deleteItem = (item) => {
   //   dispatch(removeFromCart(item));
   // };
+
+  console.log({ data });
+  useFocusEffect(() => {
+    refetch();
+  });
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
@@ -119,14 +123,6 @@ const CartScreen = () => {
         </Pressable>
       </View>
       {isLoading && <Loading />}
-      <Modal visible={isOpenCheckout}>
-        <WebView
-          style={{ flex: 1 }}
-          source={{
-            uri: "https://checkout.stripe.com/c/pay/cs_test_b1qV3fMIZ1co0kXdzOr1XLWdqfG9w9a11Ihd5BycQb4AIKVQqwXxu3ViY0#fidkdWxOYHwnPyd1blpxYHZxWjA0VERzVHdCMk5WZG1HRlY9PTF0aGQ9b3dCMF9kQzR8YElXMWJUYX9HNTJrTX00VG1hVEJfS2RyPUw9RkJcSE1wPWBoRjRAMkpNTVFtdUY2bFFWMn1Iajd1NTVUb3ZrYUhmcCcpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPydocGlxbFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl",
-          }}
-        />
-      </Modal>
     </>
   );
 };

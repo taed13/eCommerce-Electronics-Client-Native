@@ -4,7 +4,7 @@ export const createOrderWithDiscount = async (axiosClient, orderDetail) => {
     console.log("createOrderWithDiscount", response);
     return response.data.order;
   } catch (error) {
-    return { error: error.message || "Failed to create orders" };
+    throw new Error(error);
   }
 };
 
@@ -14,6 +14,6 @@ export const purchase = async (axiosClient, data) => {
     console.log("purchase", response);
     return response.data;
   } catch (error) {
-    return { error: error.message || "Failed to purchase" };
+    throw new Error(error);
   }
 };

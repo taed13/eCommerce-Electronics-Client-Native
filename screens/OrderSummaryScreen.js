@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal } from "react-native";
 import { convertCartData } from "../utils/common";
 import { useSelector } from "react-redux";
 import { useCreateOrder, usePurchase } from "../api/checkout";
@@ -9,14 +9,16 @@ import { CheckoutItem } from "../components/CheckoutItem";
 import { colors } from "../constants/color";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 const OrderSummaryScreen = ({ route }) => {
   const { cartData } = route.params;
   const insets = useSafeAreaInsets();
+  const [isOpenPayment, setIsOpenPayment] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
 
-  const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : null;
-  console.log("currentUser::", myAddress[0]);
+  const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
 
   const {
     mutate: mutateCreateOrder,
@@ -24,13 +26,21 @@ const OrderSummaryScreen = ({ route }) => {
     data: createOrderData,
     error: errorCreateOrder,
   } = useCreateOrder();
-  const { mutate: mutatePurchase, isPending: isPendingPurchase, data: dataPurchase } = usePurchase();
-  console.log({ dataPurchase });
+
+  const {
+    mutate: mutatePurchase,
+    isPending: isPendingPurchase,
+    data: dataPurchase,
+    error: erorrPurchase,
+  } = usePurchase();
+
+  const total = cartData?.cart_products
+    ? cartData?.cart_products?.reduce((sum, item) => {
+        return sum + Number(item?.price) * Number(item?.quantity);
+      }, 0)
+    : 0;
 
   const hanldeCheckout = async () => {
-    const total = cartData?.cart_products?.reduce((sum, item) => {
-      return sum + Number(item?.price) * Number(item?.quantity);
-    }, 0);
     const prepareOrderData = {
       discountCode: undefined,
       cartTotal: total,
@@ -50,9 +60,25 @@ const OrderSummaryScreen = ({ route }) => {
       order_status: "Ordered",
       trackingNumber: `TRK${Math.floor(Math.random() * 1000000)}`,
     };
-    console.log(cartData);
+
     await mutateCreateOrder(prepareOrderData);
   };
+
+  const hanldeClose = () => {
+    setIsOpenPayment(false);
+  };
+
+  useEffect(() => {
+    if (erorrPurchase) {
+      setIsOpenPayment(false);
+      return;
+    }
+    if (dataPurchase) {
+      setIsOpenPayment(true);
+      console.log("okoko", dataPurchase?.url);
+      return;
+    }
+  }, [erorrPurchase, dataPurchase]);
 
   useEffect(() => {
     if (errorCreateOrder) {
@@ -60,14 +86,14 @@ const OrderSummaryScreen = ({ route }) => {
     }
     if (createOrderData) {
       mutatePurchase({
-        items: cartData?.cart_products,
+        items: { data: cartData },
         shippingInfo: myAddress[0],
         orderId: createOrderData._id,
+        type: "mobile",
       });
+      return;
     }
   }, [createOrderData, errorCreateOrder]);
-
-  console.log("11", cartData?.cart_products);
 
   return (
     <>
@@ -77,10 +103,10 @@ const OrderSummaryScreen = ({ route }) => {
             <View style={[OrderSummaryScreenStyle.wrapper]}>
               <View style={OrderSummaryScreenStyle.userInfor}>
                 <Entypo name="location" size={16} color="black" />
-                {myAddress[0] && <Text>{`${myAddress[0].firstname} (${myAddress[0].mobileNo})`}</Text>}
+                {myAddress && <Text>{`${myAddress[0].firstname} (${myAddress[0].mobileNo})`}</Text>}
               </View>
 
-              {myAddress[0] && (
+              {myAddress && (
                 <Text>{`${myAddress[0].street}, ${myAddress[0].ward.full_name}, ${myAddress[0].district.full_name}, ${myAddress[0].province.name}`}</Text>
               )}
             </View>
@@ -100,15 +126,15 @@ const OrderSummaryScreen = ({ route }) => {
               <Text style={OrderSummaryScreenStyle.titleSummary}>Order Summary</Text>
               <View style={OrderSummaryScreenStyle.summaryItem}>
                 <Text style={OrderSummaryScreenStyle.label}>Subtotal: </Text>
-                <Text>1000</Text>
+                <Text>{total}</Text>
               </View>
               <View style={OrderSummaryScreenStyle.summaryItem}>
                 <Text style={OrderSummaryScreenStyle.label}>Shipping: </Text>
-                <Text>1000</Text>
+                <Text>{total}</Text>
               </View>
               <View style={OrderSummaryScreenStyle.summaryItem}>
                 <Text style={[OrderSummaryScreenStyle.label]}>Total: </Text>
-                <Text>1000</Text>
+                <Text>{total}</Text>
               </View>
             </View>
           </View>
@@ -120,6 +146,32 @@ const OrderSummaryScreen = ({ route }) => {
         </View>
       </View>
       {(isPendingCreateOrder || isPendingPurchase) && <Loading />}
+      <Modal visible={isOpenPayment}>
+        <View style={SafeAreaViewStyle(insets).webView}>
+          <View style={WebviewStyle.wrapper}>
+            <TouchableOpacity onPress={hanldeClose}>
+              <Ionicons name="arrow-back" size={28} color="black" />
+            </TouchableOpacity>
+            <Text style={WebviewStyle.text}>Payment</Text>
+            <TouchableOpacity onPress={hanldeClose}>
+              <MaterialIcons name="cancel" size={28} color="black" />
+            </TouchableOpacity>
+          </View>
+          {dataPurchase?.url ? (
+            <WebView
+              style={{ flex: 1 }}
+              source={{
+                uri: dataPurchase?.url,
+              }}
+            />
+          ) : (
+            <View style={WebviewStyle.notFound}>
+              <Text>Payment Not Found</Text>
+              <MaterialIcons name="hourglass-empty" size={48} color="black" />
+            </View>
+          )}
+        </View>
+      </Modal>
     </>
   );
 };
@@ -208,4 +260,29 @@ const SafeAreaViewStyle = (insets) =>
       backgroundColor: "white",
       paddingTop: 8,
     },
+    webView: {
+      paddingBottom: insets.bottom + 16,
+      paddingTop: insets.top + 8,
+      flex: 1,
+      paddingHorizontal: 16,
+    },
   });
+
+const WebviewStyle = StyleSheet.create({
+  wrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 16,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: 500,
+  },
+  notFound: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+});
