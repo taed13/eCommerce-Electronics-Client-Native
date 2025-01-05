@@ -10,6 +10,7 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,18 +28,21 @@ import ProductReviewForm from "../components/ProductReviewForm";
 
 import { colors } from "../constants/color";
 
-import { addToCart } from "../redux/CartReducer";
 import { useFetchProduct, useFetchProducts } from "../api/product";
 import { useCheckProductInOrder } from "../api/order";
+import { useAddToCart } from "../api/cart";
 
 const ProductInfoScreen = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   const currentUser = useSelector((state) => state?.user?.currentUser);
+
   const [reviews, setReviews] = useState([]);
   const [specialProducts, setSpecialProducts] = useState([]);
   const [isInOrder, setIsInOrder] = useState(null);
   const [isCheckingOrder, setIsCheckingOrder] = useState(true);
-
-  const navigation = useNavigation();
+  const [selectedColor, setSelectedColor] = useState(null);
 
   const defaultAddress = currentUser?.addresses?.find(
     (address) => address.default === true
@@ -50,7 +54,8 @@ const ProductInfoScreen = () => {
     useFetchProduct();
   const { isLoading: isLoadingProducts, data: productList, fetchProducts } =
     useFetchProducts();
-  const { isLoading, fetchCheckProductInOrder, error } = useCheckProductInOrder();
+  const { isLoading: isLoadingCheckProductInOrder, fetchCheckProductInOrder, error } = useCheckProductInOrder();
+  const { mutate: addToCart, isLoading: isLoadingAddToCart } = useAddToCart();
 
   const fetchProductData = async () => {
     await fetchProduct(productId);
@@ -92,14 +97,55 @@ const ProductInfoScreen = () => {
   const [showMore, setShowMore] = useState(false);
 
   const height = (width * 100) / 100;
-  const dispatch = useDispatch();
-  const addItemToCart = (item) => {
-    setAddedToCart(true);
-    dispatch(addToCart(item));
-    setTimeout(() => {
-      setAddedToCart(false);
-    }, 60000);
+
+  const handleAddToCart = () => {
+    if (!selectedColor) {
+      Alert.alert("Thông báo", "Vui lòng chọn màu sản phẩm trước khi thêm vào giỏ hàng.");
+      return;
+    }
+
+    if (quantity > productData?.product_quantity) {
+      Alert.alert("Thông báo", "Số lượng vượt quá tồn kho.");
+      return;
+    }
+
+    const cartData = {
+      productId: productData?._id,
+      product_color: [
+        {
+          code: selectedColor.code,
+          name: selectedColor.title,
+        },
+      ],
+      quantity,
+      price: productData?.product_price,
+      name: productData?.product_name,
+    };
+
+    addToCart(cartData, {
+      onSuccess: () => {
+        Alert.alert(
+          "Thành công",
+          "Sản phẩm đã được thêm vào giỏ hàng.",
+          [
+            {
+              text: "Xem giỏ hàng",
+              onPress: () => navigation.navigate("Cart"),
+            },
+            {
+              text: "Tiếp tục mua sắm",
+              onPress: () => navigation.goBack(),
+              style: "cancel",
+            },
+          ]
+        );
+      },
+      onError: (error) => {
+        Alert.alert("Lỗi", error.message || "Không thể thêm sản phẩm vào giỏ hàng.");
+      },
+    });
   };
+
   const cart = useSelector((state) => state.cart.cart);
 
   const handleQuantityChange = (value) => {
@@ -322,18 +368,20 @@ const ProductInfoScreen = () => {
             }}
           >
             <Text style={{ fontWeight: "bold" }}>Màu:</Text>
-            <View style={{ flexDirection: "row", gap: 10 }}>
+            <View style={{ flexDirection: "row" }}>
               {productData?.product_color?.length > 0 ? (
                 productData.product_color.map((color, index) => (
-                  <View
-                    key={index}
+                  <TouchableOpacity
+                    key={color.code}
+                    onPress={() => setSelectedColor(color)}
                     style={{
-                      width: 20,
-                      height: 20,
-                      backgroundColor: color.code || "#ddd",
-                      borderRadius: 15,
-                      borderWidth: 1,
-                      borderColor: "#ddd",
+                      width: 30,
+                      height: 30,
+                      borderRadius: 20,
+                      backgroundColor: color.code,
+                      marginRight: 5,
+                      borderWidth: selectedColor?.code === color.code ? 2 : 1,
+                      borderColor: selectedColor?.code === color.code ? "#333" : "#ddd",
                     }}
                   />
                 ))
@@ -407,9 +455,10 @@ const ProductInfoScreen = () => {
 
         {/* Add to Cart Button */}
         <Pressable
-          onPress={addItemToCart}
+          onPress={handleAddToCart}
+          disabled={isLoadingAddToCart}
           style={{
-            backgroundColor: addedToCart ? "#90EE90" : "#FFC72C",
+            backgroundColor: isLoadingAddToCart ? "#ccc" : "#FFC72C",
             padding: 15,
             borderRadius: 10,
             justifyContent: "center",
@@ -418,7 +467,7 @@ const ProductInfoScreen = () => {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>
-            {addedToCart ? "Đã thêm vào giỏ hàng" : "Thêm vào giỏ hàng"}
+            {isLoadingAddToCart ? "Đang thêm vào giỏ hàng..." : "Thêm vào giỏ hàng"}
           </Text>
         </Pressable>
 
@@ -473,7 +522,7 @@ const ProductInfoScreen = () => {
             productData.product_ratings.map((rating, index) => (
               <>
                 <View
-                  key={index}
+                  key={`review-${rating?._id || index}`}
                   style={{
                     padding: 15,
                     borderWidth: 1,
@@ -503,7 +552,7 @@ const ProductInfoScreen = () => {
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
                       {[...Array(5)].map((_, i) => (
                         <AntDesign
-                          key={i}
+                          key={`rating-star-${i}`}
                           name={i < rating?.star ? "star" : "staro"}
                           size={18}
                           color={i < rating?.star ? colors.yellow : "#ddd"}
@@ -512,7 +561,6 @@ const ProductInfoScreen = () => {
                       <Text style={{ marginLeft: 4, color: "#666", fontSize: 14 }}>{`${rating?.star} sao`}</Text>
                     </View>
                   </View>
-
                   {/* Ngày đăng */}
                   <Text style={{ fontSize: 14, color: "#888", marginBottom: 10 }}>
                     Đã viết vào{" "}
@@ -524,13 +572,11 @@ const ProductInfoScreen = () => {
                       })}
                     </Text>
                   </Text>
-
                   {/* Nội dung đánh giá */}
                   <Text style={{ fontSize: 16, color: "#333", lineHeight: 22 }}>
                     {rating?.comment || "Không có nhận xét."}
                   </Text>
                 </View>
-
               </>
             ))
           ) : (

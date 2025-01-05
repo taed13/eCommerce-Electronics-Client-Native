@@ -1,32 +1,63 @@
 import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
 import React, { useMemo, useState } from "react";
-import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useGetMyCart } from "../api/cart";
+import { Checkbox } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Header from "../components/Header";
-import { CartItem } from "../components/CartItem";
-import Loading from "../components/Loading";
-import { colors } from "../config/constants";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
+import { CartItem } from "../components/CartItem";
+import Loading from "../components/Loading";
+
+import { colors } from "../config/constants";
+
+import { useGetMyCart } from "../api/cart";
+
 const CartScreen = () => {
-  const [searchValue, setSearchValue] = useState("");
-  const { data, isLoading, refetch, error } = useGetMyCart();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
+  const { data, isLoading, refetch, error } = useGetMyCart();
+
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
   const listItems = useMemo(() => {
     if (!Array.isArray(data?.data?.cart_products)) return [];
-    return data?.data?.cart_products.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()));
+    return data?.data?.cart_products.filter((item) =>
+      item.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
   }, [data, searchValue]);
+
+  const handleSelectItem = (itemId) => {
+    setSelectedItems((prevSelected) =>
+      prevSelected.includes(itemId)
+        ? prevSelected.filter((id) => id !== itemId)
+        : [...prevSelected, itemId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      const allItemIds = listItems.map((item) => item._id);
+      setSelectedItems(allItemIds);
+    }
+    setSelectAll(!selectAll);
+  };
 
   const renderCartList = useMemo(() => {
     if (listItems.length > 0) {
       return (
         <View style={CartListStyle.orderList}>
           {listItems.map((item) => (
-            <CartItem key={item._id} item={item} />
+            <CartItem
+              key={item._id}
+              item={item}
+              isChecked={selectedItems.includes(item._id)}
+              onToggleCheckbox={() => handleSelectItem(item._id)}
+            />
           ))}
         </View>
       );
@@ -37,7 +68,7 @@ const CartScreen = () => {
         <Text style={CartListStyle.emptyText}>Không có sản phẩm nào trong giỏ hàng!</Text>
       </View>
     );
-  }, [listItems]);
+  }, [listItems, selectedItems]);
 
   useFocusEffect(() => {
     if (!error) {
@@ -45,30 +76,22 @@ const CartScreen = () => {
     }
   });
 
+  const handleProceedOrder = () => {
+    if (selectedItems.length === 0) {
+      alert("Vui lòng chọn ít nhất một sản phẩm để đặt hàng!");
+      return;
+    }
+  
+    const selectedProducts = listItems.filter((item) => selectedItems.includes(item._id));
+    navigation.navigate("OrderSummary", { cartData: { cart_products: selectedProducts } });
+  };  
+
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
-        <Header title="Giỏ hàng" />
-        <View
-          style={{
-            backgroundColor: colors.primary,
-            padding: 10,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: 7,
-              gap: 10,
-              backgroundColor: "white",
-              borderRadius: 3,
-              height: 38,
-              flex: 1,
-            }}
-          >
+        <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center" }}>
+
+          <Pressable style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 3, gap: 10, backgroundColor: "white", borderRadius: 50, height: 40, flex: 1, }}>
             <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
             <TextInput
               placeholder="Tìm kiếm sản phẩm trong giỏ hàng"
@@ -76,25 +99,24 @@ const CartScreen = () => {
               onChangeText={(text) => setSearchValue(text)}
             />
           </Pressable>
-
-          <Feather name="mic" size={24} color="black" />
         </View>
 
-        <View style={{ padding: 10, flexDirection: "row", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "400" }}>Tổng cộng: </Text>
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{data?.cart_count_product ?? 0}</Text>
-        </View>
+        {/* Checkbox Chọn Tất Cả */}
+        <Pressable onPress={handleSelectAll} style={{ flexDirection: "row", alignItems: "center", padding: 10 }}>
+          <Checkbox.Android
+            status={selectAll ? "checked" : "unchecked"}
+            color={colors.primary}
+            uncheckedColor={colors.grey}
+            size={20}
+          />
+          <Text style={{ fontSize: 16 }}>Chọn tất cả sản phẩm</Text>
+        </Pressable>
         <ScrollView style={{ flex: 1 }}>{renderCartList}</ScrollView>
 
         <Pressable
-          onPress={() => {
-            data?.data &&
-              navigation.navigate("OrderSummary", {
-                cartData: data?.data,
-              });
-          }}
+          onPress={handleProceedOrder}
           style={{
-            backgroundColor: colors.primary,
+            backgroundColor: selectedItems.length === 0 ? "#ccc" : colors.primary,
             padding: 10,
             borderRadius: 5,
             justifyContent: "center",
@@ -102,8 +124,9 @@ const CartScreen = () => {
             marginHorizontal: 10,
             marginTop: 10,
           }}
+          disabled={selectedItems.length === 0}
         >
-          <Text>{`Tiến hành đặt hàng (${data?.data?.cart_products?.length ?? 0}) sản phẩm`}</Text>
+          <Text>{`Tiến hành đặt hàng (${selectedItems.length}) sản phẩm`}</Text>
         </Pressable>
       </View>
       {isLoading && <Loading />}
@@ -120,13 +143,16 @@ const WrapperContentStyle = (paddingBottom = 0, paddingTop = 0) =>
       paddingTop,
       backgroundColor: "white",
       flex: 1,
-      paddingHorizontal: 8,
     },
   });
 
 const CartListStyle = StyleSheet.create({
   orderList: {
     gap: 8,
+  },
+  cartItem: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   empty: {
     justifyContent: "center",

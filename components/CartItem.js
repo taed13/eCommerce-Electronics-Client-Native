@@ -1,15 +1,26 @@
 /* eslint-disable react/prop-types */
 import React, { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Checkbox } from "react-native-paper";
+
 import { colors } from "../constants/color";
-export const CartItem = ({ item }) => {
+
+export const CartItem = ({ item, isChecked, onToggleCheckbox }) => {
   return (
     <View style={CartItemStyle.container}>
-      <TouchableOpacity style={CartItemStyle.wrapper}>
+      <Checkbox.Android
+        status={isChecked ? "checked" : "unchecked"}
+        onPress={onToggleCheckbox}
+        color={colors.checkboxPrimary}
+        uncheckedColor={colors.gray}
+        style={CartItemStyle.checkbox}
+      />
+
+      <TouchableOpacity style={CartItemStyle.wrapper} onPress={onToggleCheckbox}>
         <View style={[CartItemStyle.item]}>
           <Image source={{ uri: item.productId.product_images[0].url }} style={CartItemStyle.image} />
-          <View>
-            <Text>{item.name}</Text>
+          <View style={CartItemStyle.details}>
+            <Text style={CartItemStyle.itemName}>{item.name}</Text>
             <View style={CartItemStyle.star}>
               <Text>{item.productId.product_totalRating}</Text>
               <AntDesign name="star" size={16} color={colors.yellow} />
@@ -21,8 +32,10 @@ export const CartItem = ({ item }) => {
           <Text style={CartItemStyle.quantity}>x {item.quantity}</Text>
         </View>
         <View style={CartItemStyle.total}>
-          <Text>Total:</Text>
-          <Text style={CartItemStyle.totalPrice}>{Number(item.price) * Number(item.quantity)}</Text>
+          <Text style={CartItemStyle.totalLabel}>Tổng cộng:</Text>
+          <Text style={CartItemStyle.totalPrice}>
+            {(Number(item.price) * Number(item.quantity)).toLocaleString()} đ
+          </Text>
         </View>
         <View style={CartItemStyle.divider} />
       </TouchableOpacity>
@@ -34,75 +47,79 @@ const CartItemStyle = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    overflow: "hidden",
+    padding: 8,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   checkbox: {
-    marginLeft: 8,
-    padding: 8,
-    width: 16,
-    height: 16,
+    marginRight: 10,
   },
   wrapper: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    backgroundColor: "white",
     flex: 1,
-  },
-  status: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: colors.gray,
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderWidth: 2,
-    borderColor: colors.gray,
   },
   item: {
-    marginTop: 6,
     flexDirection: "row",
-    gap: 8,
+    alignItems: "center",
+    gap: 10,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.gray,
+  },
+  details: {
+    flex: 1,
   },
   itemName: {
-    fontSize: 18,
-  },
-  infor: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-  },
-  price: {
-    marginLeft: 108,
-    fontSize: 20,
-  },
-  quantity: {
-    color: colors.orange,
-  },
-  totalPrice: {
-    fontSize: 20,
-    color: colors.red,
-  },
-  total: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginTop: 8,
-    justifyContent: "flex-end",
-    gap: 8,
-  },
-  divider: {
-    borderBottomWidth: 1,
-    marginTop: 4,
-    borderBottomColor: colors.gray,
+    fontWeight: "bold",
+    fontSize: 16,
   },
   star: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
+    marginTop: 4,
+  },
+  infor: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.teal,
+  },
+  quantity: {
+    fontSize: 16,
+    color: colors.orange,
+  },
+  total: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  totalLabel: {
+    fontSize: 16,
+  },
+  totalPrice: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.red,
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray,
+    marginTop: 8,
   },
 });
