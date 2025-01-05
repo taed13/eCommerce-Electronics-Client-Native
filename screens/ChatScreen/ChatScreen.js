@@ -75,13 +75,13 @@ const ChatScreen = (props) => {
                 containerStyle={{
                     justifyContent: 'center',
                     alignItems: 'center',
-                    paddingRight: 1, 
+                    paddingRight: 1,
                 }}
             >
                 <Ionicons name="send" size={20} style={styles.sendIcon} />
             </Send>
         );
-    };    
+    };
 
     const renderBubble = (props) => {
         return (

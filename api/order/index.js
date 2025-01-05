@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMyOrder } from "./order.api";
+import { getMyOrder, checkProductInOrder } from "./order.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 
 export const useGetMyOrder = () => {
@@ -30,4 +30,28 @@ export const useGetMyOrder = () => {
   }, [axiosClient]);
 
   return { data, isLoading, error };
+};
+
+export const useCheckProductInOrder = () => {
+  const axiosClient = useAxiosClient();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  const fetchCheckProductInOrder = async (productId) => {
+    setIsLoading(true);
+    try {
+      const response = await checkProductInOrder(axiosClient, productId);
+      setData(response.data);
+      return response.data;
+    } catch (error) {
+      setError(error.message || "An unexpected error occurred");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { isLoading, data, error, fetchCheckProductInOrder };
 };
