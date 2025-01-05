@@ -124,13 +124,13 @@ const StackNavigator = () => {
           <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
           <Stack.Screen
-            name="Chat"
+            name="ChatDetail"
             component={Chat}
             options={({ route }) => ({
-              headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?.id} />,
+              headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?._id} />,
               headerRight: () => (
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <ChatMenu chatName={route.params.chatName} chatId={route.params.id} />
+                  <ChatMenu chatName={route.params.chatName} chatId={route.params._id} />
                 </View>
               ),
             })}

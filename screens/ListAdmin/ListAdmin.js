@@ -27,7 +27,7 @@ const ListAdmin = ({ setUnreadCount }) => {
         const interval = setInterval(() => {
             setCurrentTime(Date.now()); // Update the current time every minute
         }, 60000); // 60,000 milliseconds = 1 minute
-    
+
         return () => clearInterval(interval); // Cleanup interval on component unmount
     }, []);
 
@@ -50,6 +50,8 @@ const ListAdmin = ({ setUnreadCount }) => {
                 if (currentUser.isAvatarImageSet) {
                     try {
                         const data = await axios.get(`${allAdminsRoute}/${currentUser._id}`);
+
+                        // console.log('data', data.data);
                         setContacts(data.data);
                         setChats(data.data);
                         setLoading(false);
@@ -173,7 +175,7 @@ const ListAdmin = ({ setUnreadCount }) => {
 
 
     const handleOnPress = async (chat) => {
-        const chatId = chat.id;
+        const chatId = chat._id;
         if (selectedItems.length) {
             return selectItems(chat);
         }
@@ -185,7 +187,8 @@ const ListAdmin = ({ setUnreadCount }) => {
             return updatedMessages;
         });
 
-        navigation.navigate('Chat', { id: chat._id, chatName: handleChatName(chat) });
+        // console.log('chat', chat);
+        navigation.navigate('ChatDetail', { id: chat._id, chatName: handleChatName(chat) });
     };
 
     const handleLongPress = (chat) => {
@@ -248,7 +251,7 @@ const ListAdmin = ({ setUnreadCount }) => {
         // console.log('chat:::', chat);
         const message = chat?.messages?.[0];
 
-        console.log('message:::', message);
+        // console.log('message:::', message);
 
         if (!message) return "No messages yet";
 
@@ -321,23 +324,23 @@ const ListAdmin = ({ setUnreadCount }) => {
 
     const handleSubtitle2 = (chat) => {
         const lastUpdated = chat?.lastUpdatedMessage;
-    
+
         if (!lastUpdated) {
             return "Unknown date";
         }
-    
+
         try {
             const date = new Date(lastUpdated);
-    
+
             if (isNaN(date.getTime())) {
                 return "Invalid date";
             }
-    
+
             const diffInMs = currentTime - date; // Use the updated `currentTime`
             const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
             const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
             const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
             if (diffInMinutes < 1) return "Just now";
             if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
             if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
@@ -346,7 +349,7 @@ const ListAdmin = ({ setUnreadCount }) => {
             console.error("Error formatting date:", error);
             return "Error formatting date";
         }
-    };    
+    };
 
     return (
         <Pressable style={styles.container} onPress={deSelectItems}>
