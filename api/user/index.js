@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService } from "./user.api";
+import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService } from "./user.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -14,37 +14,6 @@ export const useGetCurrentUser = () => {
     queryFn: () => getCurrentUser(axiosClient),
   });
 };
-
-
-// export const useGetCurrentUser = () => {
-//   const axiosClient = useAxiosClient();
-
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [data, setData] = useState({});
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     if (!axiosClient) return;
-//     const fetchCurrentUser = async () => {
-//       try {
-//         const result = await getCurrentUser(axiosClient);
-//         if (result.data) {
-//           setData(result.data || {});
-//         } else {
-//           setError(result.error || "Something went wrong");
-//         }
-//       } catch (error) {
-//         setError(error.message || "An unexpected error occurred");
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     fetchCurrentUser();
-//   }, [axiosClient]);
-
-//   return { data, isLoading, error };
-// };
 
 export const useUpdateUser = () => {
   const axiosClient = useAxiosClient();
@@ -154,4 +123,67 @@ export const useForgotPassword = () => {
   };
 
   return { sendForgotPasswordEmail, isLoading };
+};
+
+export const useSetDefaultAddress = () => {
+  const axiosClient = useAxiosClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const setDefaultAddress = async (addressId) => {
+    setIsLoading(true);
+    try {
+      const { data } = await setDefaultAddressService(axiosClient, addressId);
+      return data;
+    } catch (error) {
+      setError(error.message || "Failed to set default address");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { setDefaultAddress, isLoading, error };
+};
+
+export const useUpdateAddress = () => {
+  const axiosClient = useAxiosClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const updateAddress = async (addressId, addressData) => {
+    setIsLoading(true);
+    try {
+      const { data } = await updateAddressService(axiosClient, addressId, addressData);
+      return data;
+    } catch (error) {
+      setError(error.message || "Failed to update address");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { updateAddress, isLoading, error };
+};
+
+export const useDeleteAddress = () => {
+  const axiosClient = useAxiosClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const deleteAddress = async (addressId) => {
+    setIsLoading(true);
+    try {
+      const { data } = await deleteAddressService(axiosClient, addressId);
+      return data;
+    } catch (error) {
+      setError(error.message || "Failed to delete address");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { deleteAddress, isLoading, error };
 };
