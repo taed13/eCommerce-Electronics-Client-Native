@@ -25,7 +25,6 @@ const LoginScreen = () => {
     setRememberMe((prev) => !prev);
   };
 
-  // Hàm kiểm tra định dạng email
   const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleLogin = async () => {

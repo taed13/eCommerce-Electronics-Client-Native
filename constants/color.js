@@ -1,5 +1,6 @@
 export const colors = {
   iconPrimary: "#000000",
+  checkboxPrimary: "#febd69",
   iconSecondary: "#ABABAB",
   iconWhite: "#FFFFFF",
   orange: "#EE8924",

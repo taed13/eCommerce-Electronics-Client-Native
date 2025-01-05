@@ -1,34 +1,39 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal } from "react-native";
-import { convertCartData, getSessionId } from "../utils/common";
 import { useSelector } from "react-redux";
-import { useCreateOrder, usePurchase } from "../api/checkout";
-import Loading from "../components/Loading";
-import { CheckoutItem } from "../components/CheckoutItem";
-import { colors } from "../constants/color";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useApplyDiscount, useCalculateShippingFee } from "../api/discount";
-import { PURCHASE_RESPONSE } from "../config/common";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 
+import Loading from "../components/Loading";
+import { CheckoutItem } from "../components/CheckoutItem";
+
+import { useCreateOrder, usePurchase } from "../api/checkout";
+import { useApplyDiscount, useCalculateShippingFee } from "../api/discount";
+
+import { convertCartData, getSessionId } from "../utils/common";
+import { PURCHASE_RESPONSE } from "../config/common";
+import { colors } from "../constants/color";
+
 const OrderSummaryScreen = ({ route }) => {
+  const { cartData } = route.params;
+  const currentUser = useSelector((state) => state.user.currentUser);
+
   const calculatedAddress = useRef(null);
+  const navigate = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const { apply, isLoading: isApplying, error } = useApplyDiscount();
   const { calculate, isLoading: isCalculating, error: errorShipping } = useCalculateShippingFee();
-  const { cartData } = route.params;
-  const insets = useSafeAreaInsets();
-  const navigate = useNavigation();
+
   const [isOpenPayment, setIsOpenPayment] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [discountError, setDiscountError] = useState(null);
-  const currentUser = useSelector((state) => state.user.currentUser);
   const [shippingFee, setShippingFee] = useState(0);
 
   const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
@@ -39,6 +44,7 @@ const OrderSummaryScreen = ({ route }) => {
       calculatedAddress.current = myAddress[0];
     }
   }, [myAddress]);
+
   useEffect(() => {
     if (myAddress?.[0] && !shippingFee) {
       handleCalculateShippingFee();
@@ -203,10 +209,11 @@ const OrderSummaryScreen = ({ route }) => {
             </View>
             <View>
               {cartData?.cart_products &&
-                cartData?.cart_products?.map((item, index) => {
-                  return <CheckoutItem item={item} key={index} />;
+                cartData?.cart_products.map((item, index) => {
+                  return <CheckoutItem item={item} key={item._id || index} />;
                 })}
             </View>
+            
             <View style={[OrderSummaryScreenStyle.discountWrapper, OrderSummaryScreenStyle.wrapper]}>
               <TextInput
                 style={OrderSummaryScreenStyle.discountInput}
@@ -253,8 +260,18 @@ const OrderSummaryScreen = ({ route }) => {
           </View>
         </ScrollView>
         <View style={[SafeAreaViewStyle(insets).btnCheckout]}>
-          <TouchableOpacity onPress={hanldeCheckout} style={[OrderSummaryScreenStyle.btnCheckout]}>
-            <Text style={OrderSummaryScreenStyle.btnCheckoutText}>Thanh toán</Text>
+          <TouchableOpacity
+            onPress={hanldeCheckout}
+            disabled={!cartData?.cart_products?.length}
+            style={{
+              backgroundColor: cartData?.cart_products?.length ? colors.btn : "#ccc",
+              paddingVertical: 16,
+              borderRadius: 12,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "bold" }}>Thanh toán</Text>
           </TouchableOpacity>
         </View>
       </View>

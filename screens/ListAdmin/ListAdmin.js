@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SafeAreaView, StyleSheet, ScrollView, Pressable, Alert, ActivityIndicator, Text, View, TouchableOpacity } from "react-native";
+
 import ContactRow from '../../components/ContactRow';
 import Separator from "../../components/Separator";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -362,8 +363,8 @@ const ListAdmin = ({ setUnreadCount }) => {
                             <Text style={styles.textContainer}>No conversations yet</Text>
                         </View>
                     ) : (
-                        chats.map(chat => (
-                            <React.Fragment key={chat.id}>
+                        chats.map((chat, index) => (
+                            <React.Fragment key={chat._id || index}>
                                 <ContactRow
                                     style={getSelected(chat) ? styles.selectedContactRow : ""}
                                     name={handleChatName(chat)}
@@ -381,7 +382,7 @@ const ListAdmin = ({ setUnreadCount }) => {
                     <Separator />
                     <View style={styles.blankContainer}>
                         <Text style={{ fontSize: 12, margin: 15 }}>
-                            <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Your personal messages are not <Text style={{ color: colors.teal }}>end-to-end-encrypted</Text>
+                            <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.teal }}>mã hóa đầu cuối</Text>
                         </Text>
                     </View>
                 </ScrollView>
