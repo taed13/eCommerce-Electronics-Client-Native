@@ -61,3 +61,39 @@ export const forgotPasswordService = async (axiosClient, userData) => {
         return { error: error.message || "Failed to send forgot password email" };
     }
 }
+
+export const setDefaultAddressService = async (axiosClient, addressId) => {
+    try {
+        const response = await axiosClient.put("/user/set-default-address", { addressId });
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to set default address" };
+    }
+};
+
+export const updateAddressService = async (axiosClient, addressId, addressData) => {
+    try {
+        const response = await axiosClient.patch(`/user/update-address/${addressId}`, addressData);
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to update address" };
+    }
+};
+
+export const deleteAddressService = async (axiosClient, addressId) => {
+    try {
+        const response = await axiosClient.delete(`/user/address/${addressId}`);
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to delete address" };
+    }
+};
