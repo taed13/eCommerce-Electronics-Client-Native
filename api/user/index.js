@@ -4,7 +4,7 @@ import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { QUERY_KEYS, MUTAION_KEYS } from "../../config/common";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useGetCurrentUser = () => {
   const axiosClient = useAxiosClient();
@@ -17,27 +17,26 @@ export const useGetCurrentUser = () => {
 
 export const useUpdateUser = () => {
   const axiosClient = useAxiosClient();
+  const queryClient = useQueryClient();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState({});
-  const [error, setError] = useState(null);
-
-  const updateUser = async (updatedUserData) => {
-    setIsLoading(true);
-    try {
-      const response = await editUser(axiosClient, updatedUserData);
-      setData(response.data);
-      return response.data;
-    } catch (error) {
-      setError(error.message || "An unexpected error occurred");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { updateUser, isLoading, data, error };
-}
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.UPDATE_USER],
+    mutationFn: (updatedUserData) => editUser(axiosClient, updatedUserData),
+    onSuccess: (data) => {
+      console.log('Update user successful:', data);
+      queryClient.setQueryData([QUERY_KEYS.GET_CURRENT_USER], (oldData) => ({
+        ...oldData,
+        data: {
+          ...oldData?.data,
+          ...data.updatedUser,
+        },
+      }));
+    },
+    onError: (error) => {
+      console.error('Failed to update user:', error.message);
+    },
+  });
+};
 
 export const useLogin = () => {
   const axiosClient = useAxiosClient();

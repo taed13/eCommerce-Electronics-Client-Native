@@ -5,23 +5,17 @@ import Cell from "../components/Cell";
 import Header from "../components/Header";
 import Loading from "../components/Loading";
 import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from "react-redux";
 import { colors } from "../config/constants";
-import { useDispatch } from "react-redux";
-import { fetchCurrentUser } from "../feature/users/userSlice";
+import { useGetCurrentUser } from "../api/user";
 
 const SettingScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const currentUser = useSelector((state) => state.user.currentUser);
-  console.log("currentUser::", currentUser);
+  const { data, isLoading } = useGetCurrentUser();
 
-  if (currentUser === null) {
-    dispatch(fetchCurrentUser());
-  }
-
-  if (!currentUser) {
+  if (isLoading) {
     return <Loading />;
   }
+
+  const currentUser = data?.data;
 
   const handleOpenGithub = async () => {
     const githubUrl = "https://github.com/taed13/eCommerce-Electronics-Client-Native";
@@ -61,7 +55,6 @@ const SettingScreen = ({ navigation }) => {
           icon="people-outline"
           iconColor="black"
           onPress={() => {
-            // navigation.navigate("Profile")
             alert('Sẽ cập nhật sau...');
           }}
           showForwardIcon={false}
