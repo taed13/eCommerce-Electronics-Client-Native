@@ -70,7 +70,6 @@ export const useLogout = () => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem("authToken");
-      console.log("Auth token cleared");
       navigation.replace("Login");
       return { success: true, message: "Logged out successfully" };
     } catch (error) {

@@ -57,7 +57,7 @@ const BottomTabs = () => (
           <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
             Cá nhân
           </Text>
-        ),
+        ), headerShown: false,
         tabBarIcon: ({ focused }) =>
           focused ? (
             <Ionicons name="person" size={24} color="#008E97" />
@@ -125,7 +125,7 @@ const StackNavigator = () => {
       <Stack.Screen
         name="OrderSummary"
         component={OrderSummaryScreen}
-        options={{ headerShown: true, title: "Tổng quan đơn hàng" }}
+        options={{ headerShown: false, title: "Tổng quan đơn hàng" }}
       />
       <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
       <Stack.Screen

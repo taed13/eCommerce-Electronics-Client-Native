@@ -245,7 +245,7 @@ const HomeScreen = () => {
               <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flex: 1 }}>
                 {defaultAddress ? (
                   <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }} numberOfLines={1} ellipsizeMode="tail">
-                    Giao hàng đến {defaultAddress.ward?.full_name}, {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
+                    Giao hàng đến {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
                   </Text>
                 ) : (
                   <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>

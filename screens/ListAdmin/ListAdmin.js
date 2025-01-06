@@ -383,7 +383,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     container: {
-        flex: 1
+        flex: 1,
+        fontSize: 23,
     },
     blankContainer: {
         flex: 1,

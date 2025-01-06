@@ -26,3 +26,15 @@ export const checkProductInOrder = async (axiosClient, productId) => {
     }
   }
 };
+
+export const getOrderById = async (axiosClient, orderId) => {
+  try {
+    const response = await axiosClient.get(`order/${orderId}`);
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Failed to retrieve order details" };
+  }
+};

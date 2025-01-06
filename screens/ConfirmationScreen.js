@@ -32,7 +32,6 @@ const ConfirmationScreen = () => {
 
   const fetchAddresses = async () => {
     const token = await AsyncStorage.getItem("authToken");
-    console.log("token:::", token);
 
     try {
       const response = await axiosInstance.get(`user/addresses/${userId}`, {

@@ -28,13 +28,13 @@ export const CartItem = ({ item, isChecked, onToggleCheckbox }) => {
           </View>
         </View>
         <View style={CartItemStyle.infor}>
-          <Text style={CartItemStyle.price}>{item.price} đ</Text>
+          <Text style={CartItemStyle.price}>đ{item.price.toLocaleString()}</Text>
           <Text style={CartItemStyle.quantity}>x {item.quantity}</Text>
         </View>
         <View style={CartItemStyle.total}>
           <Text style={CartItemStyle.totalLabel}>Tổng cộng:</Text>
           <Text style={CartItemStyle.totalPrice}>
-            {(Number(item.price) * Number(item.quantity)).toLocaleString()} đ
+            đ{(Number(item.price) * Number(item.quantity)).toLocaleString()}
           </Text>
         </View>
         <View style={CartItemStyle.divider} />

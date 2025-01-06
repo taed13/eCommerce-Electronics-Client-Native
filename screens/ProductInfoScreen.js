@@ -31,6 +31,7 @@ import { useFetchProduct, useFetchProducts } from "../api/product";
 import { useCheckProductInOrder } from "../api/order";
 import { useAddToCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
+import HeaderSearchInput from "../components/HeaderSearchInput";
 
 const ProductInfoScreen = () => {
   const navigation = useNavigation();
@@ -176,37 +177,11 @@ const ProductInfoScreen = () => {
     <>
       <ScrollView
         ref={scrollViewRef}
-        style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}
+        style={{ marginTop: 47, flex: 1, backgroundColor: "white" }}
         showsVerticalScrollIndicator={false}
       >
-        <View
-          style={{
-            backgroundColor: "#131921",
-            padding: 10,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: 7,
-              gap: 10,
-              backgroundColor: "white",
-              borderRadius: 3,
-              height: 38,
-              flex: 1,
-            }}
-          >
-            <AntDesign
-              style={{ paddingLeft: 10 }}
-              name="search1"
-              size={22}
-              color="black"
-            />
-            <TextInput placeholder="Tìm kiếm sản phẩm..." />
-          </Pressable>
+        <View>
+          <HeaderSearchInput />
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -374,15 +349,15 @@ const ProductInfoScreen = () => {
             }}
           >
             <Text style={{ fontWeight: "bold" }}>Màu:</Text>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "row", gap: 5 }}>
               {productData?.product_color?.length > 0 ? (
                 productData.product_color.map((color, index) => (
                   <TouchableOpacity
                     key={color.code}
                     onPress={() => setSelectedColor(color)}
                     style={{
-                      width: 30,
-                      height: 30,
+                      width: 20,
+                      height: 20,
                       borderRadius: 20,
                       backgroundColor: color.code,
                       marginRight: 5,
