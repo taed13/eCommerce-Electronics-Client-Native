@@ -52,7 +52,7 @@ const LoginScreen = () => {
     if (result?.findUser?.token) {
       await AsyncStorage.setItem("authToken", result.findUser.token);
       dispatch(fetchCurrentUser());
-      navigation.replace("Main");
+      navigation.replace("MainApp");
     } else {
       alert(error || "Đăng nhập thất bại. Vui lòng thử lại!");
     }

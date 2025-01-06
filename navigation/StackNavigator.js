@@ -106,7 +106,7 @@ const BottomTabs = () => (
 const StackNavigator = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="MainApp" component={BottomTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
