@@ -61,12 +61,12 @@ const SettingScreen = ({ navigation }) => {
         />
       </View>
 
-      <TouchableOpacity style={styles.githubLink} onPress={handleOpenGithub}>
+      {/* <TouchableOpacity style={styles.githubLink} onPress={handleOpenGithub}>
         <Text style={styles.githubText}>
           <Ionicons name="logo-github" size={12} color={colors.teal} />{" "}
           App's Github
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </ScrollView>
   );
 };

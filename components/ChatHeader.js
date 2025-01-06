@@ -11,14 +11,6 @@ const ChatHeader = ({ chatName, chatId }) => {
             style={styles.container}
             onPress={() => navigation.navigate('ChatInfo', { chatId, chatName })}
         >
-            <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('ChatInfo', { chatId, chatName })}>
-                <View>
-                    <Text style={styles.avatarLabel}>
-                        {chatName.split(' ').reduce((prev, current) => `${prev}${current[0]}`, '')}
-                    </Text>
-                </View>
-            </TouchableOpacity>
-
             <Text style={styles.chatName}>{chatName}</Text>
         </TouchableOpacity>
     );
@@ -45,7 +37,7 @@ const styles = StyleSheet.create({
         color: 'white'
     },
     chatName: {
-        fontSize: 18,
+        fontSize: 23,
         fontWeight: 'bold',
         color: 'black',
     },

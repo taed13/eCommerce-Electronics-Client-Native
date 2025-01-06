@@ -42,10 +42,8 @@ export const registerUserService = async (axiosClient, userData) => {
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
-            console.log("error message:::", error.response.data.message);
             return { error: error.response.data.message };
         }
-        console.log("error:::", error);
         return { error: error.message || "Failed to register" };
     }
 };

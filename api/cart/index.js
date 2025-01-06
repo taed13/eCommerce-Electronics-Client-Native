@@ -19,7 +19,6 @@ export const useAddToCart = () => {
     mutationKey: [MUTAION_KEYS.ADD_TO_CART],
     mutationFn: (cartData) => addToCart(axiosClient, cartData),
     onSuccess: (data) => {
-      console.log("Product added to cart successfully:", data);
     },
     onError: (error) => {
       console.error("Failed to add to cart:", error.message);

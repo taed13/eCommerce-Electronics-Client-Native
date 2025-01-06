@@ -1,7 +1,7 @@
 export const APP_CONFIG = {
   // host: "http://192.168.1.238:5001",
-  host: "https://e-commerce-electronics-server-ruddy.vercel.app",
-  BASE_URL: "https://e-commerce-electronics-server-ruddy.vercel.app/api/",
+  host: "http://192.168.1.238:5001",
+  BASE_URL: "http://192.168.1.238:5001/api/",
   // BASE_URL: "https://25d9112fc9b8d9a7c359538eb017bf6d.serveo.net/api/",
 };
 
@@ -9,6 +9,7 @@ export const QUERY_KEYS = {
   GET_CART: "GET_CART",
   GET_CURRENT_USER: "GET_CURRENT_USER",
   GET_MESSAGE: "GET_MESSAGE",
+  GET_ORDER_BY_ID: "GET_ORDER_BY_ID"
 };
 
 export const MUTAION_KEYS = {

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { getMyOrder, checkProductInOrder } from "./order.api";
+import { getMyOrder, checkProductInOrder, getOrderById } from "./order.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
+import { QUERY_KEYS } from "../../config/common";
+import { useQuery } from "@tanstack/react-query";
 
 export const useGetMyOrder = () => {
   const axiosClient = useAxiosClient();
@@ -54,4 +56,14 @@ export const useCheckProductInOrder = () => {
   };
 
   return { isLoading, data, error, fetchCheckProductInOrder };
+};
+
+export const useGetOrderById = (orderId) => {
+  const axiosClient = useAxiosClient();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_ORDER_BY_ID, orderId],
+    queryFn: () => getOrderById(axiosClient, orderId),
+    enabled: !!orderId,
+  });
 };

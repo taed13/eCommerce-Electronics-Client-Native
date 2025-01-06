@@ -13,8 +13,6 @@ const AccountScreen = ({ navigation }) => {
     const { logout } = useLogout();
 
     const onSignOut = async () => {
-        // signOut(auth).catch(error => console.log('Error logging out: ', error));
-        // useLogout();
         const result = await logout();
         if (result.success) {
             console.log("Đăng xuất thành công!");
