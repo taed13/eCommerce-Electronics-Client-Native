@@ -67,7 +67,6 @@ const LoginScreen = () => {
 
     if (result?.findUser?.token) {
       await AsyncStorage.setItem("authToken", result.findUser.token);
-      await fetchUser();
       await setDataForUserAsyncStore(result.findUser);
       navigation.replace("MainApp");
     } else {
