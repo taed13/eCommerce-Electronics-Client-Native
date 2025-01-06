@@ -1,106 +1,106 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { View, StyleSheet, TouchableOpacity, Keyboard, Text, ActivityIndicator } from "react-native";
-import { Ionicons } from '@expo/vector-icons'
-import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat'
-import { auth, database } from '../config/firebase';
-// import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
-// import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { colors } from '../config/constants';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { View, StyleSheet, TouchableOpacity, Keyboard, ActivityIndicator } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat';
 import EmojiModal from 'react-native-emoji-modal';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import uuid from 'react-native-uuid';
-import axiosInstance from '../api/axiosInstance';
-import { getAllMessageRoute } from '../config/config';
+import { io } from "socket.io-client";
+import { colors } from '../config/constants';
+import { useGetCurrentUser } from '../api/user';
+import { useGetMessage, useSendMessage } from '../api/message';
+import { APP_CONFIG } from '../config/common';
+import Loading from '../components/Loading';
 
 function Chat({ route }) {
-    console.log("Route:", route);
+    const { data: userData, isLoading: userLoading } = useGetCurrentUser();
+    const socket = useRef();
     const navigation = useNavigation();
+
     const [messages, setMessages] = useState([]);
     const [modal, setModal] = useState(false);
     const [uploading, setUploading] = useState(false);
+
     const currentUser = {
-        _id: '6742f8d25d1d52271dfc87bd',
+        _id: userData?.data?._id || 'unknown',
         isAvatarImageSet: true,
-        name: 'Admin',
-        email: 'johndoe@gmail.com',
+        name: userData?.data?.name || 'User',
+        email: userData?.data?.email,
     };
 
-    // useEffect(() => {
-    //     const unsubscribe = onSnapshot(doc(database, 'chats', route.params.id), (doc) => {
-    //         setMessages(doc.data().messages.map((message) => ({
-    //             ...message,`
-    //             createdAt: message.createdAt.toDate(),
-    //             image: message.image ?? '',
-    //         })));
-    //     });
-
-    //     return () => unsubscribe();
-    // }, [route.params.id]);
+    const { data: messagesData, isLoading: messagesLoading, error: messagesError, refetch } = useGetMessage(currentUser._id, route.params.id);
+    const { mutate: sendMessage } = useSendMessage();
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await axiosInstance.post('messages/getmsg', {
-                    from: currentUser?._id,
-                    to: route.params.id,
-                });
+        if (currentUser) {
+            socket.current = io(APP_CONFIG.host);
+            socket.current.on("connect", () => {
+                console.log("Socket connected:", socket.current.id);
+            });
 
-                console.log("Response:", response.data);
+            socket.current.emit("add-user", currentUser._id);
+        }
 
-                const formattedMessages = response.data.map((message, index) => ({
-                    _id: index.toString(), // Generate a unique `_id` if not provided
-                    text: message.message, // Map `message` to `text`
-                    createdAt: new Date(message.createdAt || Date.now()), // Ensure a valid date
-                    user: {
-                        _id: message.fromSelf ? currentUser?._id : route.params.id,
-                        name: message.fromSelf ? "You" : route.params.chatName,
-                    },
-                }));
-
-                setMessages(formattedMessages);
-            } catch (error) {
-                console.error("Error fetching messages:", error);
+        return () => {
+            if (socket.current) {
+                console.log("Socket disconnected");
+                socket.current.disconnect();
             }
         };
+    }, [currentUser]);
 
-        fetchMessages();
-    }, [route?.params?.id]);
+    useEffect(() => {
+        if (socket.current) {
+            socket.current.off("msg-receive");
+            socket.current.on("msg-receive", (data) => {
+                setMessages((prevMessages) =>
+                    GiftedChat.append(prevMessages, [{
+                        _id: uuid.v4(),
+                        text: data.message,
+                        createdAt: new Date(data.lastUpdatedMessage || new Date()),
+                        user: {
+                            _id: route.params.id,
+                            name: route.params.chatName,
+                        },
+                    }])
+                );
+            });
+        }
+    }, [socket.current]);
 
-    // const onSend = useCallback(async (m = []) => {
-    //     // Get messages
-    //     const chatDocRef = doc(database, "chats", route.params.id);
-    //     const chatDocSnap = await getDoc(chatDocRef);
-
-    //     const chatData = chatDocSnap.data();
-    //     const data = chatData.messages.map((message) => ({
-    //         ...message,
-    //         createdAt: message.createdAt.toDate(),
-    //         image: message.image ?? "",
-    //     }));
-
-    //     // Attach new message
-    //     const messagesWillSend = [{ ...m[0], sent: true, received: false }];
-    //     let chatMessages = GiftedChat.append(data, messagesWillSend);
-
-    //     setDoc(doc(database, 'chats', route.params.id), {
-    //         messages: chatMessages,
-    //         lastUpdated: Date.now()
-    //     }, { merge: true });
-    // }, [route.params.id, messages]);
+    useEffect(() => {
+        if (messagesData) {
+            const formattedMessages = messagesData.map((message, index) => ({
+                _id: index.toString(),
+                text: message.message,
+                createdAt: new Date(message.createdAt || Date.now()),
+                user: {
+                    _id: message.fromSelf ? currentUser?._id : route.params.id,
+                    name: message.fromSelf ? "You" : route.params.chatName,
+                },
+            }));
+            setMessages(formattedMessages);
+        }
+    }, [messagesData]);
 
     const onSend = useCallback((newMessages = []) => {
-        // Append the new messages to the local state
+        const messageToSend = newMessages[0];
         setMessages((prevMessages) => GiftedChat.append(prevMessages, newMessages));
 
-        // Prepare the message for potential future sending to Firebase or API
-        console.log("New message to send:", newMessages);
+        // Send message via socket
+        socket.current.emit("send-msg", {
+            to: route.params.id,
+            from: currentUser._id,
+            message: messageToSend.text,
+        });
 
-        // You can later uncomment and modify this part to send to Firebase or an API
-        // Example:
-        // sendMessageToFirebase(newMessages[0]);
-    }, []);
-
+        sendMessage({
+            from: currentUser._id,
+            to: route.params.id,
+            message: messageToSend.text,
+        });
+    }, [currentUser, route.params.id, sendMessage]);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -116,49 +116,20 @@ function Chat({ route }) {
 
     const uploadImageAsync = async (uri) => {
         setUploading(true);
-        const blob = await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = () => resolve(xhr.response);
-            xhr.onerror = () => reject(new TypeError("Network request failed"));
-            xhr.responseType = "blob";
-            xhr.open("GET", uri, true);
-            xhr.send(null);
-        });
         const randomString = uuid.v4();
-        const fileRef = ref(getStorage(), randomString);
-
-        const uploadTask = uploadBytesResumable(fileRef, blob);
-
-        uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                print("Upload percent:", progress);
+        const imageMessage = {
+            _id: randomString,
+            createdAt: new Date(),
+            text: "",
+            image: uri,
+            user: {
+                _id: currentUser?._id,
+                name: currentUser?.name,
             },
-            (error) => {
-                // Handle unsuccessful uploads
-                console.log(error);
-                reject(error);
-            },
-            async () => {
-                const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                setUploading(false);
-                onSend([
-                    {
-                        _id: randomString,
-                        createdAt: new Date(),
-                        text: "",
-                        image: downloadUrl,
-                        user: {
-                            _id: auth?.currentUser?.email,
-                            name: auth?.currentUser?.displayName,
-                            avatar: "https://i.pravatar.cc/300",
-                        },
-                    },
-                ]);
-            }
-        );
+        };
+
+        setMessages((prevMessages) => GiftedChat.append(prevMessages, [imageMessage]));
+        setUploading(false);
     };
 
     const renderBubble = useMemo(() => (props) => (
@@ -175,18 +146,19 @@ function Chat({ route }) {
         <>
             <TouchableOpacity style={styles.addImageIcon} onPress={pickImage}>
                 <View>
-                    <Ionicons
-                        name='attach-outline'
-                        size={32}
-                        color={colors.teal} />
+                    <Ionicons name='attach-outline' size={32} color={colors.teal} />
                 </View>
             </TouchableOpacity>
             <Send {...props}>
-                <View style={{ justifyContent: 'center', height: '100%', marginLeft: 8, marginRight: 4, marginTop: 12 }}>
-                    <Ionicons
-                        name='send'
-                        size={24}
-                        color={colors.teal} />
+                <View style={{
+                    bottom: 8,
+                    width: 40,
+                    borderRadius: 20,
+                    backgroundColor: colors.lightGrey,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Ionicons name='send' size={30} color={colors.teal} />
                 </View>
             </Send>
         </>
@@ -211,12 +183,22 @@ function Chat({ route }) {
     ), [modal]);
 
     const handleEmojiPanel = useCallback(() => {
-        if (modal) {
-            setModal(false);
-        } else {
+        if (!modal) {
             Keyboard.dismiss();
-            setModal(true);
         }
+        setModal((prev) => !prev);
+    }, [modal]);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            if (modal) {
+                setModal(false);  // Tắt modal nếu đang mở khi bàn phím được bật
+            }
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+        };
     }, [modal]);
 
     const renderLoading = useMemo(() => () => (
@@ -230,6 +212,12 @@ function Chat({ route }) {
             <ActivityIndicator size='large' color={colors.teal} />
         </View>
     ), []);
+
+    if (userLoading || messagesLoading) {
+        return (
+            <Loading />
+        );
+    }
 
     return (
         <>
@@ -279,6 +267,8 @@ function Chat({ route }) {
                                 avatar: 'https://i.pravatar.cc/300'
                             }
                         }]);
+
+                        setModal(false);
                     }}
                 />
             }
@@ -287,25 +277,37 @@ function Chat({ route }) {
 }
 
 const styles = StyleSheet.create({
-    inputToolbar: {
-        bottom: 6,
-        marginLeft: 8,
-        marginRight: 8,
-        borderRadius: 16,
-    },
     emojiIcon: {
-        marginLeft: 4,
+        marginLeft: 8,
         bottom: 8,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.lightGrey,
     },
-    emojiModal: {},
+    emojiModal: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     emojiContainerModal: {
-        height: 348,
-        width: 396,
+        backgroundColor: 'white',
+        padding: 10,
+        maxHeight: 400,
+        alignSelf: 'center',
+        elevation: 5,  // Adds a shadow on Android
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4, // Adds a shadow on iOS
     },
-    emojiBackgroundModal: {},
+    emojiBackgroundModal: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
     scrollToBottomStyle: {
         borderColor: colors.grey,
         borderWidth: 1,
@@ -314,13 +316,15 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         position: 'absolute',
         bottom: 12,
-        right: 12
+        right: 12,
     },
     addImageIcon: {
         bottom: 8,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 40,
+        borderRadius: 20,
+        backgroundColor: colors.lightGrey,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     loadingContainer: {
         flex: 1,

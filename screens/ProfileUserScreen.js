@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View, StyleSheet, Alert, TextInput } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from "../config/constants";
-import { auth } from '../config/firebase';
 import Cell from "../components/Cell";
 import Header from "../components/Header";
 import { useGetCurrentUser, useUpdateUser, useUpdateAddress } from "../api/user";
 import Loading from "../components/Loading";
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileUser = () => {
   const { data, isLoading, error } = useGetCurrentUser();
   const currentUser = data?.data;
   const queryClient = useQueryClient();
+  const navigation = useNavigation();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
@@ -149,10 +150,6 @@ const ProfileUser = () => {
     );
   };
 
-  const initials = currentUser?.name
-    ? currentUser?.name?.split(' ').map((name) => name.charAt(0)).join('')
-    : 'JD';
-
   return (
     <>
       <Header title='Hồ sơ' />
@@ -285,7 +282,7 @@ const ProfileUser = () => {
             icon="location-outline"
             iconColor="black"
             secondIcon="pencil-outline"
-            onPress={() => Alert.alert("Address", "This feature is coming soon.")}
+            onPress={() => navigation.navigate("Address")}
             style={styles.cell}
           />
 
@@ -295,7 +292,7 @@ const ProfileUser = () => {
             icon='information-circle-outline'
             iconColor="black"
             secondIcon='pencil-outline'
-            onPress={() => Alert.alert('About', 'This feature is coming soon.')}
+            onPress={() => navigation.navigate("Address")}
             style={styles.cell}
           />
         </View>
