@@ -7,8 +7,13 @@ export const useUserAsyncStore = () => {
 
     const setDataForUserAsyncStore = useCallback(async (data) => {
         try {
-            await AsyncStorage.setItem("userAsyncStore", JSON.stringify(data));
-            setUserAsyncStore(data);
+            const storedData = await AsyncStorage.getItem("userAsyncStore");
+            const parsedData = storedData ? JSON.parse(storedData) : null;
+
+            if (JSON.stringify(parsedData) !== JSON.stringify(data)) {
+                await AsyncStorage.setItem("userAsyncStore", JSON.stringify(data));
+                setUserAsyncStore(data);
+            }
         } catch (error) {
             console.error("Error saving user data:", error);
         }

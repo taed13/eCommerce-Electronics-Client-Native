@@ -5,7 +5,6 @@ import ContactRow from '../../components/ContactRow';
 import Separator from "../../components/Separator";
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { auth, database } from '../../config/firebase';
-// import { collection, doc, where, query, onSnapshot, orderBy, setDoc, deleteDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from "../../config/constants";
@@ -28,18 +27,11 @@ const ListAdmin = ({ route }) => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentTime(Date.now()); // Update the current time every minute
-        }, 60000); // 60,000 milliseconds = 1 minute
+            setCurrentTime(Date.now());
+        }, 60000);
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        return () => clearInterval(interval);
     }, []);
-
-    const currentChat = {
-        _id: '6742af8f64548f55b6b918d2',
-        isAvatarImageSet: true,
-        name: 'Admin',
-        email: 'johndoe@gmail.com',
-    }
 
     const currentUser = {
         _id: '6742f8d25d1d52271dfc87bd',
@@ -54,7 +46,6 @@ const ListAdmin = ({ route }) => {
                     try {
                         const data = await axios.get(`${allAdminsRoute}/${currentUser._id}`);
 
-                        // console.log('data', data.data);
                         setContacts(data.data);
                         setChats(data.data);
                         setLoading(false);
@@ -66,16 +57,8 @@ const ListAdmin = ({ route }) => {
                 }
             }
         };
-        fetchContacts(); // Call the async function
+        fetchContacts();
     }, []);
-
-    const fetchMessages = async (targetAdminId) => {
-        const response = await axiosInstance.post(getAllMessagesRoute, {
-            from: currentUser?._id,
-            to: targetAdminId,
-        });
-        setMessages(response.data);
-    };
 
 
     // useFocusEffect(
@@ -156,23 +139,14 @@ const ListAdmin = ({ route }) => {
     };
 
     const handleChatName = (chat) => {
-
-        // If the chat is a group, return the group name
-        if (chat?.groupName) {
-            return chat.groupName;
-        }
-
-        // If the chat has a specific name (e.g., for direct messages), return it
         if (chat?.name) {
             return chat.name;
         }
 
-        // If the chat has an email, return the email as a fallback
         if (chat?.email) {
             return chat.email;
         }
 
-        // If no specific identifier is available, return a default message
         return '~ No Name or Email ~';
     };
 
@@ -186,11 +160,9 @@ const ListAdmin = ({ route }) => {
         setNewMessages(prev => {
             const updatedMessages = { ...prev, [chatId]: 0 };
             AsyncStorage.setItem('newMessages', JSON.stringify(updatedMessages));
-            // setUnreadCount(Object.values(updatedMessages).reduce((total, num) => total + num, 0));
             return updatedMessages;
         });
 
-        // console.log('chat', chat);
         navigation.navigate('ChatDetail', { id: chat._id, chatName: handleChatName(chat) });
     };
 
@@ -264,12 +236,12 @@ const ListAdmin = ({ route }) => {
 
         // return `${userName}: ${messageText}`;
     };
+
     useEffect(() => {
-        const fetchedChats = new Set(); // Use a Set to track fetched chat IDs
+        const fetchedChats = new Set();
 
         const fetchAllSubtitles = async () => {
             for (const chat of chats) {
-                // Skip fetching if already fetched
                 if (!fetchedChats.has(chat._id)) {
                     fetchedChats.add(chat._id);
                     await fetchSubtitle(chat);
@@ -282,45 +254,40 @@ const ListAdmin = ({ route }) => {
 
     const fetchSubtitle = async (chat) => {
         try {
-            // Avoid fetching if the subtitle already exists
             if (subtitles[chat._id]) return;
 
-            const response = await axiosInstance.post(getAllMessageRoute, {
+            const response = await axiosInstance.post(getAllMessagesRoute, {
                 from: currentUser?._id,
                 to: chat?._id,
             });
 
-            const messages = response?.data || []; // Directly use the response array
+            const messages = response?.data || [];
 
             if (messages.length === 0) {
                 setSubtitles((prev) => ({
                     ...prev,
-                    [chat._id]: "No messages yet",
+                    [chat._id]: "Chưa có tin nhắn nào",
                 }));
                 return;
             }
 
-            // Get the last message
             const lastMessageObj = messages[messages.length - 1];
-            const messageText = lastMessageObj.message || "No message content";
+            const messageText = lastMessageObj.message || "Không có nội dung tin nhắn";
 
-            // Determine who sent the last message
             const subtitle = lastMessageObj.fromSelf
-                ? `You: ${messageText}`
+                ? `Bạn: ${messageText}`
                 : messageText;
 
-            // Update the subtitles state
             setSubtitles((prev) => ({
                 ...prev,
                 [chat._id]: subtitle,
             }));
         } catch (error) {
-            console.error("Error fetching subtitle:", error);
+            console.error("Lỗi khi tải phụ đề:", error);
 
-            // Optionally set a fallback subtitle on error
             setSubtitles((prev) => ({
                 ...prev,
-                [chat._id]: "Failed to load message",
+                [chat._id]: "Không thể tải tin nhắn",
             }));
         }
     };
@@ -329,28 +296,28 @@ const ListAdmin = ({ route }) => {
         const lastUpdated = chat?.lastUpdatedMessage;
 
         if (!lastUpdated) {
-            return "Unknown date";
+            return "Ngày không xác định";
         }
 
         try {
             const date = new Date(lastUpdated);
 
             if (isNaN(date.getTime())) {
-                return "Invalid date";
+                return "Ngày không hợp lệ";
             }
 
-            const diffInMs = currentTime - date; // Use the updated `currentTime`
+            const diffInMs = currentTime - date;
             const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
             const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
             const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-            if (diffInMinutes < 1) return "Just now";
-            if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-            if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-            return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
+            if (diffInMinutes < 1) return "Vừa xong";
+            if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+            if (diffInHours < 24) return `${diffInHours} giờ trước`;
+            return `${diffInDays} ngày trước`;
         } catch (error) {
-            console.error("Error formatting date:", error);
-            return "Error formatting date";
+            console.error("Lỗi khi định dạng ngày:", error);
+            return "Lỗi định dạng ngày";
         }
     };
 
