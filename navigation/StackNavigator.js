@@ -29,7 +29,7 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => (
-  <Tab.Navigator>
+  <Tab.Navigator initialRouteName="Home">
     <Tab.Screen
       name="Home"
       component={HomeScreen}
@@ -106,7 +106,7 @@ const BottomTabs = () => (
 const StackNavigator = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="MainApp" component={BottomTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
