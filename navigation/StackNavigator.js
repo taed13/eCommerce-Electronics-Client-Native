@@ -25,6 +25,7 @@ import { View, Text } from "react-native";
 import OrderSummaryScreen from "../screens/OrderSummaryScreen";
 import OrderSuccessScreen from "../screens/OrderSuccessScreen";
 import EditAddressScreen from "../screens/EditAddressScreen";
+import ProductListScreen from "../screens/ProductListScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,6 +47,24 @@ const BottomTabs = () => (
             <Entypo name="home" size={24} color="#008E97" />
           ) : (
             <AntDesign name="home" size={24} color="black" />
+          ),
+      }}
+    />
+    <Tab.Screen
+      name="ProductList"
+      component={ProductListScreen}
+      options={{
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "400", fontSize: 14 }}>
+            Sản Phẩm
+          </Text>
+        ),
+        headerShown: false,
+        tabBarIcon: ({ focused }) =>
+          focused ? (
+            <FontAwesome5 name="shopping-cart" size={21} color="#008E97" />
+          ) : (
+            <AntDesign name="shoppingcart" size={24} color="black" />
           ),
       }}
     />

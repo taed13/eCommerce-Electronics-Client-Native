@@ -12,7 +12,7 @@ import {
   Platform,
   ActivityIndicator,
   ImageBackground,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
 import { Ionicons, MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
@@ -57,7 +57,8 @@ const HomeScreen = () => {
     },
     {
       id: "5",
-      image: "https://mobileworld.com.vn/uploads/product/12_2019/thumbs/iphone-11-64gb-qua-su-dung-moi-99-like-new-2.webp",
+      image:
+        "https://mobileworld.com.vn/uploads/product/12_2019/thumbs/iphone-11-64gb-qua-su-dung-moi-99-like-new-2.webp",
       name: "Smartphones",
     },
     {
@@ -77,14 +78,35 @@ const HomeScreen = () => {
     },
   ];
   const brands = [
-    { id: "0", name: "LG", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/LG_logo_%282014%29.svg/2560px-LG_logo_%282014%29.svg.png" },
+    {
+      id: "0",
+      name: "LG",
+      image:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/LG_logo_%282014%29.svg/2560px-LG_logo_%282014%29.svg.png",
+    },
     { id: "1", name: "Apple", image: "https://1000logos.net/wp-content/uploads/2017/02/Apple-Logosu.png" },
-    { id: "2", name: "Samsung", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/1280px-Samsung_Logo.svg.png" },
-    { id: "3", name: "Sony", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Sony_logo.svg/1200px-Sony_logo.svg.png" },
-    { id: "4", name: "Dell", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Dell_logo.svg/2560px-Dell_logo.svg.png" },
+    {
+      id: "2",
+      name: "Samsung",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/1280px-Samsung_Logo.svg.png",
+    },
+    {
+      id: "3",
+      name: "Sony",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Sony_logo.svg/1200px-Sony_logo.svg.png",
+    },
+    {
+      id: "4",
+      name: "Dell",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Dell_logo.svg/2560px-Dell_logo.svg.png",
+    },
     { id: "5", name: "HP", image: "https://logos-world.net/wp-content/uploads/2020/11/HP-Logo.png" },
     { id: "6", name: "Asus", image: "https://logolook.net/wp-content/uploads/2023/09/Asus-Logo.png" },
-    { id: "7", name: "Acer", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/2560px-Acer_2011.svg.png" },
+    {
+      id: "7",
+      name: "Acer",
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/2560px-Acer_2011.svg.png",
+    },
     { id: "8", name: "Lenovo", image: "https://logos-world.net/wp-content/uploads/2022/07/Lenovo-Logo.png" },
     { id: "9", name: "MSI", image: "https://logolook.net/wp-content/uploads/2023/10/MSI-Logo.png" },
     { id: "10", name: "Huawei", image: "https://logos-world.net/wp-content/uploads/2020/04/Huawei-Logo.png" },
@@ -165,11 +187,11 @@ const HomeScreen = () => {
 
   const cart = useSelector((state) => state.cart.cart);
   const [modalVisible, setModalVisible] = useState(false);
-  useEffect(() => {
-    if (userId) {
-      fetchAddresses();
-    }
-  }, [userId, modalVisible, addresses]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     fetchAddresses();
+  //   }
+  // }, [userId, modalVisible, addresses]);
 
   const fetchAddresses = async () => {
     try {
@@ -187,9 +209,7 @@ const HomeScreen = () => {
     }
   };
 
-  const defaultAddress = addresses?.find(
-    (address) => address.default === true
-  );
+  const defaultAddress = addresses?.find((address) => address.default === true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -240,12 +260,20 @@ const HomeScreen = () => {
           </View>
           {/* Add shipping address */}
           <>
-            <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#425768", }}>
+            <Pressable
+              onPress={() => setModalVisible(!modalVisible)}
+              style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#425768" }}
+            >
               <Ionicons name="location-outline" size={24} color="white" />
               <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flex: 1 }}>
                 {defaultAddress ? (
-                  <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }} numberOfLines={1} ellipsizeMode="tail">
-                    Giao hàng đến {defaultAddress.ward?.full_name}, {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
+                  <Text
+                    style={{ fontSize: 17, fontWeight: "500", color: "white" }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Giao hàng đến {defaultAddress.ward?.full_name}, {defaultAddress.district?.full_name},{" "}
+                    {defaultAddress.province?.name}
                   </Text>
                 ) : (
                   <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
@@ -258,9 +286,9 @@ const HomeScreen = () => {
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {list.map((item, index) => (
-                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center", }}>
+                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
                   <Image style={{ width: 70, height: 80, resizeMode: "contain" }} source={{ uri: item.image }} />
-                  <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "500", marginTop: 3, }}>
+                  <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "500", marginTop: 3 }}>
                     {item?.name}
                   </Text>
                 </Pressable>
@@ -269,12 +297,12 @@ const HomeScreen = () => {
           </>
           {/* Banner Image */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 2, marginTop: 15, }} />
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 2, marginTop: 15 }} />
             <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} pagingEnabled>
               {banners?.map((item, index) => (
                 <ImageBackground
                   key={index}
-                  style={{ width: Dimensions.get('window').width, height: 350, resizeMode: "cover" }}
+                  style={{ width: Dimensions.get("window").width, height: 350, resizeMode: "cover" }}
                   source={{ uri: item?.image }}
                 />
               ))}
@@ -321,7 +349,7 @@ const HomeScreen = () => {
           </> */}
           {/* Special Products */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm đặc biệt</Text>
             <FlatList
               data={specialProducts}
@@ -333,9 +361,7 @@ const HomeScreen = () => {
                     <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
                   </View>
                   <View style={styles.details}>
-                    <Text style={styles.brand}>
-                      {item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}
-                    </Text>
+                    <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
                     <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
                       {item?.product_name}
                     </Text>
@@ -360,42 +386,67 @@ const HomeScreen = () => {
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm trending</Text>
-            <Pressable onPress={() => { navigation.navigate("Info", { id: selectedProduct?._id }); }}>
+            <Pressable
+              onPress={() => {
+                navigation.navigate("Info", { id: selectedProduct?._id });
+              }}
+            >
               <View style={styles.imageContainer}>
                 <Image
-                  style={{ width: '60%', height: 250, resizeMode: 'cover', marginBottom: 10 }}
+                  style={{ width: "60%", height: 250, resizeMode: "cover", marginBottom: 10 }}
                   source={{ uri: selectedProduct?.product_images[0]?.url }}
                 />
               </View>
               <View style={{ marginVertical: 10 }}>
-                <Text style={{ marginHorizontal: 10, fontSize: 16, color: '#666' }}>{selectedProduct?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
-                <Text style={{ marginHorizontal: 10, fontSize: 22, fontWeight: 700 }} numberOfLines={1} ellipsizeMode="tail">
+                <Text style={{ marginHorizontal: 10, fontSize: 16, color: "#666" }}>
+                  {selectedProduct?.product_brand?.map((brand) => brand?.title)?.join(" | ")}
+                </Text>
+                <Text
+                  style={{ marginHorizontal: 10, fontSize: 22, fontWeight: 700 }}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {selectedProduct?.product_name}
                 </Text>
               </View>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ marginHorizontal: 10, marginBottom: 10, fontSize: 24, fontWeight: 400 }}>{selectedProduct?.product_price.toLocaleString()}₫</Text>
-                {
-                  selectedProduct?.product_sold != 0 && (
-                    <Text style={{ marginHorizontal: 10, fontSize: 16, color: '#666' }}>Đã bán {selectedProduct?.product_sold.toLocaleString()}</Text>
-                  )
-                }
+                <Text style={{ marginHorizontal: 10, marginBottom: 10, fontSize: 24, fontWeight: 400 }}>
+                  {selectedProduct?.product_price.toLocaleString()}₫
+                </Text>
+                {selectedProduct?.product_sold != 0 && (
+                  <Text style={{ marginHorizontal: 10, fontSize: 16, color: "#666" }}>
+                    Đã bán {selectedProduct?.product_sold.toLocaleString()}
+                  </Text>
+                )}
               </View>
             </Pressable>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {Array.isArray(popularProducts) && popularProducts.map((product, index) => (
-                <Pressable key={index} style={{ margin: 5, justifyContent: "center", alignItems: "center", borderWidth: 1, borderRadius: 8, borderColor: "#ddd", }} onPress={() => handlePress(product)}>
-                  <Image style={{ width: 100, height: 100, resizeMode: "contain" }} source={{ uri: product?.product_images[0]?.url }} />
-                </Pressable>
-              ))}
+              {Array.isArray(popularProducts) &&
+                popularProducts.map((product, index) => (
+                  <Pressable
+                    key={index}
+                    style={{
+                      margin: 5,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderWidth: 1,
+                      borderRadius: 8,
+                      borderColor: "#ddd",
+                    }}
+                    onPress={() => handlePress(product)}
+                  >
+                    <Image
+                      style={{ width: 100, height: 100, resizeMode: "contain" }}
+                      source={{ uri: product?.product_images[0]?.url }}
+                    />
+                  </Pressable>
+                ))}
             </ScrollView>
           </>
           {/* Brands */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
-            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
-              Từ các thương hiệu hàng đầu
-            </Text>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Từ các thương hiệu hàng đầu</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {brands.map((brand, index) => (
                 <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
@@ -409,10 +460,8 @@ const HomeScreen = () => {
           </>
           {/* Featured Products */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5, }} />
-            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>
-              Từ các bộ sưu tập
-            </Text>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Từ các bộ sưu tập</Text>
             <FlatList
               data={featuredProducts}
               keyExtractor={(item, index) => `${item._id}-${index}`}
