@@ -4,15 +4,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import { UserType } from "../UserContext";
 import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { APP_CONFIG } from "../config/common";
 import { Ionicons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
-import { useSaveAddress } from "../api/user";
+import { useUpdateAddress } from "../api/user";
+import axiosInstance from "../api/axiosInstance";
 
-const AddressScreen = () => {
+const EditAddressScreen = () => {
   const navigation = useNavigation();
-  const { mutate: saveAddress, isLoading, error } = useSaveAddress();
+  const { mutate: updateAddress, isLoading } = useUpdateAddress();
+  const [addresses, setAddresses] = useState([]);
+  const [editedAddress, setEditedAddress] = useState(null);
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [mobileNo, setMobileNo] = useState("");
@@ -37,17 +40,51 @@ const AddressScreen = () => {
   const [wardError, setWardError] = useState("");
   const [streetError, setStreetError] = useState("");
 
+  const route = useRoute();
+  const addressId = route.params?.addressId;
+
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchToken = async () => {
       const token = await AsyncStorage.getItem("authToken");
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.id;
-      setUserId(userId);
       setToken(token);
     };
 
-    fetchUser();
+    fetchToken();
   }, []);
+
+  useEffect(() => {
+    if (userId && token) {
+      fetchAddresses();
+    }
+  }, [userId, token]);
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await axiosInstance.get(`user/addresses/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+      const { addresses } = response.data;
+      setAddresses(addresses);
+      const address = addresses.find((address) => address._id === addressId);
+      setEditedAddress(address);
+      if (address) {
+        setFirstname(address.firstname);
+        setLastname(address.lastname);
+        setMobileNo(address.mobileNo);
+        setProvince(address.province);
+        setDistrict(address.district);
+        setWard(address.ward);
+        setStreet(address.street);
+        fetchDistricts(address.province.id);
+        fetchWards(address.district.id);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   useEffect(() => {
     fetchProvinces();
@@ -60,8 +97,8 @@ const AddressScreen = () => {
         setProvinces(
           response.data.data.map((province) => ({
             label: province.name,
-            value: province.id, // Use the unique `id` as the value
-            key: province.id, // Ensure each item has a unique key
+            value: province.id,
+            key: province.id,
           }))
         );
         setDistricts([]);
@@ -75,11 +112,6 @@ const AddressScreen = () => {
   };
 
   const fetchDistricts = async (provinceId) => {
-    if (!provinceId) {
-      setDistricts([]);
-      return;
-    }
-
     try {
       const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`);
       if (response.data.error === 0) {
@@ -100,11 +132,6 @@ const AddressScreen = () => {
   };
 
   const fetchWards = async (districtId) => {
-    if (!districtId) {
-      setWards([]);
-      return;
-    }
-
     try {
       const response = await axios.get(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`);
       if (response.data.error === 0) {
@@ -123,7 +150,7 @@ const AddressScreen = () => {
     }
   };
 
-  const handleAddAddress = () => {
+  const handleEditAddress = () => {
     let valid = true;
 
     if (!firstname.trim()) {
@@ -185,13 +212,13 @@ const AddressScreen = () => {
       district,
       ward,
       street,
-      default: false,
+      default: editedAddress.default,
     };
 
-    saveAddress({ address }, {
+    updateAddress({ addressId, addressData: address }, {
       onSuccess: () => {
-        console.log("Address saved successfully!");
-        Alert.alert("Success", "Thêm địa chỉ thành công");
+        console.log("Address edited successfully!");
+        Alert.alert("Success", "Chỉnh sửa địa chỉ thành công");
         setFirstname("");
         setLastname("");
         setMobileNo("");
@@ -206,6 +233,10 @@ const AddressScreen = () => {
       },
     });
   };
+
+  if (!editedAddress) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -222,7 +253,7 @@ const AddressScreen = () => {
         </View>
 
         <View style={styles.container}>
-          <Text style={styles.title}>Thêm địa chỉ mới</Text>
+          <Text style={styles.title}>Chỉnh sửa địa chỉ</Text>
 
           <Text style={styles.label}>Họ và tên</Text>
           <View style={{ flexDirection: "row", width: "100%", gap: 10 }}>
@@ -379,8 +410,8 @@ const AddressScreen = () => {
             {streetError ? <Text style={{ color: "red", marginTop: 5, marginHorizontal: 3, fontSize: 12 }}>{streetError}</Text> : null}
           </View>
 
-          <Pressable onPress={handleAddAddress} style={styles.addButton}>
-            <Text style={styles.addButtonText}>Thêm địa chỉ</Text>
+          <Pressable onPress={handleEditAddress} style={styles.addButton}>
+            <Text style={styles.addButtonText}>Lưu địa chỉ</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -463,4 +494,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddressScreen;
+export default EditAddressScreen;

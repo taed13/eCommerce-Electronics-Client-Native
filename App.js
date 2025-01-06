@@ -1,4 +1,4 @@
-// import { ModalPortal } from "react-native-modals";
+import { ModalPortal } from "react-native-modals";
 import { Provider } from "react-redux";
 import StackNavigator from "./navigation/StackNavigator";
 import store from "./store";
@@ -20,6 +20,7 @@ export default function App() {
           <Provider store={store}>
             <UserContext>
               <RootStackNavigator />
+              <ModalPortal />
               <Toast />
             </UserContext>
           </Provider>

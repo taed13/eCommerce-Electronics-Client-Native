@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
   // BASE_URL: "https://e-commerce-electronics-server.vercel.app/api/",
-  BASE_URL: "http://192.168.1.12:5001/api/",
+  BASE_URL: "http://192.168.110.163:5001/api/",
   // BASE_URL: "https://25d9112fc9b8d9a7c359538eb017bf6d.serveo.net/api/",
 };
 
