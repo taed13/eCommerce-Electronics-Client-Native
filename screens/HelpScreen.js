@@ -18,8 +18,8 @@ const HelpScreen = () => {
                 icon='people-outline'
                 tintColor={colors.primary}
                 onPress={() => {
-                    alert('Sẽ cập nhật sau...');
-                    // navigation.navigate("Chat")
+                    // alert('Sẽ cập nhật sau...');
+                    navigation.navigate("Chat", { fromHelpScreen: true });
                 }}
                 showForwardIcon={false}
             />

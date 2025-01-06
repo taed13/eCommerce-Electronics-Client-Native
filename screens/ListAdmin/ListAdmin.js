@@ -12,9 +12,11 @@ import { colors } from "../../config/constants";
 import axios from "axios";
 import { allAdminsRoute, getAllMessageRoute, getAllMessagesRoute } from "../../config/config";
 import axiosInstance, { getConfig } from "../../api/axiosInstance";
+import Header from "../../components/Header";
 
-const ListAdmin = ({ setUnreadCount }) => {
+const ListAdmin = ({ route }) => {
     const navigation = useNavigation();
+    const { fromHelpScreen } = route.params || {};
     const [chats, setChats] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedItems, setSelectedItems] = useState([]);
@@ -354,39 +356,42 @@ const ListAdmin = ({ setUnreadCount }) => {
 
     return (
         <Pressable style={styles.container} onPress={deSelectItems}>
-            {loading ? (
-                <ActivityIndicator size='large' style={styles.loadingContainer} />
-            ) : (
-                <ScrollView>
-                    {chats.length === 0 ? (
+            {fromHelpScreen && <Header title="Liên hệ với chúng tôi" />}
+            <ScrollView>
+                {loading ? (
+                    <ActivityIndicator size='large' style={styles.loadingContainer} />
+                ) : (
+                    <ScrollView>
+                        {chats.length === 0 ? (
+                            <View style={styles.blankContainer}>
+                                <Text style={styles.textContainer}>No conversations yet</Text>
+                            </View>
+                        ) : (
+                            chats.map((chat, index) => (
+                                <React.Fragment key={chat._id || index}>
+                                    <ContactRow
+                                        style={getSelected(chat) ? styles.selectedContactRow : ""}
+                                        name={handleChatName(chat)}
+                                        subtitle={subtitles[chat._id] || "Loading..."}
+                                        subtitle2={handleSubtitle2(chat)}
+                                        onPress={() => handleOnPress(chat)}
+                                        onLongPress={() => handleLongPress(chat)}
+                                        selected={getSelected(chat)}
+                                        showForwardIcon={false}
+                                        newMessageCount={newMessages[chat.id] || 0}
+                                    />
+                                </React.Fragment>
+                            ))
+                        )}
+                        <Separator />
                         <View style={styles.blankContainer}>
-                            <Text style={styles.textContainer}>No conversations yet</Text>
+                            <Text style={{ fontSize: 12, margin: 15 }}>
+                                <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.teal }}>mã hóa đầu cuối</Text>
+                            </Text>
                         </View>
-                    ) : (
-                        chats.map((chat, index) => (
-                            <React.Fragment key={chat._id || index}>
-                                <ContactRow
-                                    style={getSelected(chat) ? styles.selectedContactRow : ""}
-                                    name={handleChatName(chat)}
-                                    subtitle={subtitles[chat._id] || "Loading..."}
-                                    subtitle2={handleSubtitle2(chat)}
-                                    onPress={() => handleOnPress(chat)}
-                                    onLongPress={() => handleLongPress(chat)}
-                                    selected={getSelected(chat)}
-                                    showForwardIcon={false}
-                                    newMessageCount={newMessages[chat.id] || 0}
-                                />
-                            </React.Fragment>
-                        ))
-                    )}
-                    <Separator />
-                    <View style={styles.blankContainer}>
-                        <Text style={{ fontSize: 12, margin: 15 }}>
-                            <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.teal }}>mã hóa đầu cuối</Text>
-                        </Text>
-                    </View>
-                </ScrollView>
-            )}
+                    </ScrollView>
+                )}
+            </ScrollView>
             <TouchableOpacity style={styles.fab} onPress={handleFabPress}>
                 <View style={styles.fabContainer}>
                     <Ionicons name="chatbox-ellipses" size={24} color={'white'} />

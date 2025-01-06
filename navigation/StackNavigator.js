@@ -50,7 +50,7 @@ const BottomTabs = () => (
       }}
     />
     <Tab.Screen
-      name="Profile"
+      name="Cá nhân"
       component={ProfileScreen}
       options={{
         tabBarLabel: ({ focused }) => (
@@ -108,6 +108,7 @@ const StackNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" component={BottomTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Chat" component={ListAdmin} options={{ headerShown: false }} />
       <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />

@@ -5,19 +5,18 @@ import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
-import Header from "../components/Header";
 import { colors } from "../config/constants";
-import { useSelector } from "react-redux";
 import Loading from "../components/Loading";
+import { useGetCurrentUser } from "../api/user";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const currentUser = useSelector((state) => state.user?.currentUser);
-
+  const { data, isLoading, error } = useGetCurrentUser();
+  const currentUser = data?.data;
   const { userId } = useContext(UserType);
+
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState();
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,21 +32,14 @@ const ProfileScreen = () => {
         />
       ),
       headerRight: () => (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 6,
-            marginRight: 10,
-          }}
-        >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginRight: 10 }}>
           <Ionicons name="notifications-outline" size={24} color="black" />
-
           <AntDesign name="search1" size={24} color="black" onPress={() => navigation.navigate("Search")} />
         </View>
       ),
     });
   }, []);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       const id = userId;
@@ -62,6 +54,7 @@ const ProfileScreen = () => {
 
     fetchUserProfile();
   }, []);
+
   const logout = () => {
     clearAuthToken();
   };
@@ -72,30 +65,34 @@ const ProfileScreen = () => {
   };
   useEffect(() => {
     const fetchOrders = async () => {
-      const token = await AsyncStorage.getItem("authToken");
-      console.log("token:::->>", token);
-      console.log("userId:::->>", userId);
-      const id = userId;
       try {
-        // /getorderbyuser/:id
-        const response = await axiosInstance.get(`user/getorderbyuser/${id}`);
-        console.log("response:::->>", response.data);
-        const orders = response.data.userOrders;
-        setOrders(orders);
-
-        setLoading(false);
+        const response = await axiosInstance.get(`user/getorderbyuser/${userId}`);
+        setOrders(response.data?.userOrders || []);
       } catch (error) {
         console.log("error", error);
+      } finally {
+        setLoadingOrders(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [userId]);
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ fontSize: 16, color: "red" }}>Không thể tải dữ liệu người dùng!</Text>
+      </View>
+    );
+  }
   console.log("orders:::", orders);
 
   return (
     <ScrollView style={{ padding: 10, flex: 1, backgroundColor: "white" }}>
-      <Text style={{ fontSize: 16, fontWeight: "bold" }}>Chào mừng {currentUser?.name}</Text>
+      <Text style={{ fontSize: 16, fontWeight: "bold" }}>Chào mừng {currentUser?.name || "User"}</Text>
 
       <View
         style={{
@@ -163,9 +160,9 @@ const ProfileScreen = () => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {loading ? (
+        {loadingOrders ? (
           <Loading />
-        ) : orders?.length > 0 ? (
+        ) : orders.length > 0 ? (
           orders.map((order) => (
             <Pressable
               style={{
@@ -180,7 +177,6 @@ const ProfileScreen = () => {
               }}
               key={order._id}
             >
-              {/* Render the order information here */}
               {order?.products?.length > 0 &&
                 order?.products.slice(0, 1)?.map((product) => (
                   <View style={{ marginVertical: 10 }} key={product._id}>

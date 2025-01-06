@@ -5,26 +5,33 @@ import { colors } from "../config/constants";
 import { auth } from '../config/firebase';
 import Cell from "../components/Cell";
 import Header from "../components/Header";
-import { useGetCurrentUser, useUpdateUser } from "../api/user";
+import { useGetCurrentUser, useUpdateUser, useUpdateAddress } from "../api/user";
 import Loading from "../components/Loading";
-import { useDispatch } from "react-redux";
-import { updateUserSuccess } from "../feature/users/userSlice";
+import { useQueryClient } from '@tanstack/react-query';
 
 const ProfileUser = () => {
-  const dispatch = useDispatch();
   const { data, isLoading, error } = useGetCurrentUser();
+  const currentUser = data?.data;
+  const queryClient = useQueryClient();
+
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [newName, setNewName] = useState(data?.name || "");
-  const [newEmail, setNewEmail] = useState(data?.email || "");
-  const { updateUser, isLoading: isUpdating } = useUpdateUser();
+  const [newName, setNewName] = useState(currentUser?.name || "");
+  const [newEmail, setNewEmail] = useState(currentUser?.email || "");
+  const { mutate: updateUser, isLoading: isUpdatingUser } = useUpdateUser();
+
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [newPhone, setNewPhone] = useState("");
+  const { mutate: updateAddress, isLoading: isUpdatingAddress } = useUpdateAddress();
 
   useEffect(() => {
-    if (data?.name) setNewName(data.name);
-    if (data?.email) setNewEmail(data.email);
-  }, [data]);
+    const defaultAddress = currentUser?.addresses?.find((address) => address.default);
+    if (defaultAddress?.mobileNo) setNewPhone(defaultAddress.mobileNo);
+    if (currentUser?.name) setNewName(currentUser.name);
+    if (currentUser?.email) setNewEmail(currentUser.email);
+  }, [currentUser]);
 
-  if (isLoading || isUpdating) {
+  if (isLoading || isUpdatingUser || isUpdatingAddress) {
     return <Loading />;
   }
 
@@ -36,51 +43,65 @@ const ProfileUser = () => {
     );
   }
 
-  const handleSaveName = async () => {
+  const handleSaveName = () => {
     if (!newName.trim()) {
       Alert.alert("Lỗi", "Tên không được để trống.");
       return;
     }
 
-    const result = await updateUser({ name: newName });
+    updateUser(
+      { name: newName },
+      {
+        onSuccess: (updatedData) => {
+          Alert.alert("Thành công", "Tên đã được cập nhật.");
 
-    console.log('result::', result);
+          queryClient.setQueryData(['GET_CURRENT_USER'], (oldData) => ({
+            ...oldData,
+            data: { ...oldData.data, name: newName },
+          }));
 
-    if (result?.updatedUser) {
-      Alert.alert("Thành công", "Tên đã được cập nhật.");
-
-      dispatch(updateUserSuccess({ name: newName }));
-      data.name = newName;
-      setIsEditingName(false);
-    } else {
-      Alert.alert("Lỗi", "Không thể cập nhật tên.");
-    }
+          setIsEditingName(false);
+        },
+        onError: () => {
+          Alert.alert("Lỗi", "Không thể cập nhật tên.");
+        },
+      }
+    );
   };
 
-  const handleSaveEmail = async () => {
-
-    const validateEmail = (email) => {
-      return String(email)
-        .toLowerCase()
-        .match(
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
-    };
-
+  const handleSaveEmail = () => {
     if (!validateEmail(newEmail)) {
       Alert.alert("Lỗi", "Email không hợp lệ.");
       return;
     }
 
-    const result = await updateUser({ email: newEmail });
-    if (result?.updatedUser) {
-      Alert.alert("Thành công", "Email đã được cập nhật.");
-      dispatch(updateUserSuccess({ email: newEmail }));
-      data.email = newEmail;
-      setIsEditingEmail(false);
-    } else {
-      Alert.alert("Lỗi", "Không thể cập nhật email.");
-    }
+    updateUser(
+      { email: newEmail },
+      {
+        onSuccess: () => {
+          Alert.alert("Thành công", "Email đã được cập nhật.");
+
+          // Cập nhật dữ liệu trong cache
+          queryClient.setQueryData(['GET_CURRENT_USER'], (oldData) => ({
+            ...oldData,
+            data: { ...oldData.data, email: newEmail },
+          }));
+
+          setIsEditingEmail(false);
+        },
+        onError: () => {
+          Alert.alert("Lỗi", "Không thể cập nhật email.");
+        },
+      }
+    );
+  };
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
   };
 
   const handleChangeProfilePicture = () => {
@@ -92,11 +113,44 @@ const ProfileUser = () => {
   };
 
   const handleSavePhone = () => {
-    Alert.alert('Save Phone', 'This feature is coming soon.');
+    if (!newPhone.trim()) {
+      Alert.alert("Lỗi", "Số điện thoại không được để trống.");
+      return;
+    }
+
+    const defaultAddress = currentUser?.addresses?.find((address) => address.default);
+    if (!defaultAddress) {
+      Alert.alert("Lỗi", "Không tìm thấy địa chỉ mặc định.");
+      return;
+    }
+
+    updateAddress(
+      { addressId: defaultAddress._id, addressData: { mobileNo: newPhone } },
+      {
+        onSuccess: () => {
+          Alert.alert("Thành công", "Số điện thoại đã được cập nhật.");
+          queryClient.setQueryData(['GET_CURRENT_USER'], (oldData) => ({
+            ...oldData,
+            data: {
+              ...oldData.data,
+              addresses: oldData.data.addresses.map((address) =>
+                address._id === defaultAddress._id
+                  ? { ...address, mobileNo: newPhone }
+                  : address
+              ),
+            },
+          }));
+          setIsEditingPhone(false);
+        },
+        onError: () => {
+          Alert.alert("Lỗi", "Không thể cập nhật số điện thoại.");
+        },
+      }
+    );
   };
 
-  const initials = data?.name
-    ? data?.name?.split(' ').map((name) => name.charAt(0)).join('')
+  const initials = currentUser?.name
+    ? currentUser?.name?.split(' ').map((name) => name.charAt(0)).join('')
     : 'JD';
 
   return (
@@ -107,7 +161,9 @@ const ProfileUser = () => {
         {/* Profile Avatar */}
         <View style={styles.avatarContainer}>
           <TouchableOpacity style={styles.avatar} onPress={handleShowProfilePicture}>
-            <Text style={styles.avatarLabel}>{initials}</Text>
+            <Text style={styles.avatarLabel}>
+              {currentUser?.name?.split(' ').map((name) => name.charAt(0)).join('') || "JD"}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cameraIcon} onPress={handleChangeProfilePicture}>
             <Ionicons name="camera-outline" size={24} color="white" />
@@ -138,7 +194,7 @@ const ProfileUser = () => {
               title='Tên'
               icon='person-outline'
               iconColor="black"
-              subtitle={data?.name || "Chưa thiết lập tên"}
+              subtitle={currentUser?.name || "Chưa thiết lập tên"}
               secondIcon='pencil-outline'
               onPress={() => setIsEditingName(true)}
               style={styles.cell}
@@ -165,7 +221,7 @@ const ProfileUser = () => {
           ) : (
             <Cell
               title='Email'
-              subtitle={data?.email || "Chưa thiết lập email"}
+              subtitle={currentUser?.email || "Chưa thiết lập email"}
               icon='mail-outline'
               iconColor="black"
               secondIcon='pencil-outline'
@@ -174,26 +230,56 @@ const ProfileUser = () => {
             />
           )}
 
-          <Cell
+          {isEditingPhone ? (
+            <View style={styles.editContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Nhập số điện thoại mới"
+                value={newPhone}
+                keyboardType="phone-pad"
+                onChangeText={setNewPhone}
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={() => setIsEditingPhone(false)} style={styles.cancelButton}>
+                  <Text style={styles.buttonText}>Hủy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleSavePhone} style={styles.saveButton}>
+                  <Text style={styles.buttonText}>Lưu</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <Cell
+              title='Số điện thoại'
+              subtitle={currentUser?.addresses?.find((address) => address.default)?.mobileNo || "Chưa thiết lập số điện thoại"}
+              icon='call-outline'
+              iconColor="black"
+              secondIcon='pencil-outline'
+              onPress={() => setIsEditingPhone(true)}
+              style={styles.cell}
+            />
+          )}
+
+          {/* <Cell
             title='Số điện thoại'
-            subtitle={data?.addresses?.find((address) => address.default)?.mobileNo || "Chưa thiết lập số điện thoại"}
+            subtitle={currentUser?.addresses?.find((address) => address.default)?.mobileNo || "Chưa thiết lập số điện thoại"}
             icon='call-outline'
             iconColor="black"
             secondIcon='pencil-outline'
             onPress={handleSavePhone}
             style={styles.cell}
-          />
+          /> */}
 
           <Cell
             title="Address"
             subtitle={
-              data?.addresses?.find((address) => address.default)?.street +
+              currentUser?.addresses?.find((address) => address.default)?.street +
               ", " +
-              data?.addresses?.find((address) => address.default)?.ward?.full_name +
+              currentUser?.addresses?.find((address) => address.default)?.ward?.full_name +
               ", " +
-              data?.addresses?.find((address) => address.default)?.district?.full_name +
+              currentUser?.addresses?.find((address) => address.default)?.district?.full_name +
               ", " +
-              data?.addresses?.find((address) => address.default)?.province?.name ||
+              currentUser?.addresses?.find((address) => address.default)?.province?.name ||
               "Chưa thiết lập địa chỉ"
             }
             icon="location-outline"
