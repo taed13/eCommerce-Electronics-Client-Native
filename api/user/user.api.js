@@ -64,7 +64,7 @@ export const forgotPasswordService = async (axiosClient, userData) => {
 
 export const setDefaultAddressService = async (axiosClient, addressId) => {
     try {
-        const response = await axiosClient.put("/user/set-default-address", { addressId });
+        const response = await axiosClient.put("user/set-default-address", { addressId });
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -76,7 +76,7 @@ export const setDefaultAddressService = async (axiosClient, addressId) => {
 
 export const updateAddressService = async (axiosClient, addressId, addressData) => {
     try {
-        const response = await axiosClient.patch(`/user/update-address/${addressId}`, addressData);
+        const response = await axiosClient.patch(`user/update-address/${addressId}`, addressData);
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -88,7 +88,7 @@ export const updateAddressService = async (axiosClient, addressId, addressData) 
 
 export const deleteAddressService = async (axiosClient, addressId) => {
     try {
-        const response = await axiosClient.delete(`/user/address/${addressId}`);
+        const response = await axiosClient.delete(`user/address/${addressId}`);
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
