@@ -97,3 +97,15 @@ export const deleteAddressService = async (axiosClient, addressId) => {
         return { error: error.message || "Failed to delete address" };
     }
 };
+
+export const saveAddressService = async (axiosClient, address) => {
+    try {
+        const response = await axiosClient.put("user/save-address", { address });
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to save address" };
+    }
+};
