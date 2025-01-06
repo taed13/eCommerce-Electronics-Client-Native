@@ -5,7 +5,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ListAdmin from "../screens/ListAdmin/ListAdmin";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Entypo, Ionicons, AntDesign } from "@expo/vector-icons";
+import { Entypo, Ionicons, AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import ProductInfoScreen from "../screens/ProductInfoScreen";
 import AddAddressScreen from "../screens/AddAddressScreen";
 import AddressScreen from "../screens/AddressScreen";
@@ -22,7 +22,7 @@ import AxiosProvider from "../providers/axiosProvider";
 import Chat from "../screens/Chat";
 import ChatHeader from "../components/ChatHeader";
 import ChatMenu from "../components/ChatMenu";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import OrderSummaryScreen from "../screens/OrderSummaryScreen";
 import OrderSuccessScreen from "../screens/OrderSuccessScreen";
 
@@ -35,42 +35,70 @@ const BottomTabs = () => (
       name="Home"
       component={HomeScreen}
       options={{
-        tabBarLabel: "Trang chủ",
-        tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
+            Trang chủ
+          </Text>
+        ),
         headerShown: false,
         tabBarIcon: ({ focused }) =>
-          focused ? <Entypo name="home" size={24} color="#008E97" /> : <AntDesign name="home" size={24} color="black" />,
+          focused ? (
+            <Entypo name="home" size={24} color="#008E97" />
+          ) : (
+            <AntDesign name="home" size={24} color="black" />
+          ),
       }}
     />
     <Tab.Screen
       name="Profile"
       component={ProfileScreen}
       options={{
-        tabBarLabel: "Cá nhân",
-        tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
+            Cá nhân
+          </Text>
+        ),
         tabBarIcon: ({ focused }) =>
-          focused ? <Ionicons name="person" size={24} color="#008E97" /> : <Ionicons name="person-outline" size={24} color="black" />,
+          focused ? (
+            <Ionicons name="person" size={24} color="#008E97" />
+          ) : (
+            <Ionicons name="person-outline" size={24} color="black" />
+          ),
       }}
     />
     <Tab.Screen
       name="Cart"
       component={CartScreen}
       options={{
-        tabBarLabel: "Giỏ hàng",
-        tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "400", fontSize: 14 }}>
+            Giỏ hàng
+          </Text>
+        ),
         headerShown: false,
         tabBarIcon: ({ focused }) =>
-          focused ? <AntDesign name="shoppingcart" size={24} color="#008E97" /> : <AntDesign name="shoppingcart" size={24} color="black" />,
+          focused ? (
+            <FontAwesome5 name="shopping-cart" size={21} color="#008E97" />
+          ) : (
+            <AntDesign name="shoppingcart" size={24} color="black" />
+          ),
       }}
     />
     <Tab.Screen
       name="Chat"
       component={ListAdmin}
       options={{
-        tabBarLabel: "Chat",
-        tabBarLabelStyle: { color: "#008E97", fontSize: 14 },
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
+            Chat
+          </Text>
+        ),
         tabBarIcon: ({ focused }) =>
-          focused ? <Ionicons name="chatbubbles" size={24} color="#008E97" /> : <Ionicons name="chatbubbles-outline" size={24} color="black" />,
+          focused ? (
+            <Ionicons name="chatbubbles" size={24} color="#008E97" />
+          ) : (
+            <Ionicons name="chatbubbles-outline" size={24} color="black" />
+          ),
       }}
     />
   </Tab.Navigator>
