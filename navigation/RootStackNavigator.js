@@ -7,6 +7,7 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import StackNavigator from "./StackNavigator";
+import AxiosProvider from "../providers/axiosProvider";
 
 const RootStackNavigator = () => {
     const Stack = createNativeStackNavigator();
@@ -20,12 +21,12 @@ const RootStackNavigator = () => {
         } catch (error) {
             console.error("Error checking token", error);
         } finally {
-            setIsLoading(false); 
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        checkAuth(); 
+        checkAuth();
     }, []);
 
     if (isLoading) {
@@ -38,14 +39,16 @@ const RootStackNavigator = () => {
 
     return (
         <NavigationContainer>
-            <Stack.Navigator>
-                {userToken ? (
-                    <Stack.Screen name="MainApp" component={StackNavigator} options={{ headerShown: false }} />
-                ) : (
-                    <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-                )}
-                <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-            </Stack.Navigator>
+            <AxiosProvider>
+                <Stack.Navigator>
+                    {userToken ? (
+                        <Stack.Screen name="MainApp" component={StackNavigator} options={{ headerShown: false }} />
+                    ) : (
+                        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+                    )}
+                    <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+                </Stack.Navigator>
+            </AxiosProvider>
         </NavigationContainer>
     );
 };

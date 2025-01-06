@@ -18,7 +18,6 @@ import OrderScreen from "../screens/OrderScreen";
 import AccountScreen from "../screens/AccountScreen";
 import SettingScreen from "../screens/SettingScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
-import AxiosProvider from "../providers/axiosProvider";
 import Chat from "../screens/Chat";
 import ChatHeader from "../components/ChatHeader";
 import ChatMenu from "../components/ChatMenu";
@@ -106,41 +105,39 @@ const BottomTabs = () => (
 
 const StackNavigator = () => {
   return (
-    <AxiosProvider>
-      <Stack.Navigator>
-        <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
-        <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="ProfileUser" component={ProfileUserScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Add" component={AddressScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="OrderSummary"
-          component={OrderSummaryScreen}
-          options={{ headerShown: true, title: "Tổng quan đơn hàng" }}
-        />
-        <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
-        <Stack.Screen
-          name="ChatDetail"
-          component={Chat}
-          options={({ route }) => ({
-            headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?._id} />,
-            headerRight: () => (
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <ChatMenu chatName={route.params.chatName} chatId={route.params._id} />
-              </View>
-            ),
-          })}
-        />
-      </Stack.Navigator>
-    </AxiosProvider>
+    <Stack.Navigator>
+      <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="Info" component={ProductInfoScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Address" component={AddAddressScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Confirm" component={ConfirmationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Order" component={OrderScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Setting" component={SettingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ProfileUser" component={ProfileUserScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Account" component={AccountScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Help" component={HelpScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Add" component={AddressScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="OrderSummary"
+        component={OrderSummaryScreen}
+        options={{ headerShown: true, title: "Tổng quan đơn hàng" }}
+      />
+      <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
+      <Stack.Screen
+        name="ChatDetail"
+        component={Chat}
+        options={({ route }) => ({
+          headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?._id} />,
+          headerRight: () => (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <ChatMenu chatName={route.params.chatName} chatId={route.params._id} />
+            </View>
+          ),
+        })}
+      />
+    </Stack.Navigator>
   );
 };
 
