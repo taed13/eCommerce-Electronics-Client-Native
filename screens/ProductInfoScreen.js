@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   AntDesign,
   MaterialCommunityIcons,
@@ -20,7 +20,6 @@ import {
   FontAwesome
 } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { useDispatch, useSelector } from "react-redux";
 import RenderHtml from "react-native-render-html";
 
 import Loading from "../components/Loading";
@@ -31,12 +30,13 @@ import { colors } from "../constants/color";
 import { useFetchProduct, useFetchProducts } from "../api/product";
 import { useCheckProductInOrder } from "../api/order";
 import { useAddToCart } from "../api/cart";
+import { useGetCurrentUser } from "../api/user";
 
 const ProductInfoScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-
-  const currentUser = useSelector((state) => state?.user?.currentUser);
+  const scrollViewRef = useRef(null);
+  const { data: currentUserData, isLoading: isLoadingUser } = useGetCurrentUser();
+  const currentUser = currentUserData?.data;
 
   const [reviews, setReviews] = useState([]);
   const [specialProducts, setSpecialProducts] = useState([]);
@@ -47,6 +47,7 @@ const ProductInfoScreen = () => {
   const defaultAddress = currentUser?.addresses?.find(
     (address) => address.default === true
   );
+
   const route = useRoute();
   const productId = route.params?.id;
 
@@ -69,7 +70,14 @@ const ProductInfoScreen = () => {
   useEffect(() => {
     fetchProductData();
     checkIfProductInOrder();
+    scrollToTop();
   }, [productId]);
+
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
 
   const checkIfProductInOrder = async () => {
     setIsCheckingOrder(true);
@@ -91,7 +99,6 @@ const ProductInfoScreen = () => {
   const htmlContent =
     productData?.product_description || "<p>Không có mô tả</p>";
 
-  // const navigation = useNavigation();
   const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [showMore, setShowMore] = useState(false);
@@ -146,8 +153,6 @@ const ProductInfoScreen = () => {
     });
   };
 
-  const cart = useSelector((state) => state.cart.cart);
-
   const handleQuantityChange = (value) => {
     if (value === "") {
       setQuantity("");
@@ -170,6 +175,7 @@ const ProductInfoScreen = () => {
   return (
     <>
       <ScrollView
+        ref={scrollViewRef}
         style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}
         showsVerticalScrollIndicator={false}
       >
@@ -249,7 +255,7 @@ const ProductInfoScreen = () => {
           <Ionicons name="location" size={24} color="black" />
 
           <Text style={{ fontSize: 11, fontWeight: "500" }}>
-            Vận chuyển đến
+            Giao hàng đến
             {defaultAddress ? (
               <Text style={{ color: "green" }}>
                 {` ${defaultAddress.ward?.full_name}, ${defaultAddress.district?.full_name}, ${defaultAddress.province?.name}`}

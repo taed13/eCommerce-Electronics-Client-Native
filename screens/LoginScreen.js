@@ -7,10 +7,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLogin, useGetCurrentUser } from "../api/user";
 import Loading from "../components/Loading";
 
+import { useUserAsyncStore } from "../hook/useUserAsyncStore";
+
 const LoginScreen = () => {
   const navigation = useNavigation();
   const { login, isLoading, error } = useLogin();
   const { refetch: fetchUser } = useGetCurrentUser();
+
+  const { setDataForUserAsyncStore } = useUserAsyncStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,6 +68,7 @@ const LoginScreen = () => {
     if (result?.findUser?.token) {
       await AsyncStorage.setItem("authToken", result.findUser.token);
       await fetchUser();
+      await setDataForUserAsyncStore(result.findUser);
       navigation.replace("MainApp");
     } else {
       alert(error || "Đăng nhập thất bại. Vui lòng thử lại!");

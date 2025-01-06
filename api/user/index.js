@@ -23,7 +23,6 @@ export const useUpdateUser = () => {
     mutationKey: [MUTAION_KEYS.UPDATE_USER],
     mutationFn: (updatedUserData) => editUser(axiosClient, updatedUserData),
     onSuccess: (data) => {
-      console.log('Update user successful:', data);
       queryClient.setQueryData([QUERY_KEYS.GET_CURRENT_USER], (oldData) => ({
         ...oldData,
         data: {
