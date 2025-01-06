@@ -3,8 +3,8 @@ import { getCurrentUser, editUser, loginUserService, registerUserService, forgot
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { QUERY_KEYS } from "../../config/common";
-import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS, MUTAION_KEYS } from "../../config/common";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 export const useGetCurrentUser = () => {
   const axiosClient = useAxiosClient();
@@ -130,63 +130,37 @@ export const useForgotPassword = () => {
 
 export const useSetDefaultAddress = () => {
   const axiosClient = useAxiosClient();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const setDefaultAddress = async (addressId) => {
-    setIsLoading(true);
-    try {
-      const { data } = await setDefaultAddressService(axiosClient, addressId);
-      return data;
-    } catch (error) {
-      setError(error.message || "Failed to set default address");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { setDefaultAddress, isLoading, error };
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.SET_DEFAULT_ADDRESS],
+    mutationFn: (addressId) => setDefaultAddressService(axiosClient, addressId),
+    onError: (error) => {
+      console.error("Failed to set default address:", error.message);
+    },
+  });
 };
 
 export const useUpdateAddress = () => {
   const axiosClient = useAxiosClient();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const updateAddress = async (addressId, addressData) => {
-    setIsLoading(true);
-    try {
-      const { data } = await updateAddressService(axiosClient, addressId, addressData);
-      return data;
-    } catch (error) {
-      setError(error.message || "Failed to update address");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { updateAddress, isLoading, error };
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.UPDATE_ADDRESS],
+    mutationFn: ({ addressId, addressData }) =>
+      updateAddressService(axiosClient, addressId, addressData),
+    onError: (error) => {
+      console.error("Failed to update address:", error.message);
+    },
+  });
 };
 
 export const useDeleteAddress = () => {
   const axiosClient = useAxiosClient();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const deleteAddress = async (addressId) => {
-    setIsLoading(true);
-    try {
-      const { data } = await deleteAddressService(axiosClient, addressId);
-      return data;
-    } catch (error) {
-      setError(error.message || "Failed to delete address");
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { deleteAddress, isLoading, error };
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.DELETE_ADDRESS],
+    mutationFn: (addressId) => deleteAddressService(axiosClient, addressId),
+    onError: (error) => {
+      console.error("Failed to delete address:", error.message);
+    },
+  });
 };
