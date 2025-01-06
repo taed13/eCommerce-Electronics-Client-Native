@@ -1,17 +1,16 @@
 import { Text, View, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Pressable, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLogin } from "../api/user";
-import { useDispatch } from "react-redux";
-import { fetchCurrentUser } from "../feature/users/userSlice";
+
+import { useLogin, useGetCurrentUser } from "../api/user";
 import Loading from "../components/Loading";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
   const { login, isLoading, error } = useLogin();
+  const { refetch: fetchUser } = useGetCurrentUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +25,19 @@ const LoginScreen = () => {
   };
 
   const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+      if (token) {
+        setTimeout(() => {
+          navigation.replace("MainApp");
+
+        }, 500);
+      }
+    };
+    checkToken();
+  }, []);
 
   const handleLogin = async () => {
     let valid = true;
@@ -51,7 +63,7 @@ const LoginScreen = () => {
 
     if (result?.findUser?.token) {
       await AsyncStorage.setItem("authToken", result.findUser.token);
-      dispatch(fetchCurrentUser());
+      await fetchUser();
       navigation.replace("MainApp");
     } else {
       alert(error || "Đăng nhập thất bại. Vui lòng thử lại!");

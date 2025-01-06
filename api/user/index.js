@@ -50,6 +50,9 @@ export const useLogin = () => {
     setIsLoading(true);
     try {
       const response = await loginUserService(axiosClient, userData);
+      if (response?.data?.findUser?.token) {
+        await AsyncStorage.setItem("authToken", response.data.findUser.token);
+      }
       setData(response.data);
       return response.data;
     } catch (error) {
