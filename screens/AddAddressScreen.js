@@ -1,26 +1,26 @@
-import { Text, View, ScrollView, Pressable, TextInput } from "react-native";
+import { Text, View, ScrollView, Pressable, StyleSheet } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
-import { Feather, AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { Feather, AntDesign, MaterialIcons, Entypo } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
+import HeaderSearchInput from "../components/HeaderSearchInput";
+import { useDeleteAddress, useSetDefaultAddress } from "../api/user"; // Adjust the import path as needed
 
 const AddAddressScreen = () => {
   const navigation = useNavigation();
   const [addresses, setAddresses] = useState([]);
   const { userId } = useContext(UserType);
+  const { mutate: deleteAddress, isLoading: isDeleting } = useDeleteAddress();
+  const { mutate: setDefaultAddress, isLoading: isSettingDefault } = useSetDefaultAddress();
 
-  console.log("userId:::->>", userId);
   useEffect(() => {
     fetchAddresses();
   }, []);
 
   const fetchAddresses = async () => {
     const token = await AsyncStorage.getItem("authToken");
-    console.log("token:::", token);
     try {
       const response = await axiosInstance.get(`user/addresses/${userId}`, {
         headers: {
@@ -29,148 +29,98 @@ const AddAddressScreen = () => {
         },
       });
       const { addresses } = response.data;
-
       setAddresses(addresses);
     } catch (error) {
       console.log("error", error);
     }
   };
 
-  //refresh the addresses when the component comes to the focus ie basically when we navigate back
   useFocusEffect(
     useCallback(() => {
       fetchAddresses();
     }, [])
   );
 
-  return (
-    <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 50 }}>
-      <View
-        style={{
-          backgroundColor: "#00CED1",
-          padding: 10,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <Pressable
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginHorizontal: 7,
-            gap: 10,
-            backgroundColor: "white",
-            borderRadius: 3,
-            height: 38,
-            flex: 1,
-          }}
-        >
-          <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
-          <TextInput placeholder="Search Amazon.in" />
-        </Pressable>
+  const handleDeleteAddress = (addressId) => {
+    deleteAddress(addressId, {
+      onSuccess: () => {
+        setAddresses(addresses.filter(address => address._id !== addressId));
+        console.log("Address deleted successfully!");
+      },
+      onError: () => {
+        console.error("Failed to delete address.");
+      },
+    });
+  };
 
-        <Feather name="mic" size={24} color="black" />
+  const handleSetDefaultAddress = (addressId) => {
+    setDefaultAddress(addressId, {
+      onSuccess: () => {
+        console.log("Address set as default successfully!");
+        fetchAddresses(); // Refresh the addresses to reflect the change
+      },
+      onError: () => {
+        console.error("Failed to set default address.");
+      },
+    });
+  };
+
+  return (
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView} stickyHeaderIndices={[0]}>
+      <View>
+        <HeaderSearchInput />
       </View>
 
-      <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 20, fontWeight: "bold" }}>Your Addresses</Text>
+      <View style={styles.container}>
+        <Text style={styles.title}>Địa chỉ của tôi</Text>
 
-        <Pressable
-          onPress={() => navigation.navigate("Add")}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: 10,
-            borderColor: "#D0D0D0",
-            borderWidth: 1,
-            borderLeftWidth: 0,
-            borderRightWidth: 0,
-            paddingVertical: 7,
-            paddingHorizontal: 5,
-          }}
-        >
-          <Text>Add a new Address</Text>
+        <Pressable onPress={() => navigation.navigate("Add")} style={styles.addAddressButton}>
+          <Text style={{ fontSize: 17 }}>Thêm địa chỉ mới</Text>
           <MaterialIcons name="keyboard-arrow-right" size={24} color="black" />
         </Pressable>
 
         <Pressable>
-          {/* all the added adresses */}
           {addresses &&
-            addresses?.map((item, index) => (
-              <Pressable
-                key={index}
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#D0D0D0",
-                  padding: 10,
-                  flexDirection: "column",
-                  gap: 5,
-                  marginVertical: 10,
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-                  <Text style={{ fontSize: 15, fontWeight: "bold" }}>{item?.name}</Text>
+            addresses.map((item, index) => (
+              <Pressable key={index} style={styles.addressItem}>
+                <View style={styles.addressHeader}>
+                  <Text style={styles.addressName}>{item?.name}</Text>
                   <Entypo name="location-pin" size={24} color="red" />
                 </View>
 
-                <Text style={{ fontSize: 15, color: "#181818" }}>
-                  {item?.houseNo}, {item?.landmark}
-                </Text>
+                <View style={{ flexDirection: "row", alignItems: "baseline", gap: 5 }}>
+                  <Text style={styles.customerNameText}>{item?.firstname} {item?.lastname}</Text>
+                  <Text style={{ fontSize: 22, color: '#999', fontWeight: 300 }}>|</Text>
+                  <Text style={styles.addressText}>{item?.mobileNo}</Text>
+                </View>
 
-                <Text style={{ fontSize: 15, color: "#181818" }}>{item?.street}</Text>
+                <Text style={styles.addressText}>{item?.street}</Text>
 
-                <Text style={{ fontSize: 15, color: "#181818" }}>India, Bangalore</Text>
+                <Text style={styles.addressText}>{item?.ward.full_name}, {item?.district.full_name}, {item?.province.name}</Text>
 
-                <Text style={{ fontSize: 15, color: "#181818" }}>phone No : {item?.mobileNo}</Text>
-                <Text style={{ fontSize: 15, color: "#181818" }}>pin code : {item?.postalCode}</Text>
-
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 10,
-                    marginTop: 7,
-                  }}
-                >
-                  <Pressable
-                    style={{
-                      backgroundColor: "#F5F5F5",
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 5,
-                      borderWidth: 0.9,
-                      borderColor: "#D0D0D0",
-                    }}
-                  >
-                    <Text>Edit</Text>
+                <View style={styles.actionsContainer}>
+                  <Pressable onPress={() => navigation.navigate("EditAddress", { addressId: item._id })} style={styles.actionButton}>
+                    <Text>Sửa</Text>
                   </Pressable>
 
-                  <Pressable
-                    style={{
-                      backgroundColor: "#F5F5F5",
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 5,
-                      borderWidth: 0.9,
-                      borderColor: "#D0D0D0",
-                    }}
-                  >
-                    <Text>Remove</Text>
-                  </Pressable>
+                  {
+                    !item.default &&
+                    <Pressable style={styles.actionButton} onPress={() => handleDeleteAddress(item._id)}>
+                      <Text>Xóa</Text>
+                    </Pressable>
+                  }
 
-                  <Pressable
-                    style={{
-                      backgroundColor: "#F5F5F5",
-                      paddingHorizontal: 10,
-                      paddingVertical: 6,
-                      borderRadius: 5,
-                      borderWidth: 0.9,
-                      borderColor: "#D0D0D0",
-                    }}
-                  >
-                    <Text>Set as Default</Text>
-                  </Pressable>
+                  {
+                    item.default ? (
+                      <Pressable style={styles.defaultButton}>
+                        <Text style={{ color: '#448dc2', }}>Địa chỉ mặc định</Text>
+                      </Pressable>
+                    ) : (
+                      <Pressable style={styles.actionButton} onPress={() => handleSetDefaultAddress(item._id)}>
+                        <Text>Đặt làm mặc định</Text>
+                      </Pressable>
+                    )
+                  }
                 </View>
               </Pressable>
             ))}
@@ -179,5 +129,79 @@ const AddAddressScreen = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollView: {
+    marginTop: 47,
+  },
+  container: {
+    padding: 10,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  addAddressButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+    borderColor: "#bbb",
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
+    paddingVertical: 13,
+    paddingHorizontal: 5,
+  },
+  addressItem: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#bbb",
+    padding: 10,
+    flexDirection: "column",
+    gap: 5,
+    marginVertical: 10,
+  },
+  addressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+  },
+  addressName: {
+    fontSize: 15,
+    fontWeight: "bold",
+  },
+  customerNameText: {
+    fontSize: 18,
+    color: "#181818",
+    fontWeight: 700,
+  },
+  addressText: {
+    fontSize: 15,
+    color: "#777",
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 7,
+  },
+  defaultButton: {
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 5,
+    borderWidth: 0.9,
+    borderColor: "#448dc2",
+  },
+  actionButton: {
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 5,
+    borderWidth: 0.9,
+    borderColor: "#bbb",
+  },
+});
 
 export default AddAddressScreen;
