@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService } from "./user.api";
+import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService, saveAddressService } from "./user.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -161,6 +161,18 @@ export const useDeleteAddress = () => {
     mutationFn: (addressId) => deleteAddressService(axiosClient, addressId),
     onError: (error) => {
       console.error("Failed to delete address:", error.message);
+    },
+  });
+};
+
+export const useSaveAddress = () => {
+  const axiosClient = useAxiosClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.SAVE_ADDRESS],
+    mutationFn: ({ address }) => saveAddressService(axiosClient, address),
+    onError: (error) => {
+      console.error("Failed to save address:", error.message);
     },
   });
 };
