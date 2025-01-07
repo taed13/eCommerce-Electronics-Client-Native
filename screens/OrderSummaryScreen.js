@@ -18,9 +18,12 @@ import { useApplyDiscount, useCalculateShippingFee } from "../api/discount";
 import { convertCartData, getSessionId } from "../utils/common";
 import { PURCHASE_RESPONSE } from "../config/common";
 import { colors } from "../constants/color";
+import { useUserAsyncStore } from "../hook/useUserAsyncStore";
 
 const OrderSummaryScreen = ({ route }) => {
   const { cartData } = route.params;
+  const { userAsyncStore } = useUserAsyncStore();
+  console.log({ userAsyncStore });
   const currentUser = useSelector((state) => state.user.currentUser);
 
   const calculatedAddress = useRef(null);
@@ -67,8 +70,8 @@ const OrderSummaryScreen = ({ route }) => {
 
   const total = cartData?.cart_products
     ? cartData?.cart_products?.reduce((sum, item) => {
-      return sum + Number(item?.price) * Number(item?.quantity);
-    }, 0)
+        return sum + Number(item?.price) * Number(item?.quantity);
+      }, 0)
     : 0;
 
   const handleApplyDiscount = async () => {
@@ -82,15 +85,15 @@ const OrderSummaryScreen = ({ route }) => {
 
     const categoryIds = [
       ...new Set(
-        cartData?.cart_products
-          ?.flatMap((item) => item.productId?.product_category?.map((category) => category._id) || [])
+        cartData?.cart_products?.flatMap(
+          (item) => item.productId?.product_category?.map((category) => category._id) || []
+        )
       ),
     ];
 
     const brandIds = [
       ...new Set(
-        cartData?.cart_products
-          ?.flatMap((item) => item.productId?.product_brand?.map((brand) => brand._id) || [])
+        cartData?.cart_products?.flatMap((item) => item.productId?.product_brand?.map((brand) => brand._id) || [])
       ),
     ];
 
@@ -220,9 +223,7 @@ const OrderSummaryScreen = ({ route }) => {
                 onChangeText={(text) => setDiscountCode(text)}
               />
               <TouchableOpacity onPress={handleApplyDiscount} style={OrderSummaryScreenStyle.applyBtn}>
-                <Text style={OrderSummaryScreenStyle.applyText}>
-                  {isApplying ? "Đang áp dụng..." : "Áp dụng"}
-                </Text>
+                <Text style={OrderSummaryScreenStyle.applyText}>{isApplying ? "Đang áp dụng..." : "Áp dụng"}</Text>
               </TouchableOpacity>
             </View>
 

@@ -1,10 +1,19 @@
-import { Text, View, SafeAreaView, Image, KeyboardAvoidingView, TextInput, Pressable, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  SafeAreaView,
+  Image,
+  KeyboardAvoidingView,
+  TextInput,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { useLogin, useGetCurrentUser } from "../api/user";
+import { useLogin } from "../api/user";
 import Loading from "../components/Loading";
 
 import { useUserAsyncStore } from "../hook/useUserAsyncStore";
@@ -12,11 +21,11 @@ import { useUserAsyncStore } from "../hook/useUserAsyncStore";
 const LoginScreen = () => {
   const navigation = useNavigation();
   const { login, isLoading, error } = useLogin();
-  const { refetch: fetchUser } = useGetCurrentUser();
+  // const { refetch: fetchUser } = useGetCurrentUser();
 
   const { setDataForUserAsyncStore } = useUserAsyncStore();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("taed.business.13@gmail.com");
   const [password, setPassword] = useState("");
 
   const [emailError, setEmailError] = useState("");
@@ -36,7 +45,6 @@ const LoginScreen = () => {
       if (token) {
         setTimeout(() => {
           navigation.replace("MainApp");
-
         }, 500);
       }
     };
@@ -185,11 +193,7 @@ const LoginScreen = () => {
               <Text style={{ marginLeft: 8 }}>Giữ tôi đăng nhập</Text>
             </TouchableOpacity>
 
-
-            <Text
-              style={{ color: "#007FFF", fontWeight: "500" }}
-              onPress={() => navigation.navigate("ForgotPassword")}
-            >
+            <Text style={{ color: "#007FFF", fontWeight: "500" }} onPress={() => navigation.navigate("ForgotPassword")}>
               Quên mật khẩu?
             </Text>
           </View>
@@ -214,9 +218,8 @@ const LoginScreen = () => {
           </Pressable>
 
           <Pressable onPress={() => navigation.navigate("Register")} style={{ marginTop: 15 }}>
-            <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }} >
-              Bạn chưa có tài khoản?{" "}
-              <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng ký</Text>
+            <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }}>
+              Bạn chưa có tài khoản? <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng ký</Text>
             </Text>
           </Pressable>
         </KeyboardAvoidingView>
