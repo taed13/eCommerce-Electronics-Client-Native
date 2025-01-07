@@ -1,9 +1,8 @@
-import { Image, Text, View, ScrollView, Pressable, StyleSheet, Alert, Platform, SafeAreaView } from "react-native";
+import { Image, Text, View, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
 import React, { useLayoutEffect, useEffect, useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { UserType } from "../UserContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
 import { colors } from "../config/constants";
 import Loading from "../components/Loading";
@@ -22,7 +21,6 @@ const ProfileScreen = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedAddress, setSelectedAdress] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -47,33 +45,9 @@ const ProfileScreen = () => {
   }, []);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const id = userId;
-      try {
-        const response = await axiosInstance.get(`user/${id}`);
-        const { user } = response.data;
-        setUser(user);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  const logout = () => {
-    clearAuthToken();
-  };
-  const clearAuthToken = async () => {
-    await AsyncStorage.removeItem("authToken");
-    console.log("auth token cleared");
-    navigation.replace("Login");
-  };
-  useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await axiosInstance.get(`user/getmyorders`);
-        console.log('response', response.data);
         setOrders(response.data?.orders || []);
       } catch (error) {
         console.log("error", error);
@@ -95,11 +69,10 @@ const ProfileScreen = () => {
       </View>
     );
   }
-  console.log("orders:::", orders);
 
   return (
     <>
-      <ScrollView style={{ flex: 1, backgroundColor: "white", marginTop: 47 }} stickyHeaderIndices={[0]}>
+      <ScrollView style={{ flex: 1, backgroundColor: "white", marginTop: 20 }} stickyHeaderIndices={[0]}>
         <>
           <View>
             <HeaderSearchInput />
@@ -138,6 +111,23 @@ const ProfileScreen = () => {
           }}
         >
           <Pressable
+            onPress={() => Alert.alert("Thông báo", "Sẽ cập nhật sau...")}
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              backgroundColor: "#E0E0E0",
+              borderRadius: 25,
+              flex: 1,
+            }}
+          >
+            <Text style={{ textAlign: "center" }}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              Mua Lại
+            </Text>
+          </Pressable>
+
+          <Pressable
             style={{
               paddingVertical: 10,
               paddingHorizontal: 16,
@@ -171,23 +161,6 @@ const ProfileScreen = () => {
               ellipsizeMode="tail"
             >
               Cài Đặt Tài Khoản
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => Alert.alert("Thông báo", "Sẽ cập nhật sau...")}
-            style={{
-              paddingVertical: 10,
-              paddingHorizontal: 16,
-              backgroundColor: "#E0E0E0",
-              borderRadius: 25,
-              flex: 1,
-            }}
-          >
-            <Text style={{ textAlign: "center" }}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              Mua Lại
             </Text>
           </Pressable>
         </View>

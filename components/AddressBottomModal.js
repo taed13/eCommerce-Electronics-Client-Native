@@ -5,14 +5,15 @@ import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSetDefaultAddress } from '../api/user';
 
-const AddressBottomModal = ({ modalVisible, setModalVisible, addresses, selectedAddress, setSelectedAddress }) => {
+const AddressBottomModal = ({ modalVisible, setModalVisible, addresses, selectedAddress, setSelectedAddress, refetchUserData }) => {
     const navigation = useNavigation();
     const { mutate: setDefaultAddress, isLoading, error } = useSetDefaultAddress();
 
     const handleSetDefaultAddress = (addressId) => {
         setDefaultAddress(addressId, {
             onSuccess: () => {
-                console.log("Address set as default successfully!");
+                refetchUserData();
+                setModalVisible(false);
             },
             onError: () => {
                 console.error("Failed to set default address.");
@@ -47,7 +48,7 @@ const AddressBottomModal = ({ modalVisible, setModalVisible, addresses, selected
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {addresses &&
-                        addresses.map((item, index) => (
+                        addresses?.map((item, index) => (
                             <Pressable
                                 key={index}
                                 onPress={() => {

@@ -53,7 +53,7 @@ const ProfileUser = () => {
     updateUser(
       { name: newName },
       {
-        onSuccess: (updatedData) => {
+        onSuccess: () => {
           Alert.alert("Thành công", "Tên đã được cập nhật.");
 
           queryClient.setQueryData(['GET_CURRENT_USER'], (oldData) => ({

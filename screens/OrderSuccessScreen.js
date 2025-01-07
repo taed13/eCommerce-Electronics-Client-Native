@@ -5,25 +5,37 @@ import { usePurchaseSuccess } from "../api/checkout";
 import { colors } from "../constants/color";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { useSelector } from "react-redux";
 import Loading from "../components/Loading";
+import { useGetUserAddresses } from "../api/user";
+import { useUserAsyncStore } from "../hook/useUserAsyncStore";
+
+const formatCurrency = (amount) => {
+  return `${amount.toLocaleString('vi-VN')} VND`;
+};
+
 const OrderSuccessScreen = ({ route }) => {
   const { sessionID } = route.params;
-  const { mutate, isPending, data } = usePurchaseSuccess();
   const insets = useSafeAreaInsets();
-  const currentUser = useSelector((state) => state.user.currentUser);
-  const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
-
   const navigate = useNavigation();
+
+  const { userAsyncStore, loading } = useUserAsyncStore();
+  const { mutate, isPending, data } = usePurchaseSuccess();
+
+  const { data: addresses, isLoading, isError, refetch } = useGetUserAddresses(userAsyncStore?._id);
+  const defaultAddress = addresses?.data?.addresses?.find(
+    (address) => address.default === true
+  );
 
   const handlePress = () => {
     navigate.navigate("Home");
   };
+
   useEffect(() => {
     if (sessionID) {
       mutate(sessionID);
     }
   }, [sessionID]);
+
   return (
     <>
       <View style={{ flex: 1 }}>
@@ -40,11 +52,11 @@ const OrderSuccessScreen = ({ route }) => {
             <View style={OrderSuccessScreenStyle.divider} />
             <View style={{ gap: 4 }}>
               <Text style={OrderSuccessScreenStyle.title}>Địa chỉ nhận hàng</Text>
-              <Text>{myAddress[0]?.firstname ?? "Name"}</Text>
-              <Text>{myAddress[0]?.email ?? "Email@gmail.com"}</Text>
-              <Text>{myAddress[0].mobileNo ?? "00000000000"}</Text>
-              {myAddress && (
-                <Text>{`${myAddress[0].street}, ${myAddress[0].ward.full_name}, ${myAddress[0].district.full_name}, ${myAddress[0].province.name}`}</Text>
+              <Text>{userAsyncStore?.name ?? "Name"}</Text>
+              <Text>{userAsyncStore?.email ?? "Email@gmail.com"}</Text>
+              <Text>{defaultAddress?.mobileNo ?? "00000000000"}</Text>
+              {defaultAddress && (
+                <Text>{`${defaultAddress?.street}, ${defaultAddress?.ward.full_name}, ${defaultAddress?.district.full_name}, ${defaultAddress?.province.name}`}</Text>
               )}
             </View>
             <View style={OrderSuccessScreenStyle.divider} />
@@ -52,12 +64,17 @@ const OrderSuccessScreen = ({ route }) => {
               <Text style={OrderSuccessScreenStyle.title}>Thông tin thanh toán</Text>
               <Text>Phương thức thanh toán CARD</Text>
               <Text>Trạng thái thanh toán CARD</Text>
-              <Text>{`Tiền đã thanh toán:  ${data?.session?.amount_subtotal ?? 0} VND`}</Text>
+              <Text>{`Tổng thanh toán: ${formatCurrency(data?.session?.amount_subtotal ?? 0)}`}</Text>
             </View>
           </View>
 
           <View style={{ marginTop: 16 }}>
             <View style={OrderSuccessScreenStyle.container}>
+              <View style={OrderSuccessScreenStyle.headerRow}>
+                <TouchableOpacity onPress={() => navigate.navigate("Order", { orderId: data?.order?.id })}>
+                  <Text style={OrderSuccessScreenStyle.titleDetailLink}>Chi tiết đơn hàng</Text>
+                </TouchableOpacity>
+              </View>
               <View style={OrderSuccessScreenStyle.information}>
                 <View style={[OrderSuccessScreenStyle.productionCodeWrapper, { marginBottom: 4 }]}>
                   <Text style={OrderSuccessScreenStyle.label}>Mã đơn hàng:</Text>
@@ -65,7 +82,9 @@ const OrderSuccessScreen = ({ route }) => {
                 </View>
                 <View style={OrderSuccessScreenStyle.productionCodeWrapper}>
                   <Text style={OrderSuccessScreenStyle.label}>Ngày đặt hàng:</Text>
-                  <Text style={OrderSuccessScreenStyle.value}>04/01/2025</Text>
+                  <Text style={OrderSuccessScreenStyle.value}>{new Date(
+                    data?.session.created * 1000
+                  ).toLocaleDateString()}</Text>
                 </View>
               </View>
               <View>
@@ -93,7 +112,9 @@ const OrderSuccessScreen = ({ route }) => {
                     <View style={[OrderSuccessScreenStyle.stepItem]}>
                       <Text style={[OrderSuccessScreenStyle.stepText]}>1</Text>
                     </View>
-                    <Text>Đã đặt</Text>
+                    <Text style={OrderSuccessScreenStyle.stepLabel} numberOfLines={1} ellipsizeMode="tail">
+                      Đã đặt
+                    </Text>
                   </View>
                   <View style={OrderSuccessScreenStyle.stepDividerWrapper}>
                     <View style={OrderSuccessScreenStyle.stepDivider} />
@@ -102,7 +123,9 @@ const OrderSuccessScreen = ({ route }) => {
                     <View style={[OrderSuccessScreenStyle.stepItem]}>
                       <Text style={[OrderSuccessScreenStyle.stepText]}>2</Text>
                     </View>
-                    <Text>Đã giao hàng</Text>
+                    <Text style={OrderSuccessScreenStyle.stepLabel} numberOfLines={1} ellipsizeMode="tail">
+                      Đã vận chuyển
+                    </Text>
                   </View>
                   <View style={OrderSuccessScreenStyle.stepDividerWrapper}>
                     <View style={OrderSuccessScreenStyle.stepDivider} />
@@ -111,7 +134,9 @@ const OrderSuccessScreen = ({ route }) => {
                     <View style={[OrderSuccessScreenStyle.stepItem, OrderSuccessScreenStyle.stepDisabled]}>
                       <Text style={[OrderSuccessScreenStyle.stepText]}>3</Text>
                     </View>
-                    <Text>Đã vận chuyển</Text>
+                    <Text style={OrderSuccessScreenStyle.stepLabel} numberOfLines={1} ellipsizeMode="tail">
+                      Đã giao hàng
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -133,7 +158,6 @@ export default OrderSuccessScreen;
 
 const OrderSuccessScreenStyle = StyleSheet.create({
   information: {
-    paddingVertical: 16,
   },
   image: {
     width: 100,
@@ -157,6 +181,17 @@ const OrderSuccessScreenStyle = StyleSheet.create({
     fontWeight: 500,
     marginBottom: 8,
   },
+  headerRow: {
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    marginBottom: 8,
+  },
+  titleDetailLink: {
+    fontSize: 16,
+    fontWeight: 500,
+    color: "#0B58CA",
+    textDecorationLine: "underline",
+  },
   productionCodeWrapper: {
     flexDirection: "row",
     gap: 8,
@@ -179,6 +214,12 @@ const OrderSuccessScreenStyle = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
+  },
+  stepLabel: {
+    fontSize: 13,
+    textAlign: "center",
+    flexWrap: "nowrap",
+    overflow: "hidden",
   },
   stepDivider: {
     height: 1,
