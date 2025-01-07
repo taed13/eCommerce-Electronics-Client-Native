@@ -1,6 +1,6 @@
 import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
-import React, { useMemo, useState } from "react";
-import { AntDesign } from "@expo/vector-icons";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Checkbox } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -11,16 +11,25 @@ import Loading from "../components/Loading";
 import { colors } from "../config/constants";
 
 import { useGetMyCart } from "../api/cart";
+import { useGetCurrentUser } from "../api/user";
+import AddressBottomModal from "../components/AddressBottomModal";
 
 const CartScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
   const { data, isLoading, refetch, error } = useGetMyCart();
+  const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUserData } = useGetCurrentUser();
+
+  const defaultAddress = currentUserData?.data.addresses.find((address) => address.default === true) || null;
 
   const [searchValue, setSearchValue] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAddress, setSelectedAdress] = useState("");
+
+  const inputRef = useRef(null);
 
   const listItems = useMemo(() => {
     if (!Array.isArray(data?.data?.cart_products)) return [];
@@ -30,11 +39,15 @@ const CartScreen = () => {
   }, [data, searchValue]);
 
   const handleSelectItem = (itemId) => {
-    setSelectedItems((prevSelected) =>
-      prevSelected.includes(itemId)
+    setSelectedItems((prevSelected) => {
+      const newSelectedItems = prevSelected.includes(itemId)
         ? prevSelected.filter((id) => id !== itemId)
-        : [...prevSelected, itemId]
-    );
+        : [...prevSelected, itemId];
+
+      setSelectAll(newSelectedItems.length === listItems.length);
+
+      return newSelectedItems;
+    });
   };
 
   const handleSelectAll = () => {
@@ -76,30 +89,57 @@ const CartScreen = () => {
     }
   });
 
+  useEffect(() => {
+    if (currentUserData?.data?.addresses) {
+      const updatedDefaultAddress = currentUserData?.data?.addresses.find((address) => address.default === true) || null;
+      setSelectedAdress(updatedDefaultAddress);
+    }
+  }, [currentUserData]);
+
   const handleProceedOrder = () => {
     if (selectedItems.length === 0) {
       alert("Vui lòng chọn ít nhất một sản phẩm để đặt hàng!");
       return;
     }
-  
+
     const selectedProducts = listItems.filter((item) => selectedItems.includes(item._id));
     navigation.navigate("OrderSummary", { cartData: { cart_products: selectedProducts } });
-  };  
+  };
 
   return (
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
         <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center" }}>
 
-          <Pressable style={{ flexDirection: "row", alignItems: "center", marginHorizontal: 3, gap: 10, backgroundColor: "white", borderRadius: 50, height: 40, flex: 1, }}>
-            <AntDesign style={{ paddingLeft: 10 }} name="search1" size={22} color="black" />
+          <Pressable style={{ flexDirection: "row", alignItems: "center", backgroundColor: "white", borderRadius: 50, height: 40, flex: 1, paddingHorizontal: 10, }} onPress={() => { inputRef.current.focus(); }}>
+            <AntDesign style={{ paddingRight: 5, }} name="search1" size={20} color="black" />
             <TextInput
               placeholder="Tìm kiếm sản phẩm trong giỏ hàng"
               value={searchValue}
               onChangeText={(text) => setSearchValue(text)}
+              style={{
+                fontSize: 16,
+                flex: 1,
+              }}
             />
           </Pressable>
         </View>
+        {/* Add shipping address */}
+        <>
+          <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#425768", }}>
+            <Ionicons name="location-outline" size={24} color="white" />
+            <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flex: 1 }}>
+              {defaultAddress ? (
+                <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }} numberOfLines={1} ellipsizeMode="tail">
+                  Giao hàng đến {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
+                </Text>
+              ) : (
+                <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
+              )}
+            </Pressable>
+            <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+          </Pressable>
+        </>
 
         {/* Checkbox Chọn Tất Cả */}
         <Pressable onPress={handleSelectAll} style={{ flexDirection: "row", alignItems: "center", padding: 10 }}>
@@ -128,6 +168,15 @@ const CartScreen = () => {
         >
           <Text>{`Tiến hành đặt hàng (${selectedItems.length}) sản phẩm`}</Text>
         </Pressable>
+
+        <AddressBottomModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          addresses={currentUserData?.data?.addresses}
+          selectedAddress={selectedAddress}
+          setSelectedAddress={setSelectedAdress}
+          refetchUserData={refetchUserData}
+        />
       </View>
       {isLoading && <Loading />}
     </>

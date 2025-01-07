@@ -217,7 +217,6 @@ const EditAddressScreen = () => {
 
     updateAddress({ addressId, addressData: address }, {
       onSuccess: () => {
-        console.log("Address edited successfully!");
         Alert.alert("Success", "Chỉnh sửa địa chỉ thành công");
         setFirstname("");
         setLastname("");
@@ -421,7 +420,7 @@ const EditAddressScreen = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginTop: 47,
+    marginTop: 45,
   },
   header: {
     height: 60,

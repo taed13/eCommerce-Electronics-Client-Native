@@ -27,8 +27,8 @@ const OrderSummaryScreen = ({ route }) => {
   const navigate = useNavigation();
   const insets = useSafeAreaInsets();
 
-  const { apply, isLoading: isApplying, error } = useApplyDiscount();
-  const { calculate, isLoading: isCalculating, error: errorShipping } = useCalculateShippingFee();
+  const { apply, isLoading: isApplying } = useApplyDiscount();
+  const { calculate } = useCalculateShippingFee();
 
   const [isOpenPayment, setIsOpenPayment] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
@@ -183,8 +183,6 @@ const OrderSummaryScreen = ({ route }) => {
     }
     if (createOrderData) {
       mutatePurchase({
-        items: { data: cartData },
-        shippingInfo: myAddress[0],
         orderId: createOrderData._id,
         type: "mobile",
       });
@@ -213,7 +211,7 @@ const OrderSummaryScreen = ({ route }) => {
                   return <CheckoutItem item={item} key={item._id || index} />;
                 })}
             </View>
-            
+
             <View style={[OrderSummaryScreenStyle.discountWrapper, OrderSummaryScreenStyle.wrapper]}>
               <TextInput
                 style={OrderSummaryScreenStyle.discountInput}

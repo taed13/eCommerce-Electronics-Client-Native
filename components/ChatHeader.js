@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, View, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from "../config/constants";
 
-const ChatHeader = ({ chatName, chatId }) => {
+const ChatHeader = ({ chatName, chatId, textColor = "black" }) => {
     const navigation = useNavigation();
 
     return (
@@ -11,7 +11,7 @@ const ChatHeader = ({ chatName, chatId }) => {
             style={styles.container}
             onPress={() => navigation.navigate('ChatInfo', { chatId, chatName })}
         >
-            <Text style={styles.chatName}>{chatName}</Text>
+            <Text style={[styles.chatName, { color: textColor }]}>{chatName}</Text>
         </TouchableOpacity>
     );
 };

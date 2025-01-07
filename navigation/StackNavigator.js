@@ -127,11 +127,25 @@ const StackNavigator = () => {
         component={OrderSummaryScreen}
         options={{ headerShown: false, title: "Tổng quan đơn hàng" }}
       />
-      <Stack.Screen name="OrderSuccess" component={OrderSuccessScreen} options={{ headerShown: true }} />
+      <Stack.Screen
+        name="OrderSuccess"
+        component={OrderSuccessScreen}
+        options={{
+          headerLeft: () => null,
+          headerTitle: "Đặt hàng thành công",
+          headerStyle: {
+            backgroundColor: "green",
+          },
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      />
       <Stack.Screen
         name="ChatDetail"
         component={Chat}
         options={({ route }) => ({
+          headerLeft: () => <View></View>,
           headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?._id} />,
           headerRight: () => (
             <View style={{ flexDirection: "row", alignItems: "center" }}>

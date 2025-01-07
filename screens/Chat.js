@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.lightGrey,
+        width: 40,
     },
     emojiModal: {
         justifyContent: 'center',
@@ -325,6 +326,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.lightGrey,
         justifyContent: 'center',
         alignItems: 'center',
+        marginHorizontal: 5,
     },
     loadingContainer: {
         flex: 1,

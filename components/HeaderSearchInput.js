@@ -62,7 +62,7 @@ const HeaderSearchInput = () => {
 
     return (
         <View style={styles.container}>
-            <Pressable style={styles.searchBox} onPress={() => {inputRef.current.focus();}}>
+            <Pressable style={styles.searchBox} onPress={() => { inputRef.current.focus(); }}>
                 <AntDesign style={styles.icon} name="search1" size={20} color="black" />
                 <TextInput
                     ref={inputRef}

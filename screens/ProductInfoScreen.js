@@ -17,7 +17,7 @@ import {
   AntDesign,
   MaterialCommunityIcons,
   Ionicons,
-  FontAwesome
+  FontAwesome,
 } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import RenderHtml from "react-native-render-html";
@@ -36,7 +36,7 @@ import HeaderSearchInput from "../components/HeaderSearchInput";
 const ProductInfoScreen = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
-  const { data: currentUserData, isLoading: isLoadingUser } = useGetCurrentUser();
+  const { data: currentUserData } = useGetCurrentUser();
   const currentUser = currentUserData?.data;
 
   const [reviews, setReviews] = useState([]);
@@ -54,9 +54,9 @@ const ProductInfoScreen = () => {
 
   const { isLoading: isLoadingProduct, data: productData, fetchProduct } =
     useFetchProduct();
-  const { isLoading: isLoadingProducts, data: productList, fetchProducts } =
+  const { isLoading: isLoadingProducts, fetchProducts } =
     useFetchProducts();
-  const { isLoading: isLoadingCheckProductInOrder, fetchCheckProductInOrder, error } = useCheckProductInOrder();
+  const { fetchCheckProductInOrder } = useCheckProductInOrder();
   const { mutate: addToCart, isLoading: isLoadingAddToCart } = useAddToCart();
 
   const fetchProductData = async () => {
@@ -100,7 +100,6 @@ const ProductInfoScreen = () => {
   const htmlContent =
     productData?.product_description || "<p>Không có mô tả</p>";
 
-  const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [showMore, setShowMore] = useState(false);
 
@@ -177,7 +176,7 @@ const ProductInfoScreen = () => {
     <>
       <ScrollView
         ref={scrollViewRef}
-        style={{ marginTop: 47, flex: 1, backgroundColor: "white" }}
+        style={{ marginTop: 20, flex: 1, backgroundColor: "white" }}
         showsVerticalScrollIndicator={false}
       >
         <View>
@@ -188,7 +187,7 @@ const ProductInfoScreen = () => {
           {productData?.product_images?.map((item, index) => (
             <ImageBackground
               style={{ width, height, marginTop: 25, resizeMode: "contain" }}
-              source={{ uri: item.url }}
+              source={{ uri: item.url || "https://cdn4.iconfinder.com/data/icons/refresh_cl/256/System/Box_Empty.png" }}
               key={index}
             >
               <View

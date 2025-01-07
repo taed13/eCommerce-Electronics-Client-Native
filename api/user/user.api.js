@@ -107,3 +107,15 @@ export const saveAddressService = async (axiosClient, address) => {
         return { error: error.message || "Failed to save address" };
     }
 };
+
+export const getUserAddresses = async (axiosClient, userId) => {
+    try {
+        const response = await axiosClient.get(`user/addresses/${userId}`);
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to get addresses" };
+    }
+};
