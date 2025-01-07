@@ -25,7 +25,7 @@ const LoginScreen = () => {
 
   const { setDataForUserAsyncStore } = useUserAsyncStore();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("taed.business.13@gmail.com");
   const [password, setPassword] = useState("");
 
   const [emailError, setEmailError] = useState("");
