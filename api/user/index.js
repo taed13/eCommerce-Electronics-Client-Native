@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService, saveAddressService } from "./user.api";
+import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService, saveAddressService, getUserAddresses } from "./user.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -70,7 +70,6 @@ export const useLogout = () => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem("authToken");
-      console.log("Auth token cleared");
       navigation.replace("Login");
       return { success: true, message: "Logged out successfully" };
     } catch (error) {
@@ -172,5 +171,16 @@ export const useSaveAddress = () => {
     onError: (error) => {
       console.error("Failed to save address:", error.message);
     },
+  });
+};
+
+export const useGetUserAddresses = (userId) => {
+  const axiosClient = useAxiosClient();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.USER_ADDRESSES, userId],
+    queryFn: () => getUserAddresses(axiosClient, userId),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
   });
 };

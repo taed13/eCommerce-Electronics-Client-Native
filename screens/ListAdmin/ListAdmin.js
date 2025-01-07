@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, ScrollView, Pressable, Alert, ActivityIndicat
 
 import ContactRow from '../../components/ContactRow';
 import Separator from "../../components/Separator";
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { auth, database } from '../../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,81 +42,37 @@ const ListAdmin = ({ route }) => {
     useEffect(() => {
         const fetchContacts = async () => {
             if (currentUser) {
-                if (currentUser.isAvatarImageSet) {
-                    try {
-                        const data = await axios.get(`${allAdminsRoute}/${currentUser._id}`);
-
-                        setContacts(data.data);
-                        setChats(data.data);
-                        setLoading(false);
-                    } catch (error) {
-                        console.error("Error fetching contacts:", error);
-                    }
-                } else {
-                    navigate("/setAvatar");
+                try {
+                    const data = await axios.get(`${allAdminsRoute}/${currentUser._id}`);
+                    setContacts(data.data);
+                    setChats(data.data);
+                    setLoading(false);
+                } catch (error) {
+                    console.error("Error fetching contacts:", error);
                 }
             }
         };
         fetchContacts();
     }, []);
 
-
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         // Load unread messages from AsyncStorage when screen is focused
-    //         const loadNewMessages = async () => {
-    //             try {
-    //                 const storedMessages = await AsyncStorage.getItem('newMessages');
-    //                 const parsedMessages = storedMessages ? JSON.parse(storedMessages) : {};
-    //                 setNewMessages(parsedMessages);
-    //                 setUnreadCount(Object.values(parsedMessages).reduce((total, num) => total + num, 0));
-    //             } catch (error) {
-    //                 console.log('Error loading new messages from storage', error);
-    //             }
-    //         };
-
-    //         // Set up Firestore listener for chat updates
-    //         const collectionRef = collection(database, 'chats');
-    //         const q = query(
-    //             collectionRef,
-    //             where('users', "array-contains", { email: auth?.currentUser?.email, name: auth?.currentUser?.displayName, deletedFromChat: false }),
-    //             orderBy("lastUpdated", "desc")
-    //         );
-
-    //         const unsubscribe = onSnapshot(q, (snapshot) => {
-    //             setChats(snapshot.docs);
-    //             setLoading(false);
-
-    //             snapshot.docChanges().forEach(change => {
-    //                 if (change.type === "modified") {
-    //                     const chatId = change.doc.id;
-    //                     const messages = change.doc?.messages;
-    //                     const firstMessage = messages[0];
-
-    //                     // Increase unread count if the first message is from someone else
-    //                     if (firstMessage.user._id !== auth?.currentUser?.email) {
-    //                         setNewMessages(prev => {
-    //                             const updatedMessages = { ...prev, [chatId]: (prev[chatId] || 0) + 1 };
-    //                             AsyncStorage.setItem('newMessages', JSON.stringify(updatedMessages));
-    //                             setUnreadCount(Object.values(updatedMessages).reduce((total, num) => total + num, 0));
-    //                             return updatedMessages;
-    //                         });
-    //                     }
-    //                 }
-    //             });
-    //         });
-
-    //         // Load unread messages and start listener when screen is focused
-    //         loadNewMessages();
-
-    //         // Clean up listener on focus change
-    //         return () => unsubscribe();
-    //     }, [])
-    // );
-
     useEffect(() => {
         updateNavigationOptions();
     }, [selectedItems]);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerStyle: {
+                backgroundColor: "#FEBD68",
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+                fontWeight: 'bold',
+                fontSize: 22,
+            },
+            title: 'Danh sách Admin',
+        });
+    }, [navigation]);
+
 
     const updateNavigationOptions = () => {
         if (selectedItems.length > 0) {
@@ -353,7 +309,7 @@ const ListAdmin = ({ route }) => {
                         <Separator />
                         <View style={styles.blankContainer}>
                             <Text style={{ fontSize: 12, margin: 15 }}>
-                                <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.teal }}>mã hóa đầu cuối</Text>
+                                <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.primary }}>mã hóa đầu cuối</Text>
                             </Text>
                         </View>
                     </ScrollView>
@@ -383,7 +339,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     container: {
-        flex: 1
+        flex: 1,
+        fontSize: 25,
     },
     blankContainer: {
         flex: 1,

@@ -4,34 +4,27 @@ import {
   View,
   SafeAreaView,
   ScrollView,
-  TextInput,
   Pressable,
   Image,
   FlatList,
   StyleSheet,
   Platform,
-  ActivityIndicator,
   ImageBackground,
   Dimensions,
 } from "react-native";
-import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
-import { Ionicons, MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
-// import { SliderBox } from "react-native-image-slider-box";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import axios from "axios";
-import ProductItem from "../components/ProductItem";
-// import DropDownPicker from "react-native-dropdown-picker";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserType } from "../UserContext";
 import { jwtDecode } from "jwt-decode";
 import { getAllProducts } from "../feature/products/productSlice";
-import axiosInstance from "../api/axiosInstance";
-import { APP_CONFIG } from "../config/common";
 import HeaderSearchInput from "../components/HeaderSearchInput";
 import AddressBottomModal from "../components/AddressBottomModal";
 import { colors } from "../constants/color";
-// import ReactStars from "react-native-stars";
+import { useGetUserAddresses } from "../api/user";
 
 const HomeScreen = () => {
   const list = [
@@ -133,19 +126,13 @@ const HomeScreen = () => {
 
   const [products, setProducts] = useState([]);
   const [open, setOpen] = useState(false);
-  const [addresses, setAddresses] = useState([]);
-  const [category, setCategory] = useState("jewelery");
   const [selectedAddress, setSelectedAdress] = useState("");
-  const [items, setItems] = useState([
-    { label: "Quần áo nam", value: "men's clothing" },
-    { label: "Trang sức", value: "jewelery" },
-    { label: "Điện tử", value: "electronics" },
-    { label: "Quần áo nữ", value: "women's clothing" },
-  ]);
+
   const [token, setToken] = useState("");
 
   const navigation = useNavigation();
   const { userId, setUserId } = useContext(UserType);
+  const { data: addresses, isLoading, isError, refetch } = useGetUserAddresses(userId);
 
   const { width } = Dimensions.get("window");
 
@@ -185,31 +172,9 @@ const HomeScreen = () => {
     fetchData();
   }, []);
 
-  const cart = useSelector((state) => state.cart.cart);
   const [modalVisible, setModalVisible] = useState(false);
-  // useEffect(() => {
-  //   if (userId) {
-  //     fetchAddresses();
-  //   }
-  // }, [userId, modalVisible, addresses]);
 
-  const fetchAddresses = async () => {
-    try {
-      const response = await axiosInstance.get(`user/addresses/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-      const { addresses } = response.data;
-
-      setAddresses(addresses);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
-
-  const defaultAddress = addresses?.find((address) => address.default === true);
+  const defaultAddress = addresses?.data?.addresses?.find((address) => address.default === true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -272,8 +237,7 @@ const HomeScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Giao hàng đến {defaultAddress.ward?.full_name}, {defaultAddress.district?.full_name},{" "}
-                    {defaultAddress.province?.name}
+                    Giao hàng đến {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
                   </Text>
                 ) : (
                   <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
@@ -308,45 +272,6 @@ const HomeScreen = () => {
               ))}
             </ScrollView>
           </>
-          {/* <SliderBox
-            images={images}
-            autoPlay
-            circleLoop
-            dotColor={"#13274F"}
-            inactiveDotColor="#90A4AE"
-            ImageComponentStyle={{ width: "100%" }}
-          /> */}
-          {/* <View style={{ marginHorizontal: 10, marginTop: 20, width: "45%", marginBottom: open ? 50 : 15, }}>
-            <DropDownPicker
-              style={{
-                borderColor: "#B7B7B7",
-                height: 30,
-                marginBottom: open ? 120 : 15,
-              }}
-              open={open}
-              value={category} //genderValue
-              items={items}
-              setOpen={setOpen}
-              setValue={setCategory}
-              setItems={setItems}
-              placeholder="choose category"
-              placeholderStyle={styles.placeholderStyles}
-              onOpen={onGenderOpen}
-              // onChangeValue={onChange}
-              zIndex={3000}
-              zIndexInverse={1000}
-            />
-          </View> */}
-          {/* Fake Data */}
-          {/* <>
-            <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", }}>
-              {products
-                ?.filter((item) => item.category === category)
-                .map((item, index) => (
-                  <ProductItem item={item} key={index} />
-                ))}
-            </View>
-          </> */}
           {/* Special Products */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
@@ -465,7 +390,7 @@ const HomeScreen = () => {
             <FlatList
               data={featuredProducts}
               keyExtractor={(item, index) => `${item._id}-${index}`}
-              numColumns={2} // Hiển thị 2 sản phẩm mỗi dòng
+              numColumns={2}
               renderItem={({ item }) => (
                 <Pressable style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
                   <View style={styles.imageContainer}>
@@ -499,9 +424,10 @@ const HomeScreen = () => {
       <AddressBottomModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        addresses={addresses}
+        addresses={addresses?.data?.addresses}
         selectedAddress={selectedAddress}
         setSelectedAddress={setSelectedAdress}
+        refetchUserData={refetch}
       />
     </>
   );

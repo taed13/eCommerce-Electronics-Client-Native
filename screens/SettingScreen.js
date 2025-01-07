@@ -1,11 +1,10 @@
 import React from "react";
-import { Text, View, StyleSheet, Linking, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, Linking, ScrollView } from "react-native";
 import ContactRow from "../components/ContactRow";
 import Cell from "../components/Cell";
 import Header from "../components/Header";
 import Loading from "../components/Loading";
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from "../config/constants";
+
 import { useGetCurrentUser } from "../api/user";
 
 const SettingScreen = ({ navigation }) => {
@@ -16,11 +15,6 @@ const SettingScreen = ({ navigation }) => {
   }
 
   const currentUser = data?.data;
-
-  const handleOpenGithub = async () => {
-    const githubUrl = "https://github.com/taed13/eCommerce-Electronics-Client-Native";
-    await Linking.openURL(githubUrl);
-  };
 
   return (
     <ScrollView>
@@ -61,12 +55,12 @@ const SettingScreen = ({ navigation }) => {
         />
       </View>
 
-      <TouchableOpacity style={styles.githubLink} onPress={handleOpenGithub}>
+      {/* <TouchableOpacity style={styles.githubLink} onPress={handleOpenGithub}>
         <Text style={styles.githubText}>
           <Ionicons name="logo-github" size={12} color={colors.teal} />{" "}
           App's Github
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </ScrollView>
   );
 };

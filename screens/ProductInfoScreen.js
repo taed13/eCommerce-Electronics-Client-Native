@@ -17,7 +17,7 @@ import {
   AntDesign,
   MaterialCommunityIcons,
   Ionicons,
-  FontAwesome
+  FontAwesome,
 } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import RenderHtml from "react-native-render-html";
@@ -31,11 +31,12 @@ import { useFetchProduct, useFetchProducts } from "../api/product";
 import { useCheckProductInOrder } from "../api/order";
 import { useAddToCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
+import HeaderSearchInput from "../components/HeaderSearchInput";
 
 const ProductInfoScreen = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
-  const { data: currentUserData, isLoading: isLoadingUser } = useGetCurrentUser();
+  const { data: currentUserData } = useGetCurrentUser();
   const currentUser = currentUserData?.data;
 
   const [reviews, setReviews] = useState([]);
@@ -53,9 +54,9 @@ const ProductInfoScreen = () => {
 
   const { isLoading: isLoadingProduct, data: productData, fetchProduct } =
     useFetchProduct();
-  const { isLoading: isLoadingProducts, data: productList, fetchProducts } =
+  const { isLoading: isLoadingProducts, fetchProducts } =
     useFetchProducts();
-  const { isLoading: isLoadingCheckProductInOrder, fetchCheckProductInOrder, error } = useCheckProductInOrder();
+  const { fetchCheckProductInOrder } = useCheckProductInOrder();
   const { mutate: addToCart, isLoading: isLoadingAddToCart } = useAddToCart();
 
   const fetchProductData = async () => {
@@ -99,7 +100,6 @@ const ProductInfoScreen = () => {
   const htmlContent =
     productData?.product_description || "<p>Không có mô tả</p>";
 
-  const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [showMore, setShowMore] = useState(false);
 
@@ -176,44 +176,18 @@ const ProductInfoScreen = () => {
     <>
       <ScrollView
         ref={scrollViewRef}
-        style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}
+        style={{ marginTop: 20, flex: 1, backgroundColor: "white" }}
         showsVerticalScrollIndicator={false}
       >
-        <View
-          style={{
-            backgroundColor: "#131921",
-            padding: 10,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginHorizontal: 7,
-              gap: 10,
-              backgroundColor: "white",
-              borderRadius: 3,
-              height: 38,
-              flex: 1,
-            }}
-          >
-            <AntDesign
-              style={{ paddingLeft: 10 }}
-              name="search1"
-              size={22}
-              color="black"
-            />
-            <TextInput placeholder="Tìm kiếm sản phẩm..." />
-          </Pressable>
+        <View>
+          <HeaderSearchInput />
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {productData?.product_images?.map((item, index) => (
             <ImageBackground
               style={{ width, height, marginTop: 25, resizeMode: "contain" }}
-              source={{ uri: item.url }}
+              source={{ uri: item.url || "https://cdn4.iconfinder.com/data/icons/refresh_cl/256/System/Box_Empty.png" }}
               key={index}
             >
               <View
@@ -374,15 +348,15 @@ const ProductInfoScreen = () => {
             }}
           >
             <Text style={{ fontWeight: "bold" }}>Màu:</Text>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "row", gap: 5 }}>
               {productData?.product_color?.length > 0 ? (
                 productData.product_color.map((color, index) => (
                   <TouchableOpacity
                     key={color.code}
                     onPress={() => setSelectedColor(color)}
                     style={{
-                      width: 30,
-                      height: 30,
+                      width: 20,
+                      height: 20,
                       borderRadius: 20,
                       backgroundColor: color.code,
                       marginRight: 5,

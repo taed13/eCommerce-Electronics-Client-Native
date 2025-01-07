@@ -151,7 +151,7 @@ function Chat({ route }) {
             </TouchableOpacity>
             <Send {...props}>
                 <View style={{
-                    bottom: 8,
+                    bottom: 40,
                     width: 40,
                     borderRadius: 20,
                     backgroundColor: colors.lightGrey,
@@ -229,7 +229,7 @@ function Chat({ route }) {
                 onSend={messages => onSend(messages)}
                 imageStyle={{ height: 212, width: 212 }}
                 messagesContainerStyle={{ backgroundColor: '#fff' }}
-                textInputStyle={{ backgroundColor: '#fff', borderRadius: 20 }}
+                textInputStyle={{ backgroundColor: '#fff', borderRadius: 20, marginBottom: 40, marginTop: 10 }}
                 user={{
                     _id: currentUser._id,
                     name: currentUser.name,
@@ -279,11 +279,12 @@ function Chat({ route }) {
 const styles = StyleSheet.create({
     emojiIcon: {
         marginLeft: 8,
-        bottom: 8,
+        bottom: 40,
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.lightGrey,
+        width: 40,
     },
     emojiModal: {
         justifyContent: 'center',
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
     },
     emojiContainerModal: {
         backgroundColor: 'white',
-        padding: 10,
+        padding: 5,
         maxHeight: 400,
         alignSelf: 'center',
         elevation: 5,  // Adds a shadow on Android
@@ -319,12 +320,13 @@ const styles = StyleSheet.create({
         right: 12,
     },
     addImageIcon: {
-        bottom: 8,
+        bottom: 40,
         width: 40,
         borderRadius: 20,
         backgroundColor: colors.lightGrey,
         justifyContent: 'center',
         alignItems: 'center',
+        marginHorizontal: 5,
     },
     loadingContainer: {
         flex: 1,

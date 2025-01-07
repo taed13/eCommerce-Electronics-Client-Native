@@ -53,7 +53,7 @@ const ProfileUser = () => {
     updateUser(
       { name: newName },
       {
-        onSuccess: (updatedData) => {
+        onSuccess: () => {
           Alert.alert("Thành công", "Tên đã được cập nhật.");
 
           queryClient.setQueryData(['GET_CURRENT_USER'], (oldData) => ({
@@ -192,7 +192,7 @@ const ProfileUser = () => {
               icon='person-outline'
               iconColor="black"
               subtitle={currentUser?.name || "Chưa thiết lập tên"}
-              secondIcon='pencil-outline'
+              secondIcon='create-outline'
               onPress={() => setIsEditingName(true)}
               style={styles.cell}
             />
@@ -221,7 +221,7 @@ const ProfileUser = () => {
               subtitle={currentUser?.email || "Chưa thiết lập email"}
               icon='mail-outline'
               iconColor="black"
-              secondIcon='pencil-outline'
+              secondIcon='create-outline'
               onPress={() => setIsEditingEmail(true)}
               style={styles.cell}
             />
@@ -251,7 +251,7 @@ const ProfileUser = () => {
               subtitle={currentUser?.addresses?.find((address) => address.default)?.mobileNo || "Chưa thiết lập số điện thoại"}
               icon='call-outline'
               iconColor="black"
-              secondIcon='pencil-outline'
+              secondIcon='create-outline'
               onPress={() => setIsEditingPhone(true)}
               style={styles.cell}
             />
@@ -262,13 +262,13 @@ const ProfileUser = () => {
             subtitle={currentUser?.addresses?.find((address) => address.default)?.mobileNo || "Chưa thiết lập số điện thoại"}
             icon='call-outline'
             iconColor="black"
-            secondIcon='pencil-outline'
+            secondIcon='create-outline'
             onPress={handleSavePhone}
             style={styles.cell}
           /> */}
 
           <Cell
-            title="Address"
+            title="Địa chỉ"
             subtitle={
               currentUser?.addresses?.find((address) => address.default)?.street +
               ", " +
@@ -281,18 +281,16 @@ const ProfileUser = () => {
             }
             icon="location-outline"
             iconColor="black"
-            secondIcon="pencil-outline"
+            secondIcon="create-outline"
             onPress={() => navigation.navigate("Address")}
             style={styles.cell}
           />
 
           <Cell
-            title='About'
-            subtitle='Available'
+            title='Về chúng tôi'
             icon='information-circle-outline'
             iconColor="black"
-            secondIcon='pencil-outline'
-            onPress={() => navigation.navigate("Address")}
+            onPress={() => Alert.alert("Cập nhật sau...")}
             style={styles.cell}
           />
         </View>
