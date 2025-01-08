@@ -1,12 +1,12 @@
 import { Text, View, ScrollView, Pressable, StyleSheet } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
-import { Feather, AntDesign, MaterialIcons, Entypo } from "@expo/vector-icons";
+import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { UserType } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "../api/axiosInstance";
 import HeaderSearchInput from "../components/HeaderSearchInput";
-import { useDeleteAddress, useSetDefaultAddress } from "../api/user"; // Adjust the import path as needed
+import { useDeleteAddress, useSetDefaultAddress } from "../api/user";
 
 const AddAddressScreen = () => {
   const navigation = useNavigation();
@@ -57,7 +57,7 @@ const AddAddressScreen = () => {
     setDefaultAddress(addressId, {
       onSuccess: () => {
         console.log("Address set as default successfully!");
-        fetchAddresses(); // Refresh the addresses to reflect the change
+        fetchAddresses();
       },
       onError: () => {
         console.error("Failed to set default address.");
@@ -132,7 +132,7 @@ const AddAddressScreen = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginTop: 47,
+    marginTop: 20,
   },
   container: {
     padding: 10,

@@ -21,7 +21,8 @@ const CartScreen = () => {
   const { data, isLoading, refetch, error } = useGetMyCart();
   const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUserData } = useGetCurrentUser();
 
-  const defaultAddress = currentUserData?.data.addresses.find((address) => address.default === true) || null;
+  const defaultAddress =
+    currentUserData?.data?.addresses?.find((address) => address.default === true) || undefined;
 
   const [searchValue, setSearchValue] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
@@ -172,7 +173,7 @@ const CartScreen = () => {
         <AddressBottomModal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          addresses={currentUserData?.data?.addresses}
+          addresses={currentUserData?.data?.addresses || []}
           selectedAddress={selectedAddress}
           setSelectedAddress={setSelectedAdress}
           refetchUserData={refetchUserData}

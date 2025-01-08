@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10,
     paddingVertical: 20,
-    marginTop: 40,
+    marginTop: 20,
   },
   title: {
     position: "absolute",

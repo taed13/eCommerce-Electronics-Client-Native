@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, useEffect, useState, useRef } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal } from "react-native";
+import React, { useCallback, useEffect, useState, useRef, useContext } from "react";
+import { ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, Modal, Pressable } from "react-native";
 import { useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,13 +18,22 @@ import { useApplyDiscount, useCalculateShippingFee } from "../api/discount";
 import { convertCartData, getSessionId } from "../utils/common";
 import { PURCHASE_RESPONSE } from "../config/common";
 import { colors } from "../constants/color";
-import { useUserAsyncStore } from "../hook/useUserAsyncStore";
+import HeaderSearchInput from "../components/HeaderSearchInput";
+import AddressBottomModal from "../components/AddressBottomModal";
+import { UserType } from "../UserContext";
+import { useGetUserAddresses } from "../api/user";
 
 const OrderSummaryScreen = ({ route }) => {
   const { cartData } = route.params;
-  const { userAsyncStore } = useUserAsyncStore();
-  console.log({ userAsyncStore });
+  // const { userAsyncStore } = useUserAsyncStore();
+  // console.log({ userAsyncStore });
   const currentUser = useSelector((state) => state.user.currentUser);
+  const { userId, setUserId } = useContext(UserType);
+  const { data: addresses, refetch } = useGetUserAddresses(userId);
+
+  const defaultAddress = addresses?.data?.addresses?.find(
+    (address) => address.default === true
+  );
 
   const calculatedAddress = useRef(null);
   const navigate = useNavigation();
@@ -38,6 +47,9 @@ const OrderSummaryScreen = ({ route }) => {
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [discountError, setDiscountError] = useState(null);
   const [shippingFee, setShippingFee] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAddress, setSelectedAdress] = useState("");
+
 
   const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
 
@@ -70,8 +82,8 @@ const OrderSummaryScreen = ({ route }) => {
 
   const total = cartData?.cart_products
     ? cartData?.cart_products?.reduce((sum, item) => {
-        return sum + Number(item?.price) * Number(item?.quantity);
-      }, 0)
+      return sum + Number(item?.price) * Number(item?.quantity);
+    }, 0)
     : 0;
 
   const handleApplyDiscount = async () => {
@@ -145,7 +157,7 @@ const OrderSummaryScreen = ({ route }) => {
     const prepareOrderData = {
       discountCode: appliedDiscount?.discountCode,
       cartTotal: total,
-      order_shipping: myAddress ? myAddress[0] : [],
+      order_shipping: defaultAddress || [],
       order_items: convertCartData(cartData?.cart_products),
       paymentInfo: {
         paymentMethod: "Credit Card",
@@ -195,19 +207,28 @@ const OrderSummaryScreen = ({ route }) => {
 
   return (
     <>
-      <View style={{ flex: 1 }}>
-        <ScrollView style={OrderSummaryScreenStyle.content}>
+      <View style={{ flex: 1, backgroundColor: "white", marginTop: 20 }}>
+        <ScrollView style={OrderSummaryScreenStyle.content} stickyHeaderIndices={[0]}>
+          <View>
+            <HeaderSearchInput />
+          </View>
+          {/* Add shipping address */}
+          <>
+            <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flexDirection: "row", alignItems: "center", gap: 5, padding: 10, backgroundColor: "#425768", }}>
+              <Ionicons name="location-outline" size={24} color="white" />
+              <Pressable onPress={() => setModalVisible(!modalVisible)} style={{ flex: 1 }}>
+                {defaultAddress ? (
+                  <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }} numberOfLines={1} ellipsizeMode="tail">
+                    Giao hàng đến {defaultAddress.district?.full_name}, {defaultAddress.province?.name}
+                  </Text>
+                ) : (
+                  <Text style={{ fontSize: 17, fontWeight: "500", color: "white" }}>Thêm địa chỉ giao hàng</Text>
+                )}
+              </Pressable>
+              <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+            </Pressable>
+          </>
           <View style={[OrderSummaryScreenStyle.container]}>
-            <View style={[OrderSummaryScreenStyle.wrapper]}>
-              <View style={OrderSummaryScreenStyle.userInfor}>
-                <Entypo name="location" size={16} color="black" />
-                {myAddress && <Text>{`${myAddress[0].firstname} (${myAddress[0].mobileNo})`}</Text>}
-              </View>
-
-              {myAddress && (
-                <Text>{`${myAddress[0].street}, ${myAddress[0].ward.full_name}, ${myAddress[0].district.full_name}, ${myAddress[0].province.name}`}</Text>
-              )}
-            </View>
             <View>
               {cartData?.cart_products &&
                 cartData?.cart_products.map((item, index) => {
@@ -322,6 +343,15 @@ const OrderSummaryScreen = ({ route }) => {
           )}
         </View>
       </Modal>
+
+      <AddressBottomModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        addresses={addresses?.data?.addresses}
+        selectedAddress={selectedAddress}
+        setSelectedAddress={setSelectedAdress}
+        refetchUserData={refetch}
+      />
     </>
   );
 };
