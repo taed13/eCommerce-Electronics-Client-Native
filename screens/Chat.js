@@ -34,7 +34,7 @@ function Chat({ route }) {
 
     useEffect(() => {
         if (currentUser) {
-            socket.current = io(APP_CONFIG.host);
+            socket.current = io(APP_CONFIG.API_URL);
             socket.current.on("connect", () => {
                 console.log("Socket connected:", socket.current.id);
             });
