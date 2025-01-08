@@ -9,7 +9,7 @@ const NoOrdersMessage = ({ navigation }) => {
                 style={styles.homeButton}
                 onPress={() => navigation.navigate("Home")}
             >
-                <Text style={styles.homeButtonText}>Quay lại Trang chủ</Text>
+                <Text style={styles.homeButtonText}>Quay lại trang chủ</Text>
             </Pressable>
         </View>
     );
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     homeButton: {
-        backgroundColor: "#FEBD68",
+        backgroundColor: "#425768",
         paddingVertical: 12,
         paddingHorizontal: 25,
         borderRadius: 8,

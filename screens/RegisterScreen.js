@@ -1,8 +1,22 @@
-import { Text, View, SafeAreaView, Pressable, Image, KeyboardAvoidingView, TextInput, Alert, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  SafeAreaView,
+  Image,
+  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  Keyboard,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+  Platform,
+} from "react-native";
 import React, { useState } from "react";
 import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useRegister } from "../api/user";
+const EaLogo = require("../assets/ea_002.png");
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -85,107 +99,114 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white", alignItems: "center", marginTop: 50 }}>
-      <View>
-        <Image
-          style={{ width: 350, height: 100 }}
-          source={{ uri: "https://www.ec.tuwien.ac.at/sites/ec.tuwien.ac.at/files/ec-schrift-300dpi.png" }}
-        />
-      </View>
-
-      <KeyboardAvoidingView>
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 12, color: "#041E42" }}>Đăng ký tài khoản của bạn</Text>
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => Keyboard.dismiss()}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={{ flex: 1, backgroundColor: "white", alignItems: "center", marginTop: 50 }}>
+        <View style={{ marginTop: 60, marginBottom: 10, alignItems: "center" }}>
+          <Image style={{ width: 100, height: 50 }} source={EaLogo} />
         </View>
 
-        <View style={{ marginTop: 70 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
-            <Ionicons name="person" size={24} color="gray" style={{ marginLeft: 8 }} />
-            <TextInput
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                if (text.trim().length >= 2) setNameError("");
-              }}
-              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
-              placeholder="Nhập tên của bạn"
-            />
-          </View>
-          {nameError ? <Text style={{ color: "red", marginTop: 5 }}>{nameError}</Text> : null}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
+          <ScrollView contentContainerStyle={{ alignItems: "center" }} showsVerticalScrollIndicator={false}>
+            <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 12, color: "#041E42" }}>Đăng ký tài khoản Electronics của bạn</Text>
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
-            <MaterialIcons style={{ marginLeft: 8 }} name="email" size={24} color="gray" />
-            <TextInput
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (validateEmail(text.trim())) setEmailError("");
-              }}
-              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
-              placeholder="Nhập email của bạn"
-            />
-          </View>
-          {emailError ? <Text style={{ color: "red", marginTop: 5 }}>{emailError}</Text> : null}
+            <View style={{ marginTop: 70 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
+                <Ionicons name="person" size={24} color="gray" style={{ marginLeft: 8 }} />
+                <TextInput
+                  value={name}
+                  onChangeText={(text) => {
+                    setName(text);
+                    if (text.trim().length >= 2) setNameError("");
+                  }}
+                  style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                  placeholder="Nhập tên của bạn"
+                />
+              </View>
+              {nameError ? <Text style={{ color: "red", marginTop: 5 }}>{nameError}</Text> : null}
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
-            <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
-            <TextInput
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (text.length >= 6) setPasswordError("");
-              }}
-              secureTextEntry={true}
-              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
-              placeholder="Nhập mật khẩu của bạn"
-            />
-          </View>
-          {passwordError ? <Text style={{ color: "red", marginTop: 5 }}>{passwordError}</Text> : null}
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
+                <MaterialIcons style={{ marginLeft: 8 }} name="email" size={24} color="gray" />
+                <TextInput
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (validateEmail(text.trim())) setEmailError("");
+                  }}
+                  style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                  placeholder="Nhập email của bạn"
+                />
+              </View>
+              {emailError ? <Text style={{ color: "red", marginTop: 5 }}>{emailError}</Text> : null}
 
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
-            <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
-            <TextInput
-              value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                if (text === password) setConfirmPasswordError("");
-              }}
-              secureTextEntry={true}
-              style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
-              placeholder="Nhập lại mật khẩu của bạn"
-            />
-          </View>
-          {confirmPasswordError ? <Text style={{ color: "red", marginTop: 5 }}>{confirmPasswordError}</Text> : null}
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
+                <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
+                <TextInput
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (text.length >= 6) setPasswordError("");
+                  }}
+                  secureTextEntry={true}
+                  style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                  placeholder="Nhập mật khẩu của bạn"
+                />
+              </View>
+              {passwordError ? <Text style={{ color: "red", marginTop: 5 }}>{passwordError}</Text> : null}
 
-          <Pressable
-            onPress={handleRegister}
-            style={{
-              width: 200,
-              backgroundColor: isLoading ? "#FFD580" : "#FEBE10",
-              borderRadius: 6,
-              marginLeft: "auto",
-              marginRight: "auto",
-              padding: 15,
-              marginTop: 40,
-            }}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <Text style={{ textAlign: "center", color: "white", fontSize: 16, fontWeight: "bold" }}>Đăng ký</Text>
-            )}
-          </Pressable>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "#D0D0D0", paddingVertical: 5, borderRadius: 5, marginTop: 30 }}>
+                <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    if (text === password) setConfirmPasswordError("");
+                  }}
+                  secureTextEntry={true}
+                  style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                  placeholder="Nhập lại mật khẩu của bạn"
+                />
+              </View>
+              {confirmPasswordError ? <Text style={{ color: "red", marginTop: 5 }}>{confirmPasswordError}</Text> : null}
 
-          <Pressable onPress={() => navigation.goBack()} style={{ marginTop: 15 }}>
-            <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }}>
-              Đã có tài khoản?{" "}
-              <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng nhập</Text>
-            </Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              <TouchableOpacity
+                onPress={handleRegister}
+                style={{
+                  width: 200,
+                  backgroundColor: isLoading ? "#38676e" : "#294a4f",
+                  borderRadius: 12,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  padding: 15,
+                  marginTop: 40,
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={{ textAlign: "center", color: "white", fontSize: 16, fontWeight: "bold" }}>Đăng ký</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 15 }}>
+                <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }}>
+                  Đã có tài khoản?{" "}
+                  <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng nhập</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </TouchableOpacity>
   );
 };
 

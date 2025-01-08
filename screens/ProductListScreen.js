@@ -200,7 +200,6 @@ const ViewSafeArea = (insets) =>
     container: {
       flex: 1,
       paddingTop: insets.top + 0,
-      paddingBottom: insets.bottom + 0,
       paddingHorizontal: 16,
     },
     filter: {
@@ -261,7 +260,7 @@ const BottomSheetStyle = StyleSheet.create({
     fontSize: 16,
   },
   btnApply: {
-    backgroundColor: colors.red,
+    backgroundColor: '#008E97',
   },
   btnApplyText: {
     color: "white",
@@ -298,7 +297,7 @@ const BottomSheetStyle = StyleSheet.create({
     borderWidth: 1,
   },
   btnBrandActive: {
-    backgroundColor: colors.red,
+    backgroundColor: '#008E97',
   },
   btnTextActive: {
     color: "white",

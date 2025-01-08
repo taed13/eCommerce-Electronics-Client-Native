@@ -9,11 +9,8 @@ const FilterProduct = ({ onPressFilter }) => {
   return (
     <>
       <View style={[FilterProductStyle.wrapper]}>
-        <TouchableOpacity>
-          <Ionicons name="arrow-back" size={20} color="black" />
-        </TouchableOpacity>
-
-        <Text>Danh sách sản phẩm</Text>
+        <View style={{ width: 24, height: 24 }}></View>
+        <Text style={{ fontWeight: 'bold', fontSize: 22, }}>Cửa hàng</Text>
         <TouchableOpacity onPress={onPressFilter}>
           <AntDesign name="filter" size={24} color="black" />
         </TouchableOpacity>
@@ -26,7 +23,7 @@ export default FilterProduct;
 
 const FilterProductStyle = StyleSheet.create({
   wrapper: {
-    paddingVertical: 16,
+    paddingVertical: 18,
     paddingHorizontal: 16,
     justifyContent: "space-between",
     flexDirection: "row",

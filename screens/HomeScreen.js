@@ -25,6 +25,7 @@ import HeaderSearchInput from "../components/HeaderSearchInput";
 import AddressBottomModal from "../components/AddressBottomModal";
 import { colors } from "../constants/color";
 import { useGetUserAddresses } from "../api/user";
+import { TouchableOpacity } from "react-native";
 
 const HomeScreen = () => {
   const list = [
@@ -51,7 +52,7 @@ const HomeScreen = () => {
     {
       id: "5",
       image:
-        "https://mobileworld.com.vn/uploads/product/12_2019/thumbs/iphone-11-64gb-qua-su-dung-moi-99-like-new-2.webp",
+        "https://queenmobile.net/wp-content/uploads/2024/02/5-17-image-1190.jpg",
       name: "Smartphones",
     },
     {
@@ -218,11 +219,11 @@ const HomeScreen = () => {
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white", marginTop: Platform.OS === "android" ? 40 : 0 }}>
-        <ScrollView stickyHeaderIndices={[0]}>
+        <View>
+          <HeaderSearchInput />
+        </View>
+        <ScrollView>
           {/* Search Input */}
-          <View>
-            <HeaderSearchInput />
-          </View>
           {/* Add shipping address */}
           <>
             <Pressable
@@ -250,12 +251,12 @@ const HomeScreen = () => {
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {list.map((item, index) => (
-                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
                   <Image style={{ width: 70, height: 80, resizeMode: "contain" }} source={{ uri: item.image }} />
                   <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "500", marginTop: 3 }}>
                     {item?.name}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </>
@@ -281,7 +282,7 @@ const HomeScreen = () => {
               keyExtractor={(item, index) => `${item._id}-${index}`}
               numColumns={2}
               renderItem={({ item }) => (
-                <Pressable style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
                   <View style={styles.imageContainer}>
                     <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
                   </View>
@@ -303,7 +304,7 @@ const HomeScreen = () => {
                     </View>
                     <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
                   </View>
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
           </>
@@ -348,14 +349,14 @@ const HomeScreen = () => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {Array.isArray(popularProducts) &&
                 popularProducts.map((product, index) => (
-                  <Pressable
+                  <TouchableOpacity
                     key={index}
                     style={{
                       margin: 5,
                       justifyContent: "center",
                       alignItems: "center",
                       borderWidth: 1,
-                      borderRadius: 8,
+                      borderRadius: 16,
                       borderColor: "#ddd",
                     }}
                     onPress={() => handlePress(product)}
@@ -364,7 +365,7 @@ const HomeScreen = () => {
                       style={{ width: 100, height: 100, resizeMode: "contain" }}
                       source={{ uri: product?.product_images[0]?.url }}
                     />
-                  </Pressable>
+                  </TouchableOpacity>
                 ))}
             </ScrollView>
           </>
@@ -374,12 +375,12 @@ const HomeScreen = () => {
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Từ các thương hiệu hàng đầu</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {brands.map((brand, index) => (
-                <Pressable key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
                   <Image style={{ width: 90, height: 90, resizeMode: "contain" }} source={{ uri: brand.image }} />
                   <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "500", marginTop: 3 }}>
                     {brand.name}
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </>
@@ -392,7 +393,7 @@ const HomeScreen = () => {
               keyExtractor={(item, index) => `${item._id}-${index}`}
               numColumns={2}
               renderItem={({ item }) => (
-                <Pressable style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
                   <View style={styles.imageContainer}>
                     <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
                   </View>
@@ -414,7 +415,7 @@ const HomeScreen = () => {
                     </View>
                     <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
                   </View>
-                </Pressable>
+                </TouchableOpacity>
               )}
             />
           </>
@@ -438,10 +439,10 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    margin: 5,
+    margin: 8,
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 8,
+    borderRadius: 16,
     overflow: "hidden",
   },
   imageContainer: {

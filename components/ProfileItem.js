@@ -53,7 +53,7 @@ const ProfileItem = ({ currentUser, navigation, setModalVisible }) => {
             <Separator />
 
             <Pressable onPress={handleLogout} style={styles.logoutButton}>
-                <Text style={styles.logoutText}>Đăng Xuất</Text>
+                <Text style={styles.logoutText}>Đăng xuất</Text>
             </Pressable>
         </>
     );
@@ -95,11 +95,11 @@ const styles = StyleSheet.create({
     viewText: {
         fontSize: 17,
         fontWeight: "600",
-        color: colors.primary,
+        color: "#425768",
         paddingHorizontal: 8,
     },
     logoutButton: {
-        backgroundColor: "#FEBD68",
+        backgroundColor: "#425768",
         paddingVertical: 12,
         borderRadius: 8,
         marginTop: 20,
