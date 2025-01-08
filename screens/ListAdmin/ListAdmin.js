@@ -62,14 +62,14 @@ const ListAdmin = ({ route }) => {
     useEffect(() => {
         navigation.setOptions({
             headerStyle: {
-                backgroundColor: "#FEBD68",
+                backgroundColor: "#425768",
             },
             headerTintColor: '#fff',
             headerTitleStyle: {
                 fontWeight: 'bold',
                 fontSize: 22,
             },
-            title: 'Danh sách Admin',
+            title: 'Electronics Talks',
         });
     }, [navigation]);
 
@@ -279,8 +279,8 @@ const ListAdmin = ({ route }) => {
 
     return (
         <Pressable style={styles.container} onPress={deSelectItems}>
-            {fromHelpScreen && <Header title="Liên hệ với chúng tôi" />}
-            <ScrollView>
+            <Header title="Electronics Talks" canBack={false} />
+            <ScrollView style={{ backgroundColor: '#f9f9f9' }}>
                 {loading ? (
                     <ActivityIndicator size='large' style={styles.loadingContainer} />
                 ) : (
@@ -309,17 +309,12 @@ const ListAdmin = ({ route }) => {
                         <Separator />
                         <View style={styles.blankContainer}>
                             <Text style={{ fontSize: 12, margin: 15 }}>
-                                <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: colors.primary }}>mã hóa đầu cuối</Text>
+                                <Ionicons name="lock-open" size={12} style={{ color: '#565656' }} /> Tin nhắn cá nhân của bạn không được <Text style={{ color: '#425768' }}>mã hóa đầu cuối</Text>
                             </Text>
                         </View>
                     </ScrollView>
                 )}
             </ScrollView>
-            <TouchableOpacity style={styles.fab} onPress={handleFabPress}>
-                <View style={styles.fabContainer}>
-                    <Ionicons name="chatbox-ellipses" size={24} color={'white'} />
-                </View>
-            </TouchableOpacity>
         </Pressable>
     );
 };

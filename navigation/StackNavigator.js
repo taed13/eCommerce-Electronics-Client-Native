@@ -5,7 +5,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ListAdmin from "../screens/ListAdmin/ListAdmin";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Entypo, Ionicons, AntDesign, FontAwesome5 } from "@expo/vector-icons";
+import { Ionicons, AntDesign, FontAwesome5, Feather } from "@expo/vector-icons";
 import ProductInfoScreen from "../screens/ProductInfoScreen";
 import AddAddressScreen from "../screens/AddAddressScreen";
 import AddressScreen from "../screens/AddressScreen";
@@ -31,95 +31,75 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => (
-  <Tab.Navigator initialRouteName="Home">
-    <Tab.Screen
-      name="Home"
-      component={HomeScreen}
-      options={{
-        tabBarLabel: ({ focused }) => (
-          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
-            Trang chủ
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarStyle: {
+        height: 90,
+        paddingTop: 3,
+        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.15)",
+        borderTopWidth: 1,
+        borderTopColor: "#bbb",
+      },
+      tabBarLabel: ({ focused }) => {
+        let label;
+        switch (route.name) {
+          case "Home":
+            label = "Trang chủ";
+            break;
+          case "ProductList":
+            label = "Cửa hàng";
+            break;
+          case "Profile":
+            label = "Cá nhân";
+            break;
+          case "Cart":
+            label = "Giỏ hàng";
+            break;
+          case "Chat":
+            label = "Chat";
+            break;
+        }
+        return (
+          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14, height: 20 }}>
+            {label}
           </Text>
-        ),
-        headerShown: false,
-        tabBarIcon: ({ focused }) =>
-          focused ? (
-            <Entypo name="home" size={24} color="#008E97" />
-          ) : (
-            <AntDesign name="home" size={24} color="black" />
-          ),
-      }}
-    />
-    <Tab.Screen
-      name="ProductList"
-      component={ProductListScreen}
-      options={{
-        tabBarLabel: ({ focused }) => (
-          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "400", fontSize: 14 }}>
-            Sản Phẩm
-          </Text>
-        ),
-        headerShown: false,
-        tabBarIcon: ({ focused }) =>
-          focused ? (
-            <FontAwesome5 name="shopping-cart" size={21} color="#008E97" />
-          ) : (
-            <AntDesign name="shoppingcart" size={24} color="black" />
-          ),
-      }}
-    />
-    <Tab.Screen
-      name="Cá nhân"
-      component={ProfileScreen}
-      options={{
-        tabBarLabel: ({ focused }) => (
-          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
-            Cá nhân
-          </Text>
-        ), headerShown: false,
-        tabBarIcon: ({ focused }) =>
-          focused ? (
-            <Ionicons name="person" size={24} color="#008E97" />
-          ) : (
-            <Ionicons name="person-outline" size={24} color="black" />
-          ),
-      }}
-    />
-    <Tab.Screen
-      name="Cart"
-      component={CartScreen}
-      options={{
-        tabBarLabel: ({ focused }) => (
-          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "400", fontSize: 14 }}>
-            Giỏ hàng
-          </Text>
-        ),
-        headerShown: false,
-        tabBarIcon: ({ focused }) =>
-          focused ? (
-            <FontAwesome5 name="shopping-cart" size={21} color="#008E97" />
-          ) : (
-            <AntDesign name="shoppingcart" size={24} color="black" />
-          ),
-      }}
-    />
-    <Tab.Screen
-      name="Chat"
-      component={ListAdmin}
-      options={{
-        tabBarLabel: ({ focused }) => (
-          <Text style={{ color: focused ? "#008E97" : "black", fontWeight: focused ? "700" : "500", fontSize: 14 }}>
-            Chat
-          </Text>
-        ),
-        tabBarIcon: ({ focused }) =>
-          focused ? (
-            <Ionicons name="chatbubbles" size={24} color="#008E97" />
-          ) : (
-            <Ionicons name="chatbubbles-outline" size={24} color="black" />
-          ),
-      }}
-    />
+        );
+      },
+      tabBarIcon: ({ focused }) => {
+        let iconName;
+        let IconComponent;
+        switch (route.name) {
+          case "Home":
+            IconComponent = AntDesign;
+            iconName = "home";
+            break;
+          case "ProductList":
+            IconComponent = Feather;
+            iconName = "shopping-bag";
+            break;
+          case "Profile":
+            IconComponent = AntDesign;
+            iconName = "user";
+            break;
+          case "Cart":
+            IconComponent = AntDesign;
+            iconName = "shoppingcart";
+            break;
+          case "Chat":
+            IconComponent = Ionicons;
+            iconName = "chatbubbles-outline";
+            break;
+        }
+        return <IconComponent name={iconName} size={24} color={focused ? "#008E97" : "black"} />;
+      },
+    })}
+    initialRouteName="Home"
+  >
+    <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+    <Tab.Screen name="ProductList" component={ProductListScreen} options={{ headerShown: false }} />
+    <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+    <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+    <Tab.Screen name="Chat" component={ListAdmin} options={{ headerShown: false }} />
   </Tab.Navigator>
 );
 
@@ -152,8 +132,9 @@ const StackNavigator = () => {
         options={{
           headerLeft: () => null,
           headerTitle: "Đặt hàng thành công",
+          headerBackVisible: false,
           headerStyle: {
-            backgroundColor: "green",
+            backgroundColor: "#f0f0f0",
           },
           headerTitleStyle: {
             fontWeight: "bold",
@@ -165,7 +146,7 @@ const StackNavigator = () => {
         component={Chat}
         options={({ route }) => ({
           headerLeft: () => <View></View>,
-          headerTitle: () => <ChatHeader chatName={route?.params?.chatName} chatId={route?.params?._id} />,
+          headerTitle: () => <ChatHeader chatName={route?.params?.chatName} />,
           headerRight: () => (
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <ChatMenu chatName={route.params.chatName} chatId={route.params._id} />

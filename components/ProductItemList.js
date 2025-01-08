@@ -3,28 +3,30 @@ import { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import React, { useMemo } from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { colors } from "../constants/color";
+import { useNavigation } from "@react-navigation/native";
 
 const ProductItemList = ({ item }) => {
-  const renderStar = useMemo(() => {
-    const filledStars = Array.from({ length: item.product_totalRating ?? 0 }, (_, i) => (
-      <AntDesign key={`filled-${i}`} name="star" size={16} color={colors.yellow} />
-    ));
-
-    const emptyStars = Array.from({ length: 5 - item.product_totalRating }, (_, i) => (
-      <AntDesign key={`empty-${i}`} name="staro" size={16} color={colors.yellow} />
-    ));
-
-    return <View style={{ flexDirection: "row" }}>{[...filledStars, ...emptyStars]}</View>;
-  }, [item.product_totalRating]);
+  const navigation = useNavigation();
   return (
-    <TouchableOpacity style={[ProductItemListStyle.wrapper]}>
+    <TouchableOpacity style={[ProductItemListStyle.wrapper]} onPress={() => navigation.navigate("Info", { id: item._id })}>
       <View style={[ProductItemListStyle.container]}>
         <Image source={{ uri: item.product_images[0].url }} style={ProductItemListStyle.image} />
-        <View>{renderStar}</View>
         <View style={[ProductItemListStyle.content]}>
           <Text style={[ProductItemListStyle.brand]}>{item.product_brand[0].title}</Text>
           <Text style={[ProductItemListStyle.name]}>{item.product_name}</Text>
-          <Text style={[ProductItemListStyle.price]}>{item.product_price} đ</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <AntDesign name="star" size={20} color={colors.yellow} />
+              <Text style={{ marginLeft: 5, fontSize: 14, color: "#666" }}>
+                {item?.product_totalRating?.toFixed(1) || 0}/5
+              </Text>
+            </View>
+            {item?.product_sold !== 0 &&
+              <Text style={ProductItemListStyle.sold}>
+                Đã bán {item?.product_sold}
+              </Text>}
+          </View>
+          <Text style={[ProductItemListStyle.price]}>{item.product_price.toLocaleString()}₫</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -43,6 +45,8 @@ const ProductItemListStyle = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   container: {
     flex: 1,
@@ -56,18 +60,23 @@ const ProductItemListStyle = StyleSheet.create({
   },
   brand: {
     textAlign: "center",
-    color: colors.red,
+    color: '#51919c',
     fontSize: 16,
     marginTop: 16,
     fontWeight: 500,
   },
   name: {
-    fontSize: 14,
-    fontWeight: 500,
+    fontSize: 18,
+    fontWeight: 700,
+    textAlign: "center",
   },
   price: {
     fontSize: 18,
     textAlign: "center",
     fontWeight: 500,
+  },
+  sold: {
+    fontSize: 12,
+    color: "#999",
   },
 });

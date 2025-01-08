@@ -13,6 +13,7 @@ import { colors } from "../config/constants";
 import { useGetMyCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
 import AddressBottomModal from "../components/AddressBottomModal";
+import { TouchableOpacity } from "react-native";
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -154,12 +155,12 @@ const CartScreen = () => {
         </Pressable>
         <ScrollView style={{ flex: 1 }}>{renderCartList}</ScrollView>
 
-        <Pressable
+        <TouchableOpacity
           onPress={handleProceedOrder}
           style={{
-            backgroundColor: selectedItems.length === 0 ? "#ccc" : colors.primary,
-            padding: 10,
-            borderRadius: 5,
+            backgroundColor: selectedItems.length === 0 ? "#aaa" : '#232f3e',
+            paddingVertical: 16,
+            borderRadius: 12,
             justifyContent: "center",
             alignItems: "center",
             marginHorizontal: 10,
@@ -167,8 +168,8 @@ const CartScreen = () => {
           }}
           disabled={selectedItems.length === 0}
         >
-          <Text>{`Tiến hành đặt hàng (${selectedItems.length}) sản phẩm`}</Text>
-        </Pressable>
+          <Text style={{ fontSize: 15, color: 'white', fontWeight: '700' }}>{`Tiến hành đặt hàng (${selectedItems.length}) sản phẩm`}</Text>
+        </TouchableOpacity>
 
         <AddressBottomModal
           modalVisible={modalVisible}

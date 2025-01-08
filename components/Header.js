@@ -8,7 +8,7 @@ import Octicons from "react-native-vector-icons/Octicons";
 import { iconSize } from "../constants/dimensions";
 import { useNavigation, useTheme } from "@react-navigation/native";
 
-const Header = ({ isHasSetting = false, title = "" }) => {
+const Header = ({ isHasSetting = false, title = "", canBack = true }) => {
   const { colors } = useTheme();
   const navigation = useNavigation();
 
@@ -17,23 +17,30 @@ const Header = ({ isHasSetting = false, title = "" }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name={"arrow-back"} color={colors.iconPrimary} size={iconSize.md} />
-      </TouchableOpacity>
-
-      {title && (
-        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-          {title}
-        </Text>
-      )}
-
-      {isHasSetting && (
-        <TouchableOpacity onPress={handleOpenSetting}>
-          <Octicons name={"gear"} color={colors.iconPrimary} size={iconSize.md} />
+    <View style={[styles.container, { paddingVertical: !canBack ? 30 : 20, marginTop: 40, }]}>
+      {
+        canBack &&
+        < TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name={"arrow-back"} color={colors.iconPrimary} size={iconSize.md} />
         </TouchableOpacity>
-      )}
-    </View>
+      }
+
+      {
+        title && (
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+            {title}
+          </Text>
+        )
+      }
+
+      {
+        isHasSetting && (
+          <TouchableOpacity onPress={handleOpenSetting}>
+            <Octicons name={"gear"} color={colors.iconPrimary} size={iconSize.md} />
+          </TouchableOpacity>
+        )
+      }
+    </View >
   );
 };
 

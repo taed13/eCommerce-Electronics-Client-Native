@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Keyboard, ActivityIndicator } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat';
 import EmojiModal from 'react-native-emoji-modal';
 import { useNavigation } from '@react-navigation/native';
@@ -243,6 +243,9 @@ function Chat({ route }) {
                 minInputToolbarHeight={56}
                 scrollToBottom={true}
                 onPressActionButton={handleEmojiPanel}
+                scrollToBottomComponent={() => (
+                    <Entypo name='chevron-down' size={24} color={colors.grey} />
+                )}
                 scrollToBottomStyle={styles.scrollToBottomStyle}
                 renderLoading={renderLoading}
             />
@@ -312,8 +315,8 @@ const styles = StyleSheet.create({
     scrollToBottomStyle: {
         borderColor: colors.grey,
         borderWidth: 1,
-        width: 56,
-        height: 56,
+        width: 40,
+        height: 40,
         borderRadius: 28,
         position: 'absolute',
         bottom: 12,

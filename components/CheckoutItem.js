@@ -8,17 +8,23 @@ export const CheckoutItem = ({ item }) => {
       <TouchableOpacity style={CheckoutItemStyle.wrapper}>
         <View style={[CheckoutItemStyle.item]}>
           <Image source={{ uri: item.productId.product_images[0].url }} style={CheckoutItemStyle.image} />
-          <View>
-            <Text>{item.name}</Text>
-            <View style={CheckoutItemStyle.star}>
-              <Text>{item.productId.product_totalRating}</Text>
-              <AntDesign name="star" size={16} color={colors.yellow} />
+          <View style={{ flexDirection: "column", flex: 1, alignItems: "start", justifyContent: "space-between" }}>
+            <View>
+              <Text>{item.name}</Text>
+              <View style={CheckoutItemStyle.star}>
+                <Text>{item.productId.product_totalRating}</Text>
+                <AntDesign name="star" size={16} color={colors.yellow} />
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Text style={{ color: '#888' }}>{item.product_color[0].name}</Text>
+                <View style={{ backgroundColor: item.product_color[0].code, border: "1px solid #ccc", width: 20, height: 20, borderRadius: 10, justifyContent: "center", alignItems: "center" }} />
+              </View>
+            </View>
+            <View style={CheckoutItemStyle.infor}>
+              <Text style={CheckoutItemStyle.price}>₫{item.price.toLocaleString()}</Text>
+              <Text style={CheckoutItemStyle.quantity}>x {item.quantity}</Text>
             </View>
           </View>
-        </View>
-        <View style={CheckoutItemStyle.infor}>
-          <Text style={CheckoutItemStyle.price}>₫{item.price.toLocaleString()}</Text>
-          <Text style={CheckoutItemStyle.quantity}>x {item.quantity}</Text>
         </View>
         {/* <View style={CheckoutItemStyle.total}>
           <Text>Total:</Text>
@@ -78,8 +84,7 @@ const CheckoutItemStyle = StyleSheet.create({
     alignItems: "flex-end",
   },
   price: {
-    marginLeft: 108,
-    fontSize: 20,
+    fontSize: 18,
   },
   quantity: {
     color: colors.orange,

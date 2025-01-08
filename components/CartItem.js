@@ -6,6 +6,7 @@ import { Checkbox } from "react-native-paper";
 import { colors } from "../constants/color";
 
 export const CartItem = ({ item, isChecked, onToggleCheckbox }) => {
+
   return (
     <View style={CartItemStyle.container}>
       <Checkbox.Android
@@ -24,6 +25,10 @@ export const CartItem = ({ item, isChecked, onToggleCheckbox }) => {
             <View style={CartItemStyle.star}>
               <Text>{item.productId.product_totalRating}</Text>
               <AntDesign name="star" size={16} color={colors.yellow} />
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Text style={{ color: '#888' }}>{item.product_color[0].name}</Text>
+                <View style={{ backgroundColor: item.product_color[0].code, border: "1px solid #ccc", width: 20, height: 20, borderRadius: 10, justifyContent: "center", alignItems: "center" }} />
+              </View>
             </View>
           </View>
         </View>

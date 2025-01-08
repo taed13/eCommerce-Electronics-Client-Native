@@ -132,7 +132,7 @@ const AddAddressScreen = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginTop: 20,
+    marginTop: 47,
   },
   container: {
     padding: 10,

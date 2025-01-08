@@ -7,11 +7,13 @@ import {
   TextInput,
   Pressable,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+const EaLogo = require("../assets/ea_002.png");
 
 import { useLogin } from "../api/user";
 import Loading from "../components/Loading";
@@ -83,7 +85,11 @@ const LoginScreen = () => {
   };
 
   return (
-    <>
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => Keyboard.dismiss()}
+      style={{ flex: 1 }}
+    >
       <SafeAreaView
         style={{
           flex: 1,
@@ -92,19 +98,21 @@ const LoginScreen = () => {
           marginTop: 50,
         }}
       >
-        <View>
-          <Image
-            style={{ width: 350, height: 100 }}
-            source={{
-              uri: "https://www.ec.tuwien.ac.at/sites/ec.tuwien.ac.at/files/ec-schrift-300dpi.png",
-            }}
-          />
+        <View style={{ marginTop: 60, marginBottom: 10, alignItems: "center" }}>
+          <Image style={{ width: 100, height: 50 }} source={EaLogo} />
         </View>
 
         <KeyboardAvoidingView>
           <View style={{ alignItems: "center" }}>
-            <Text style={{ fontSize: 17, fontWeight: "bold", marginTop: 12, color: "#041E42" }}>
-              Đăng nhập tài khoản của bạn
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: "bold",
+                marginTop: 12,
+                color: "#041E42",
+              }}
+            >
+              Đăng nhập tài khoản Electronics của bạn
             </Text>
           </View>
 
@@ -120,7 +128,12 @@ const LoginScreen = () => {
                 marginTop: 30,
               }}
             >
-              <MaterialIcons style={{ marginLeft: 8 }} name="email" size={24} color="gray" />
+              <MaterialIcons
+                style={{ marginLeft: 8 }}
+                name="email"
+                size={24}
+                color="gray"
+              />
 
               <TextInput
                 value={email}
@@ -130,11 +143,18 @@ const LoginScreen = () => {
                     setEmailError("");
                   }
                 }}
-                style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                style={{
+                  color: "gray",
+                  marginVertical: 10,
+                  width: 300,
+                  fontSize: 16,
+                }}
                 placeholder="Nhập email của bạn"
               />
             </View>
-            {emailError ? <Text style={{ color: "red", marginTop: 5 }}>{emailError}</Text> : null}
+            {emailError ? (
+              <Text style={{ color: "red", marginTop: 5 }}>{emailError}</Text>
+            ) : null}
           </View>
 
           <View>
@@ -149,7 +169,12 @@ const LoginScreen = () => {
                 marginTop: 30,
               }}
             >
-              <AntDesign name="lock1" size={24} color="gray" style={{ marginLeft: 8 }} />
+              <AntDesign
+                name="lock1"
+                size={24}
+                color="gray"
+                style={{ marginLeft: 8 }}
+              />
 
               <TextInput
                 value={password}
@@ -160,11 +185,20 @@ const LoginScreen = () => {
                   }
                 }}
                 secureTextEntry={true}
-                style={{ color: "gray", marginVertical: 10, width: 300, fontSize: 16 }}
+                style={{
+                  color: "gray",
+                  marginVertical: 10,
+                  width: 300,
+                  fontSize: 16,
+                }}
                 placeholder="Nhập mật khẩu của bạn"
               />
             </View>
-            {passwordError ? <Text style={{ color: "red", marginTop: 5 }}>{passwordError}</Text> : null}
+            {passwordError ? (
+              <Text style={{ color: "red", marginTop: 5 }}>
+                {passwordError}
+              </Text>
+            ) : null}
           </View>
 
           <View
@@ -175,7 +209,10 @@ const LoginScreen = () => {
               justifyContent: "space-between",
             }}
           >
-            <TouchableOpacity onPress={toggleRememberMe} style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity
+              onPress={toggleRememberMe}
+              style={{ flexDirection: "row", alignItems: "center" }}
+            >
               <View
                 style={{
                   width: 20,
@@ -188,44 +225,71 @@ const LoginScreen = () => {
                   alignItems: "center",
                 }}
               >
-                {rememberMe && <AntDesign name="check" size={16} color="white" />}
+                {rememberMe && (
+                  <AntDesign name="check" size={16} color="white" />
+                )}
               </View>
               <Text style={{ marginLeft: 8 }}>Giữ tôi đăng nhập</Text>
             </TouchableOpacity>
 
-            <Text style={{ color: "#007FFF", fontWeight: "500" }} onPress={() => navigation.navigate("ForgotPassword")}>
+            <Text
+              style={{ color: "#007FFF", fontWeight: "500" }}
+              onPress={() => navigation.navigate("ForgotPassword")}
+            >
               Quên mật khẩu?
             </Text>
           </View>
 
-          <View style={{ marginTop: 80 }} />
+          <View style={{ marginTop: 40 }} />
 
-          <Pressable
+          <TouchableOpacity
             onPress={handleLogin}
             style={{
               width: 200,
-              backgroundColor: isLoading ? "#FFD580" : "#FEBE10",
-              borderRadius: 6,
+              backgroundColor: isLoading ? "#38676e" : "#294a4f",
+              borderRadius: 12,
               marginLeft: "auto",
               marginRight: "auto",
               padding: 15,
             }}
             disabled={isLoading}
           >
-            <Text style={{ textAlign: "center", color: "white", fontSize: 16, fontWeight: "bold" }}>
+            <Text
+              style={{
+                textAlign: "center",
+                color: "white",
+                fontSize: 16,
+                fontWeight: "bold",
+              }}
+            >
               {isLoading ? "Đang xử lý..." : "Đăng nhập"}
             </Text>
-          </Pressable>
+          </TouchableOpacity>
 
-          <Pressable onPress={() => navigation.navigate("Register")} style={{ marginTop: 15 }}>
-            <Text style={{ textAlign: "center", color: "gray", fontSize: 16, fontWeight: "500" }}>
-              Bạn chưa có tài khoản? <Text style={{ color: "#007FFF", textDecorationLine: "underline" }}>Đăng ký</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Register")}
+            style={{ marginTop: 15 }}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                color: "gray",
+                fontSize: 16,
+                fontWeight: "500",
+              }}
+            >
+              Bạn chưa có tài khoản?{" "}
+              <Text
+                style={{ color: "#007FFF", textDecorationLine: "underline" }}
+              >
+                Đăng ký
+              </Text>
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>
       {isLoading && <Loading />}
-    </>
+    </TouchableOpacity>
   );
 };
 

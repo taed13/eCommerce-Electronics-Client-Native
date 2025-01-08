@@ -207,7 +207,7 @@ const OrderSummaryScreen = ({ route }) => {
 
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: "white", marginTop: 20 }}>
+      <View style={{ flex: 1, backgroundColor: "white", marginTop: 47 }}>
         <ScrollView style={OrderSummaryScreenStyle.content} stickyHeaderIndices={[0]}>
           <View>
             <HeaderSearchInput />
@@ -239,7 +239,7 @@ const OrderSummaryScreen = ({ route }) => {
             <View style={[OrderSummaryScreenStyle.discountWrapper, OrderSummaryScreenStyle.wrapper]}>
               <TextInput
                 style={OrderSummaryScreenStyle.discountInput}
-                placeholder="Nhập mã giảm giá"
+                placeholder="Nhập mã giảm giá (nếu có)"
                 value={discountCode}
                 onChangeText={(text) => setDiscountCode(text)}
               />

@@ -176,7 +176,7 @@ const ProductInfoScreen = () => {
     <>
       <ScrollView
         ref={scrollViewRef}
-        style={{ marginTop: 20, flex: 1, backgroundColor: "white" }}
+        style={{ marginTop: 47, flex: 1, backgroundColor: "white" }}
         showsVerticalScrollIndicator={false}
       >
         <View>
@@ -228,7 +228,7 @@ const ProductInfoScreen = () => {
         >
           <Ionicons name="location" size={24} color="black" />
 
-          <Text style={{ fontSize: 11, fontWeight: "500" }}>
+          <Text style={{ fontSize: 14, fontWeight: "500" }}>
             Giao hàng đến
             {defaultAddress ? (
               <Text style={{ color: "green" }}>

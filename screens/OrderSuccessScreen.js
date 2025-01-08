@@ -145,7 +145,7 @@ const OrderSuccessScreen = ({ route }) => {
         </ScrollView>
         <View style={ButtonStyle(insets).wrapper}>
           <TouchableOpacity style={OrderSuccessScreenStyle.btn} onPress={handlePress}>
-            <Text style={OrderSuccessScreenStyle.btnText}>Trang chủ</Text>
+            <Text style={OrderSuccessScreenStyle.btnText}>Quay lại trang chủ</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -194,7 +194,7 @@ const OrderSuccessScreenStyle = StyleSheet.create({
   },
   productionCodeWrapper: {
     flexDirection: "row",
-    gap: 8,
+    gap: 2,
   },
   label: {
     fontSize: 14,
@@ -224,7 +224,7 @@ const OrderSuccessScreenStyle = StyleSheet.create({
   stepDivider: {
     height: 1,
     flex: 1,
-    backgroundColor: colors.red,
+    backgroundColor: '#0B58CA',
   },
   stepContent: {
     alignItems: "center",
@@ -234,7 +234,7 @@ const OrderSuccessScreenStyle = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 999,
-    backgroundColor: colors.red,
+    backgroundColor: '#0B58CA',
     justifyContent: "center",
     alignItems: "center",
   },
@@ -252,7 +252,7 @@ const OrderSuccessScreenStyle = StyleSheet.create({
     backgroundColor: colors.darkGray,
   },
   btn: {
-    backgroundColor: colors.red,
+    backgroundColor: '#0B58CA',
     paddingVertical: 16,
     justifyContent: "center",
     alignItems: "center",
