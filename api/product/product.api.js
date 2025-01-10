@@ -32,3 +32,45 @@ export const getAllProduct = async (axiosClient) => {
     throw new Error(error);
   }
 };
+
+export const getPopularProducts = async (axiosClient = useAxiosClient()) => {
+  try {
+    const response = await axiosClient.get("product/popular-products");
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Failed to get popular products" };
+  }
+};
+
+/**
+ * API-Aufruf: Holen der neuesten Produkte
+ */
+export const getLatestProducts = async (axiosClient = useAxiosClient()) => {
+  try {
+    const response = await axiosClient.get("product/latest-products");
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Failed to get latest products" };
+  }
+};
+
+/**
+ * API-Aufruf: Holen der Sonderangebote
+ */
+export const getSpecialProducts = async (axiosClient = useAxiosClient()) => {
+  try {
+    const response = await axiosClient.get("product/special-products");
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Failed to get special products" };
+  }
+};

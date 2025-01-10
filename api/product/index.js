@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllProduct, getProduct, getProducts } from "./product.api";
+import { getAllProduct, getLatestProducts, getPopularProducts, getProduct, getProducts, getSpecialProducts } from "./product.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -60,5 +60,32 @@ export const useGetAllProduct = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_ALL_PRODUCT],
     queryFn: () => getAllProduct(axiosClient),
+  });
+};
+
+export const useFetchPopularProducts = () => {
+  const axiosClient = useAxiosClient();
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_POPULAR_PRODUCTS],
+    queryFn: () => getPopularProducts(axiosClient),
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useFetchLatestProducts = () => {
+  const axiosClient = useAxiosClient();
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_LATEST_PRODUCTS],
+    queryFn: () => getLatestProducts(axiosClient),
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useFetchSpecialProducts = () => {
+  const axiosClient = useAxiosClient();
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_SPECIAL_PRODUCTS],
+    queryFn: () => getSpecialProducts(axiosClient),
+    staleTime: 1000 * 60 * 5,
   });
 };

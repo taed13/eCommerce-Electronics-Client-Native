@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useForgotPassword } from "../api/user";
+const EaLogo = require("../assets/ea_002.png");
 
 const ForgotPasswordScreen = () => {
     const navigation = useNavigation();
@@ -46,13 +47,8 @@ const ForgotPasswordScreen = () => {
                 justifyContent: "center",
             }}
         >
-            <View>
-                <Image
-                    style={{ width: 350, height: 100 }}
-                    source={{
-                        uri: "https://www.ec.tuwien.ac.at/sites/ec.tuwien.ac.at/files/ec-schrift-300dpi.png",
-                    }}
-                />
+            <View style={{ marginTop: 60, marginBottom: 10, alignItems: "center" }}>
+                <Image style={{ width: 100, height: 50 }} source={EaLogo} />
             </View>
 
             <KeyboardAvoidingView>
