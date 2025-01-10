@@ -11,6 +11,7 @@ import {
   Platform,
   ImageBackground,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
@@ -25,7 +26,6 @@ import HeaderSearchInput from "../components/HeaderSearchInput";
 import AddressBottomModal from "../components/AddressBottomModal";
 import { colors } from "../constants/color";
 import { useGetUserAddresses } from "../api/user";
-import { TouchableOpacity } from "react-native";
 
 const HomeScreen = () => {
   const list = [
