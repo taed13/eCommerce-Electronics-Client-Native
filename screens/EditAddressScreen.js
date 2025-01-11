@@ -118,8 +118,8 @@ const EditAddressScreen = () => {
         setDistricts(
           response.data.data.map((district) => ({
             label: district.full_name,
-            value: district.id, // Use the unique `id` as the value
-            key: district.id, // Ensure each item has a unique key
+            value: district.id,
+            key: district.id,
           }))
         );
         setWards([]);
@@ -138,8 +138,8 @@ const EditAddressScreen = () => {
         setWards(
           response.data.data.map((ward) => ({
             label: ward.full_name,
-            value: ward.id, // Use the unique `id` as the value
-            key: ward.id, // Ensure each item has a unique key
+            value: ward.id,
+            key: ward.id,
           }))
         );
       } else {
@@ -243,13 +243,13 @@ const EditAddressScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" && 0}
     >
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="white" />
+        </Pressable>
+        <Text style={styles.headerText}>Địa chỉ của tôi</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={24} color="white" />
-          </Pressable>
-          <Text style={styles.headerText}>Địa chỉ của tôi</Text>
-        </View>
 
         <View style={styles.container}>
           <Text style={styles.title}>Chỉnh sửa địa chỉ</Text>
@@ -310,7 +310,7 @@ const EditAddressScreen = () => {
             <Text style={styles.label}>Tỉnh/Thành phố</Text>
             <DropDownPicker
               open={openProvince}
-              value={province.id || null} // Use only the `id` as the value
+              value={province.id || null}
               items={provinces}
               setOpen={setOpenProvince}
               setValue={(callback) => {
@@ -327,7 +327,7 @@ const EditAddressScreen = () => {
               dropDownContainerStyle={styles.dropdownContainer}
               zIndex={3000}
               zIndexInverse={1000}
-              onChangeValue={(id) => fetchDistricts(id)} // Ensure provinceId is passed correctly
+              onChangeValue={(id) => fetchDistricts(id)}
               onOpen={() => {
                 setOpenDistrict(false);
                 setOpenWard(false);
@@ -340,15 +340,15 @@ const EditAddressScreen = () => {
             <Text style={styles.label}>Quận/Huyện</Text>
             <DropDownPicker
               open={openDistrict}
-              value={district.id || null} // Use only the `id` as the value
+              value={district.id || null}
               items={districts}
               setOpen={setOpenDistrict}
               setValue={(callback) => {
                 const id = callback(district.id);
                 const selectedDistrict = districts.find((d) => d.value === id);
                 setDistrict(selectedDistrict ? { id: selectedDistrict.value, full_name: selectedDistrict.label } : { id: "", full_name: "" });
-                setWard({ id: "", full_name: "" }); // Reset ward when district changes
-                fetchWards(id); // Fetch wards based on the selected district
+                setWard({ id: "", full_name: "" });
+                fetchWards(id);
               }}
               setItems={setDistricts}
               placeholder="Chọn Quận/Huyện"
@@ -369,7 +369,7 @@ const EditAddressScreen = () => {
             <Text style={styles.label}>Phường/Xã</Text>
             <DropDownPicker
               open={openWard}
-              value={ward.id || null} // Use only the `id` as the value
+              value={ward.id || null}
               items={wards}
               setOpen={setOpenWard}
               setValue={(callback) => {
@@ -420,9 +420,10 @@ const EditAddressScreen = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginTop: 45,
+    backgroundColor: "#fff",
   },
   header: {
+    marginTop: 47,
     height: 60,
     backgroundColor: "#131921",
     flexDirection: "row",
@@ -472,12 +473,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderColor: "#777",
     marginTop: 10,
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#fff",
     fontSize: 22,
   },
   dropdownContainer: {
     borderColor: "#777",
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#fff",
   },
   addButton: {
     backgroundColor: "#FFC72C",
