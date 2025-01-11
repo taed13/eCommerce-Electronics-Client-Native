@@ -3,4 +3,5 @@ export const DEFAULT_VALUE_FILTER = {
   tag: undefined,
   color: undefined,
   category: undefined,
+  priceRange: undefined,
 };

@@ -129,7 +129,7 @@ const ProductInfoScreen = () => {
         },
       ],
       quantity,
-      price: productData?.product_price,
+      price: productData?.product_after_price > 0 ? productData?.product_after_price : productData?.product_price,
       name: productData?.product_name,
     };
 
@@ -388,11 +388,25 @@ const ProductInfoScreen = () => {
 
         <Pressable
           onPress={handleAddToCart}
-          disabled={isLoadingAddToCart}
-          style={[styles.addToCartButton, { backgroundColor: isLoadingAddToCart ? "#ccc" : "#FFC72C" }]}
+          disabled={isLoadingAddToCart || productData?.product_quantity === 0}
+          style={[
+            styles.addToCartButton,
+            {
+              backgroundColor:
+                productData?.product_quantity === 0
+                  ? "#ccc"
+                  : isLoadingAddToCart
+                    ? "#ddd"
+                    : "#FFC72C",
+            },
+          ]}
         >
           <Text style={styles.addToCartButtonText}>
-            {isLoadingAddToCart ? "Đang thêm vào giỏ hàng..." : "Thêm vào giỏ hàng"}
+            {productData?.product_quantity === 0
+              ? "Hết hàng"
+              : isLoadingAddToCart
+                ? "Đang thêm vào giỏ hàng..."
+                : "Thêm vào giỏ hàng"}
           </Text>
         </Pressable>
 
