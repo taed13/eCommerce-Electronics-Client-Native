@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, Pressable, StyleSheet } from "react-native";
+import { Text, View, ScrollView, Pressable, StyleSheet, SafeAreaView, Platform } from "react-native";
 import React, { useEffect, useContext, useState, useCallback } from "react";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -66,73 +66,75 @@ const AddAddressScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView} stickyHeaderIndices={[0]}>
+    <SafeAreaView style={{ flex: 1, marginTop: Platform.OS === "android" ? 40 : 0 }}>
       <View>
         <HeaderSearchInput />
       </View>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
 
-      <View style={styles.container}>
-        <Text style={styles.title}>Địa chỉ của tôi</Text>
+        <View style={styles.container}>
+          <Text style={styles.title}>Địa chỉ của tôi</Text>
 
-        <Pressable onPress={() => navigation.navigate("Add")} style={styles.addAddressButton}>
-          <Text style={{ fontSize: 17 }}>Thêm địa chỉ mới</Text>
-          <MaterialIcons name="keyboard-arrow-right" size={24} color="black" />
-        </Pressable>
+          <Pressable onPress={() => navigation.navigate("Add")} style={styles.addAddressButton}>
+            <Text style={{ fontSize: 17 }}>Thêm địa chỉ mới</Text>
+            <MaterialIcons name="keyboard-arrow-right" size={24} color="black" />
+          </Pressable>
 
-        <Pressable>
-          {addresses &&
-            addresses.map((item, index) => (
-              <Pressable key={index} style={styles.addressItem}>
-                <View style={styles.addressHeader}>
-                  <Text style={styles.addressName}>{item?.name}</Text>
-                  <Entypo name="location-pin" size={24} color="red" />
-                </View>
+          <Pressable>
+            {addresses &&
+              addresses.map((item, index) => (
+                <Pressable key={index} style={styles.addressItem}>
+                  <View style={styles.addressHeader}>
+                    <Text style={styles.addressName}>{item?.name}</Text>
+                    <Entypo name="location-pin" size={24} color="red" />
+                  </View>
 
-                <View style={{ flexDirection: "row", alignItems: "baseline", gap: 5 }}>
-                  <Text style={styles.customerNameText}>{item?.firstname} {item?.lastname}</Text>
-                  <Text style={{ fontSize: 22, color: '#999', fontWeight: 300 }}>|</Text>
-                  <Text style={styles.addressText}>{item?.mobileNo}</Text>
-                </View>
+                  <View style={{ flexDirection: "row", alignItems: "baseline", gap: 5 }}>
+                    <Text style={styles.customerNameText}>{item?.firstname} {item?.lastname}</Text>
+                    <Text style={{ fontSize: 22, color: '#999', fontWeight: 300 }}>|</Text>
+                    <Text style={styles.addressText}>{item?.mobileNo}</Text>
+                  </View>
 
-                <Text style={styles.addressText}>{item?.street}</Text>
+                  <Text style={styles.addressText}>{item?.street}</Text>
 
-                <Text style={styles.addressText}>{item?.ward.full_name}, {item?.district.full_name}, {item?.province.name}</Text>
+                  <Text style={styles.addressText}>{item?.ward.full_name}, {item?.district.full_name}, {item?.province.name}</Text>
 
-                <View style={styles.actionsContainer}>
-                  <Pressable onPress={() => navigation.navigate("EditAddress", { addressId: item._id })} style={styles.actionButton}>
-                    <Text>Sửa</Text>
-                  </Pressable>
-
-                  {
-                    !item.default &&
-                    <Pressable style={styles.actionButton} onPress={() => handleDeleteAddress(item._id)}>
-                      <Text>Xóa</Text>
+                  <View style={styles.actionsContainer}>
+                    <Pressable onPress={() => navigation.navigate("EditAddress", { addressId: item._id })} style={styles.actionButton}>
+                      <Text>Sửa</Text>
                     </Pressable>
-                  }
 
-                  {
-                    item.default ? (
-                      <Pressable style={styles.defaultButton}>
-                        <Text style={{ color: '#448dc2', }}>Địa chỉ mặc định</Text>
+                    {
+                      !item.default &&
+                      <Pressable style={styles.actionButton} onPress={() => handleDeleteAddress(item._id)}>
+                        <Text>Xóa</Text>
                       </Pressable>
-                    ) : (
-                      <Pressable style={styles.actionButton} onPress={() => handleSetDefaultAddress(item._id)}>
-                        <Text>Đặt làm mặc định</Text>
-                      </Pressable>
-                    )
-                  }
-                </View>
-              </Pressable>
-            ))}
-        </Pressable>
-      </View>
-    </ScrollView>
+                    }
+
+                    {
+                      item.default ? (
+                        <Pressable style={styles.defaultButton}>
+                          <Text style={{ color: '#448dc2', }}>Địa chỉ mặc định</Text>
+                        </Pressable>
+                      ) : (
+                        <Pressable style={styles.actionButton} onPress={() => handleSetDefaultAddress(item._id)}>
+                          <Text>Đặt làm mặc định</Text>
+                        </Pressable>
+                      )
+                    }
+                  </View>
+                </Pressable>
+              ))}
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginTop: 47,
+    backgroundColor: "#fff",
   },
   container: {
     padding: 10,
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
     marginTop: 7,
   },
   defaultButton: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#fff",
     paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: 5,
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
     borderColor: "#448dc2",
   },
   actionButton: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#fff",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 5,

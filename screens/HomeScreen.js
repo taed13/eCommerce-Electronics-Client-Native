@@ -13,7 +13,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useMemo } from "react";
 import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
@@ -26,6 +26,7 @@ import HeaderSearchInput from "../components/HeaderSearchInput";
 import AddressBottomModal from "../components/AddressBottomModal";
 import { colors } from "../constants/color";
 import { useGetUserAddresses } from "../api/user";
+import { useFetchLatestProducts, useFetchPopularProducts, useFetchSpecialProducts } from "../api/product";
 
 const HomeScreen = () => {
   const list = [
@@ -123,10 +124,6 @@ const HomeScreen = () => {
   ];
 
   const dispatch = useDispatch();
-  const productState = useSelector((state) => state?.product?.product);
-
-  const [products, setProducts] = useState([]);
-  const [open, setOpen] = useState(false);
   const [selectedAddress, setSelectedAdress] = useState("");
 
   const [token, setToken] = useState("");
@@ -160,6 +157,10 @@ const HomeScreen = () => {
     getProducts();
   }, []);
 
+  const { data: popularProducts, isLoading: isLoadingPopular } = useFetchPopularProducts();
+  const { data: latestProducts, isLoading: isLoadingLatest } = useFetchLatestProducts();
+  const { data: specialProducts, isLoading: isLoadingSpecial } = useFetchSpecialProducts();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -188,29 +189,34 @@ const HomeScreen = () => {
     fetchUser();
   }, []);
 
-  const featuredProducts =
-    productState &&
-    productState
-      ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "featured"))
-      ?.slice(0, 4);
-
-  const specialProducts =
-    productState &&
-    productState
-      ?.filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "special"))
-      ?.slice(0, 4);
-
-  const popularProducts =
-    productState &&
-    productState
-      .filter((item) => item?.product_tags?.some((tag) => tag?.name.toLowerCase() === "popular"))
-      .slice(0, 10);
-
-  const [selectedProduct, setSelectedProduct] = useState(popularProducts[0]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    setSelectedProduct(popularProducts[0]);
-  }, [productState]);
+    if (popularProducts?.data?.popularProducts?.length > 0) {
+      setSelectedProduct(popularProducts.data.popularProducts[0]);
+    }
+  }, [popularProducts]);
+
+  const { displayPrice, discountText } = useMemo(() => {
+    let displayPrice = selectedProduct?.product_price || null;
+    let discountText = "";
+
+    if (selectedProduct?.discount) {
+      if (selectedProduct.discount.discount_type === "percentage") {
+        displayPrice = selectedProduct.product_price - (selectedProduct.product_price * selectedProduct.discount.discount_value / 100);
+        discountText = `-${selectedProduct.discount.discount_value}%`;
+      } else if (selectedProduct.discount.discount_type === "fixed_amount") {
+        displayPrice = selectedProduct.product_price - selectedProduct.discount.discount_value;
+        discountText = `-${selectedProduct?.discount?.discount_value?.toLocaleString()}₫`;
+      }
+    }
+
+    return { displayPrice, discountText };
+  }, [selectedProduct]);
+
+  useEffect(() => {
+    setSelectedProduct(popularProducts?.data?.popularProducts[0]);
+  }, [popularProducts]);
 
   const handlePress = (product) => {
     setSelectedProduct(product);
@@ -223,8 +229,7 @@ const HomeScreen = () => {
           <HeaderSearchInput />
         </View>
         <ScrollView>
-          {/* Search Input */}
-          {/* Add shipping address */}
+          {/* Shipping address */}
           <>
             <Pressable
               onPress={() => setModalVisible(!modalVisible)}
@@ -278,45 +283,79 @@ const HomeScreen = () => {
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm đặc biệt</Text>
             <FlatList
-              data={specialProducts}
+              data={specialProducts?.data?.slice(0, 6)}
               keyExtractor={(item, index) => `${item._id}-${index}`}
               numColumns={2}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
-                  <View style={styles.imageContainer}>
-                    <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
-                  </View>
-                  <View style={styles.details}>
-                    <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
-                    <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-                      {item?.product_name}
-                    </Text>
-                    <View style={styles.ratingContainer}>
+              renderItem={({ item }) => {
+                let displayPrice = item?.product_price;
+                let discountText = "";
+
+                if (item?.discount) {
+                  if (item.discount.discount_type === "percentage") {
+                    displayPrice = item.product_price - (item.product_price * item.discount.discount_value / 100);
+                    discountText = `-${item.discount.discount_value}%`;
+                  } else if (item.discount.discount_type === "fixed_amount") {
+                    displayPrice = item.product_price - item.discount.discount_value;
+                    discountText = `-${item.discount.discount_value.toLocaleString()}₫`;
+                  }
+                }
+                return (
+                  <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                    {item?.discount &&
+                      <Text style={{ position: "absolute", top: 10, left: 10, backgroundColor: colors.red, padding: 5, borderRadius: 5, color: "white", }}>
+                        {discountText}
+                      </Text>
+                    }
+                    <View style={styles.imageContainer}>
+                      <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
+                    </View>
+                    <View style={styles.details}>
+                      <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
+                      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                        {item?.product_name}
+                      </Text>
                       <View style={styles.ratingContainer}>
-                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                          <AntDesign name="star" size={20} color={colors.yellow} />
-                          <Text style={{ marginLeft: 5, fontSize: 14, color: "#666" }}>
-                            {item?.product_totalRating?.toFixed(1) || 0}/5
+                        <View style={styles.ratingContainer}>
+                          <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <AntDesign name="star" size={20} color={colors.yellow} />
+                            <Text style={{ marginLeft: 5, fontSize: 14, color: "#666" }}>
+                              {item?.product_totalRating?.toFixed(1) || 0}/5
+                            </Text>
+                          </View>
+                        </View>
+                        {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                      </View>
+                      <Text style={styles.price}>{displayPrice?.toLocaleString()}₫</Text>
+                      {item?.discount && (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+                          <Text style={{ fontSize: 12 }}>
+                            Giá gốc:
+                          </Text>
+                          <Text style={{ color: "#888", fontSize: 16, fontWeight: "thin", textDecorationLine: "line-through" }}>
+                            {item?.product_price?.toLocaleString()}₫
                           </Text>
                         </View>
-                      </View>
-                      {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                      )}
                     </View>
-                    <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                )
+              }}
             />
           </>
           {/* Popular Products */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm trending</Text>
-            <Pressable
+            <TouchableOpacity style={{ position: "relative" }}
               onPress={() => {
                 navigation.navigate("Info", { id: selectedProduct?._id });
               }}
             >
+              {selectedProduct?.discount && (
+                <Text style={{ position: "absolute", top: 20, left: 20, backgroundColor: colors.red, padding: 7, borderRadius: 7, color: "white", fontSize: 18, zIndex: 100, boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)" }}>
+                  {discountText}
+                </Text>
+              )}
               <View style={styles.imageContainer}>
                 <Image
                   style={{ width: "60%", height: 250, resizeMode: "cover", marginBottom: 10 }}
@@ -327,28 +366,31 @@ const HomeScreen = () => {
                 <Text style={{ marginHorizontal: 10, fontSize: 16, color: "#666" }}>
                   {selectedProduct?.product_brand?.map((brand) => brand?.title)?.join(" | ")}
                 </Text>
-                <Text
-                  style={{ marginHorizontal: 10, fontSize: 22, fontWeight: 700 }}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
+                <Text style={{ marginHorizontal: 10, fontSize: 22, fontWeight: 700 }} numberOfLines={1} ellipsizeMode="tail">
                   {selectedProduct?.product_name}
                 </Text>
               </View>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ marginHorizontal: 10, marginBottom: 10, fontSize: 24, fontWeight: 400 }}>
-                  {selectedProduct?.product_price.toLocaleString()}₫
-                </Text>
+                <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "start", gap: 5 }}>
+                  <Text style={{ marginLeft: 10, marginBottom: 10, fontSize: 28, fontWeight: 400 }}>
+                    {displayPrice?.toLocaleString()}₫
+                  </Text>
+                  {selectedProduct?.discount && (
+                    <Text style={{ marginRight: 10, fontSize: 20, color: "#666", textDecorationLine: "line-through" }}>
+                      {selectedProduct?.product_price.toLocaleString()}₫
+                    </Text>
+                  )}
+                </View>
                 {selectedProduct?.product_sold != 0 && (
                   <Text style={{ marginHorizontal: 10, fontSize: 16, color: "#666" }}>
                     Đã bán {selectedProduct?.product_sold.toLocaleString()}
                   </Text>
                 )}
               </View>
-            </Pressable>
+            </TouchableOpacity>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {Array.isArray(popularProducts) &&
-                popularProducts.map((product, index) => (
+              {Array.isArray(popularProducts?.data?.popularProducts) &&
+                popularProducts?.data?.popularProducts?.slice(0, 6).map((product, index) => (
                   <TouchableOpacity
                     key={index}
                     style={{
@@ -359,7 +401,7 @@ const HomeScreen = () => {
                       borderRadius: 16,
                       borderColor: "#ddd",
                     }}
-                    onPress={() => handlePress(product)}
+                    onPress={() => setSelectedProduct(product)}
                   >
                     <Image
                       style={{ width: 100, height: 100, resizeMode: "contain" }}
@@ -387,36 +429,65 @@ const HomeScreen = () => {
           {/* Featured Products */}
           <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
-            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Từ các bộ sưu tập</Text>
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Hàng mới về</Text>
             <FlatList
-              data={featuredProducts}
+              data={latestProducts?.data?.products?.slice(0, 6)}
               keyExtractor={(item, index) => `${item._id}-${index}`}
               numColumns={2}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
-                  <View style={styles.imageContainer}>
-                    <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
-                  </View>
-                  <View style={styles.details}>
-                    <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
-                    <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-                      {item?.product_name}
-                    </Text>
-                    <View style={styles.ratingContainer}>
+              renderItem={({ item }) => {
+                let displayPrice = item?.product_price;
+                let discountText = "";
+
+                if (item?.discount) {
+                  if (item.discount.discount_type === "percentage") {
+                    displayPrice = item.product_price - (item.product_price * item.discount.discount_value / 100);
+                    discountText = `-${item.discount.discount_value}%`;
+                  } else if (item.discount.discount_type === "fixed_amount") {
+                    displayPrice = item.product_price - item.discount.discount_value;
+                    discountText = `-${item.discount.discount_value.toLocaleString()}₫`;
+                  }
+                }
+                return (
+                  <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("Info", { id: item?._id })}>
+                    {item?.discount &&
+                      <Text style={{ position: "absolute", top: 10, left: 10, backgroundColor: colors.red, padding: 5, borderRadius: 5, color: "white", zIndex: 100 }}>
+                        {discountText}
+                      </Text>
+                    }
+                    <View style={styles.imageContainer}>
+                      <Image source={{ uri: item?.product_images[0]?.url }} style={styles.image} />
+                    </View>
+                    <View style={styles.details}>
+                      <Text style={styles.brand}>{item?.product_brand?.map((brand) => brand?.title)?.join(" | ")}</Text>
+                      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                        {item?.product_name}
+                      </Text>
                       <View style={styles.ratingContainer}>
-                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                          <AntDesign name="star" size={20} color={colors.yellow} />
-                          <Text style={{ marginLeft: 5, fontSize: 14, color: "#666" }}>
-                            {item?.product_totalRating?.toFixed(1) || 0}/5
+                        <View style={styles.ratingContainer}>
+                          <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <AntDesign name="star" size={20} color={colors.yellow} />
+                            <Text style={{ marginLeft: 5, fontSize: 14, color: "#666" }}>
+                              {item?.product_totalRating?.toFixed(1) || 0}/5
+                            </Text>
+                          </View>
+                        </View>
+                        {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                      </View>
+                      <Text style={styles.price}>{displayPrice.toLocaleString()}₫</Text>
+                      {item?.discount && (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
+                          <Text style={{ fontSize: 12 }}>
+                            Giá gốc:
+                          </Text>
+                          <Text style={{ color: "#888", fontSize: 16, fontWeight: "thin", textDecorationLine: "line-through" }}>
+                            {item?.product_price?.toLocaleString()}₫
                           </Text>
                         </View>
-                      </View>
-                      {item?.product_sold !== 0 && <Text style={styles.sold}>Đã bán {item?.product_sold}</Text>}
+                      )}
                     </View>
-                    <Text style={styles.price}>{item?.product_price.toLocaleString()}₫</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
+                  </TouchableOpacity>
+                )
+              }}
             />
           </>
         </ScrollView>
@@ -444,6 +515,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 16,
     overflow: "hidden",
+    position: "relative",
   },
   imageContainer: {
     flexDirection: "row",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { BottomModal, SlideAnimation, ModalContent } from 'react-native-modals';
 import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -49,7 +49,7 @@ const AddressBottomModal = ({ modalVisible, setModalVisible, addresses, selected
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {addresses &&
                         addresses?.map((item, index) => (
-                            <Pressable
+                            <TouchableOpacity
                                 key={index}
                                 onPress={() => {
                                     setSelectedAddress(item);
@@ -79,15 +79,15 @@ const AddressBottomModal = ({ modalVisible, setModalVisible, addresses, selected
                                 <Text numberOfLines={1} style={styles.addressText}>
                                     {item?.province?.name}
                                 </Text>
-                            </Pressable>
+                            </TouchableOpacity>
                         ))}
 
-                    <Pressable onPress={() => { setModalVisible(false); navigation.navigate("Address"); }} style={styles.addAddressItem}>
+                    <TouchableOpacity onPress={() => { setModalVisible(false); navigation.navigate("Address"); }} style={styles.addAddressItem}>
                         <Entypo name="plus" size={24} color="#0066b2" />
                         <Text style={styles.addAddressText}>
                             Thêm địa chỉ nhận hàng mới
                         </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 </ScrollView>
 
                 {isLoading && (
