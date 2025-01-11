@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGetAllProduct } from "../api/product";
@@ -20,7 +20,7 @@ const ProductListScreen = () => {
   const finalData = useMemo(() => {
     if (!data) return [];
 
-    if (!filterValues.brand && !filterValues.category && !filterValues.tag && !filterValues.color) {
+    if (!filterValues.brand && !filterValues.category && !filterValues.tag && !filterValues.color && !filterValues.priceRange) {
       return data;
     }
 
@@ -28,11 +28,35 @@ const ProductListScreen = () => {
     const addedIds = new Set();
 
     data.forEach((item) => {
+      const price = item.product_after_price || item.product_price;
+      let isPriceValid = true;
+
+      switch (filterValues.priceRange) {
+        case "under5m":
+          isPriceValid = price <= 5000000;
+          break;
+        case "under10m":
+          isPriceValid = price <= 10000000;
+          break;
+        case "under20m":
+          isPriceValid = price <= 20000000;
+          break;
+        case "under30m":
+          isPriceValid = price <= 30000000;
+          break;
+        case "above30m":
+          isPriceValid = price > 30000000;
+          break;
+        default:
+          isPriceValid = true;
+      }
+
       if (
-        (filterValues.brand && item.product_brand[0]._id === filterValues.brand) ||
-        (filterValues.category && item.product_category[0]._id === filterValues.category) ||
-        (filterValues.tag && item.product_tags.includes(filterValues.tag)) ||
-        (filterValues.color && item.product_color.includes(filterValues.color))
+        isPriceValid &&
+        (!filterValues.brand || item.product_brand[0]._id === filterValues.brand) &&
+        (!filterValues.category || item.product_category[0]._id === filterValues.category) &&
+        (!filterValues.tag || item.product_tags.some(tag => tag._id === filterValues.tag)) &&
+        (!filterValues.color || item.product_color.some(color => color._id === filterValues.color))
       ) {
         if (!addedIds.has(item._id)) {
           result.push(item);
@@ -73,6 +97,56 @@ const ProductListScreen = () => {
   const renderBrand = useMemo(() => {
     return (
       <View style={BottomSheetStyle.filterContainer}>
+        <View>
+          <Text style={BottomSheetStyle.label}>Khoảng giá (VNĐ)</Text>
+          <View style={BottomSheetStyle.priceRangeContainer}>
+            <TouchableOpacity
+              style={[
+                BottomSheetStyle.priceRangeButton,
+                filterValues.priceRange === "under5m" && BottomSheetStyle.priceRangeButtonActive,
+              ]}
+              onPress={() => setFilterValues((prev) => ({ ...prev, priceRange: "under5m" }))}
+            >
+              <Text style={filterValues.priceRange === "under5m" ? BottomSheetStyle.priceTextActive : {}}>Dưới 5tr</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                BottomSheetStyle.priceRangeButton,
+                filterValues.priceRange === "under10m" && BottomSheetStyle.priceRangeButtonActive,
+              ]}
+              onPress={() => setFilterValues((prev) => ({ ...prev, priceRange: "under10m" }))}
+            >
+              <Text style={filterValues.priceRange === "under10m" ? BottomSheetStyle.priceTextActive : {}}>Dưới 10tr</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                BottomSheetStyle.priceRangeButton,
+                filterValues.priceRange === "under20m" && BottomSheetStyle.priceRangeButtonActive,
+              ]}
+              onPress={() => setFilterValues((prev) => ({ ...prev, priceRange: "under20m" }))}
+            >
+              <Text style={filterValues.priceRange === "under20m" ? BottomSheetStyle.priceTextActive : {}}>Dưới 20tr</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                BottomSheetStyle.priceRangeButton,
+                filterValues.priceRange === "under30m" && BottomSheetStyle.priceRangeButtonActive,
+              ]}
+              onPress={() => setFilterValues((prev) => ({ ...prev, priceRange: "under30m" }))}
+            >
+              <Text style={filterValues.priceRange === "under30m" ? BottomSheetStyle.priceTextActive : {}}>Dưới 30tr</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                BottomSheetStyle.priceRangeButton,
+                filterValues.priceRange === "above30m" && BottomSheetStyle.priceRangeButtonActive,
+              ]}
+              onPress={() => setFilterValues((prev) => ({ ...prev, priceRange: "above30m" }))}
+            >
+              <Text style={filterValues.priceRange === "above30m" ? BottomSheetStyle.priceTextActive : {}}>Trên 30tr</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <View>
           <Text style={BottomSheetStyle.label}>Hãng</Text>
           <View style={BottomSheetStyle.brand}>
@@ -302,5 +376,29 @@ const BottomSheetStyle = StyleSheet.create({
   btnTextActive: {
     color: "white",
     fontWeight: 500,
+  },
+  priceRangeContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 10,
+  },
+  priceRangeButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    paddingVertical: 10,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  priceRangeButtonActive: {
+    backgroundColor: "#008E97",
+    borderColor: "#008E97",
+  },
+  priceTextActive: {
+    color: "white",
+    fontWeight: "bold",
   },
 });

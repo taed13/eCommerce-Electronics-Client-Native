@@ -27,6 +27,7 @@ import AddressBottomModal from "../components/AddressBottomModal";
 import { colors } from "../constants/color";
 import { useGetUserAddresses } from "../api/user";
 import { useFetchLatestProducts, useFetchPopularProducts, useFetchSpecialProducts } from "../api/product";
+import { useGetAllBlogs } from "../api/blog";
 
 const HomeScreen = () => {
   const list = [
@@ -160,6 +161,9 @@ const HomeScreen = () => {
   const { data: popularProducts, isLoading: isLoadingPopular } = useFetchPopularProducts();
   const { data: latestProducts, isLoading: isLoadingLatest } = useFetchLatestProducts();
   const { data: specialProducts, isLoading: isLoadingSpecial } = useFetchSpecialProducts();
+  const { data: allBlogs, isLoading: isLoadingAllBlogs } = useGetAllBlogs();
+
+  console.log('allBlogs', allBlogs);
 
   useEffect(() => {
     const fetchData = async () => {

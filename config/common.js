@@ -1,7 +1,7 @@
 export const APP_CONFIG = {
   // BASE_URL: "https://e-commerce-electronics-server.vercel.app/api/",
-  API_URL: "http://192.168.1.12",
-  BASE_URL: "http://192.168.1.12:5001/api/",
+  API_URL: "http://192.168.1.183:5001",
+  BASE_URL: "http://192.168.1.183:5001/api/",
   // BASE_URL: "https://25d9112fc9b8d9a7c359538eb017bf6d.serveo.net/api/",
 };
 
@@ -15,6 +15,7 @@ export const QUERY_KEYS = {
   GET_POPULAR_PRODUCTS: "GET_POPULAR_PRODUCTS",
   GET_LATEST_PRODUCTS: "GET_LATEST_PRODUCTS",
   GET_SPECIAL_PRODUCTS: "GET_SPECIAL_PRODUCTS",
+  GET_BLOGS: "GET_BLOGS",
 };
 
 export const MUTAION_KEYS = {
