@@ -13,10 +13,10 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect, useContext, useRef, useMemo } from "react";
+import React, { useState, useEffect, useContext, useRef, useMemo, useCallback } from "react";
 import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserType } from "../UserContext";
@@ -181,6 +181,12 @@ const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const defaultAddress = addresses?.data?.addresses?.find((address) => address.default === true);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   useEffect(() => {
     const fetchUser = async () => {

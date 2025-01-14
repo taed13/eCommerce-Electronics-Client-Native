@@ -1,13 +1,9 @@
 import React from "react";
 import { Text, View, StyleSheet, Alert, ScrollView } from "react-native";
 import { colors } from "../config/constants";
-import Separator from "../components/Separator";
 import Cell from "../components/Cell";
-// import { deleteUser, signOut } from 'firebase/auth';
-import { auth, database } from '../config/firebase';
 import Header from "../components/Header";
 import { useLogout } from "../api/user";
-// import { deleteDoc, doc } from "firebase/firestore";
 
 const AccountScreen = ({ navigation }) => {
     const { logout } = useLogout();

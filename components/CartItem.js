@@ -1,50 +1,66 @@
-/* eslint-disable react/prop-types */
-import React, { Image, Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import React from "react";
+import { Text, StyleSheet, View, TouchableOpacity, Image } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { Checkbox } from "react-native-paper";
-
+import { Checkbox, Divider } from "react-native-paper";
+import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 import { colors } from "../constants/color";
 
-export const CartItem = ({ item, isChecked, onToggleCheckbox }) => {
+export const CartItem = ({ item, isChecked, onToggleCheckbox, onDelete }) => {
+  const renderRightActions = () => (
+    <TouchableOpacity style={CartItemStyle.deleteButton} onPress={() => onDelete(item._id)}>
+      <Text style={CartItemStyle.deleteText}>Xóa</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={CartItemStyle.container}>
-      <Checkbox.Android
-        status={isChecked ? "checked" : "unchecked"}
-        onPress={onToggleCheckbox}
-        color={colors.checkboxPrimary}
-        uncheckedColor={colors.gray}
-        style={CartItemStyle.checkbox}
-      />
-
-      <TouchableOpacity style={CartItemStyle.wrapper} onPress={onToggleCheckbox}>
-        <View style={[CartItemStyle.item]}>
-          <Image source={{ uri: item.productId.product_images[0].url }} style={CartItemStyle.image} />
-          <View style={CartItemStyle.details}>
-            <Text style={CartItemStyle.itemName}>{item.name}</Text>
-            <View style={CartItemStyle.star}>
-              <Text>{item.productId.product_totalRating}</Text>
-              <AntDesign name="star" size={16} color={colors.yellow} />
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                <Text style={{ color: '#888' }}>{item.product_color[0].name}</Text>
-                <View style={{ backgroundColor: item.product_color[0].code, border: "1px solid #ccc", width: 20, height: 20, borderRadius: 10, justifyContent: "center", alignItems: "center" }} />
+    <GestureHandlerRootView>
+      <Swipeable renderRightActions={renderRightActions}>
+        <View style={CartItemStyle.container}>
+          <Checkbox.Android
+            status={isChecked ? "checked" : "unchecked"}
+            onPress={onToggleCheckbox}
+            color={colors.checkboxPrimary}
+            uncheckedColor={colors.gray}
+            style={CartItemStyle.checkbox}
+          />
+          <TouchableOpacity style={CartItemStyle.wrapper} onPress={onToggleCheckbox}>
+            <View style={CartItemStyle.item}>
+              <Image source={{ uri: item.productId.product_images[0].url }} style={CartItemStyle.image} />
+              <View style={CartItemStyle.details}>
+                <Text style={CartItemStyle.itemName}>{item.name}</Text>
+                <View style={CartItemStyle.star}>
+                  <Text>{item.productId.product_totalRating}</Text>
+                  <AntDesign name="star" size={16} color={colors.yellow} />
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                    <Text style={{ color: '#888' }}>{item.product_color[0].name}</Text>
+                    <View
+                      style={{
+                        backgroundColor: item.product_color[0].code,
+                        border: "1px solid #ccc",
+                        width: 20,
+                        height: 20,
+                        borderRadius: 10,
+                      }}
+                    />
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
+            <View style={CartItemStyle.infor}>
+              <Text style={CartItemStyle.price}>đ{item.price.toLocaleString()}</Text>
+              <Text style={CartItemStyle.quantity}>x {item.quantity}</Text>
+            </View>
+            <View style={CartItemStyle.total}>
+              <Text style={CartItemStyle.totalLabel}>Tổng cộng:</Text>
+              <Text style={CartItemStyle.totalPrice}>
+                đ{(Number(item.price) * Number(item.quantity)).toLocaleString()}
+              </Text>
+            </View>
+            <Divider style={CartItemStyle.divider} />
+          </TouchableOpacity>
         </View>
-        <View style={CartItemStyle.infor}>
-          <Text style={CartItemStyle.price}>đ{item.price.toLocaleString()}</Text>
-          <Text style={CartItemStyle.quantity}>x {item.quantity}</Text>
-        </View>
-        <View style={CartItemStyle.total}>
-          <Text style={CartItemStyle.totalLabel}>Tổng cộng:</Text>
-          <Text style={CartItemStyle.totalPrice}>
-            đ{(Number(item.price) * Number(item.quantity)).toLocaleString()}
-          </Text>
-        </View>
-        <View style={CartItemStyle.divider} />
-      </TouchableOpacity>
-    </View>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 };
 
@@ -126,5 +142,19 @@ const CartItemStyle = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.gray,
     marginTop: 8,
+  },
+  deleteButton: {
+    backgroundColor: colors.red,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "93%",
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  deleteText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
