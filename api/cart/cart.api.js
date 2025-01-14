@@ -25,3 +25,13 @@ export const deleteProductFromCart = async (axiosClient, cartItemId) => {
     throw new Error(error.response?.data?.message || "Failed to delete product from cart");
   }
 };
+
+// Hàm gọi API xóa toàn bộ sản phẩm khỏi giỏ hàng
+export const emptyCart = async (axiosClient) => {
+  try {
+    const response = await axiosClient.delete("user/empty-cart");
+    return { data: response.data };
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to empty cart");
+  }
+};
