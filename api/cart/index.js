@@ -1,5 +1,5 @@
 import { useAxiosClient } from "../../providers/axiosProvider";
-import { addToCart, deleteProductFromCart, getMyCart } from "./cart.api";
+import { addToCart, deleteProductFromCart, emptyCart, getMyCart } from "./cart.api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS, MUTAION_KEYS } from "../../config/common";
 
@@ -41,3 +41,21 @@ export const useDeleteProductFromCart = () => {
     },
   });
 }
+
+export const useEmptyCart = () => {
+  const axiosClient = useAxiosClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.EMPTY_CART],
+    mutationFn: () => emptyCart(axiosClient),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEYS.GET_CART]);
+      queryClient.invalidateQueries([QUERY_KEYS.GET_MY_ORDER]);
+      queryClient.invalidateQueries([QUERY_KEYS.GET_ORDER_BY_ID]);
+    },
+    onError: (error) => {
+      console.error("Failed to empty cart:", error.message);
+    },
+  });
+};

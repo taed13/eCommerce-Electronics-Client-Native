@@ -13,7 +13,7 @@ import Loading from "../components/Loading";
 
 import { colors } from "../config/constants";
 
-import { useGetMyCart, useDeleteProductFromCart } from "../api/cart";
+import { useGetMyCart, useDeleteProductFromCart, useEmptyCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
 import AddressBottomModal from "../components/AddressBottomModal";
 import Toast from "react-native-toast-message";
@@ -24,6 +24,7 @@ const CartScreen = () => {
 
   const { data, isLoading, refetch, error } = useGetMyCart();
   const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUserData } = useGetCurrentUser();
+  const { mutate: emptyCart, isLoading: isEmptying } = useEmptyCart();
   const { mutate: deleteProductFromCart, isLoading: isDeleting } = useDeleteProductFromCart();
 
   const defaultAddress =
@@ -107,8 +108,39 @@ const CartScreen = () => {
       alert("Giỏ hàng trống, không có sản phẩm để xóa.");
       return;
     }
-    setSelectedItems([]);
-    alert("Tất cả sản phẩm trong giỏ hàng đã được xóa!");
+
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn xóa tất cả các sản phẩm trong giỏ hàng?",
+      [
+        { text: "Không", style: "cancel" },
+        {
+          text: "Có",
+          onPress: () => {
+            emptyCart(undefined, {
+              onSuccess: () => {
+                Toast.show({
+                  type: "success",
+                  text1: "Thành công",
+                  text2: "Giỏ hàng trống!",
+                });
+                setSelectAll(false); // Reset trạng thái "Chọn tất cả"
+                setSelectedItems([]); // Reset danh sách sản phẩm đã chọn
+                refetch(); // Làm mới danh sách giỏ hàng
+              },
+              onError: (error) => {
+                Toast.show({
+                  type: "error",
+                  text1: "Lỗi",
+                  text2: error.message || "Không thể làm trống giỏ hàng!",
+                });
+                refetch(); // Làm mới danh sách để đảm bảo trạng thái chính xác
+              },
+            });
+          },
+        },
+      ]
+    );
   };
 
   const renderRightActions = (itemId) => (
