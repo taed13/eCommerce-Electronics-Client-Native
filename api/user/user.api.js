@@ -42,8 +42,10 @@ export const registerUserService = async (axiosClient, userData) => {
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
+            console.log("error message:::", error.response.data.message);
             return { error: error.response.data.message };
         }
+        console.log("error:::", error);
         return { error: error.message || "Failed to register" };
     }
 };
@@ -62,7 +64,7 @@ export const forgotPasswordService = async (axiosClient, userData) => {
 
 export const setDefaultAddressService = async (axiosClient, addressId) => {
     try {
-        const response = await axiosClient.put("user/set-default-address", { addressId });
+        const response = await axiosClient.put("/user/set-default-address", { addressId });
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -74,7 +76,7 @@ export const setDefaultAddressService = async (axiosClient, addressId) => {
 
 export const updateAddressService = async (axiosClient, addressId, addressData) => {
     try {
-        const response = await axiosClient.patch(`user/update-address/${addressId}`, addressData);
+        const response = await axiosClient.patch(`/user/update-address/${addressId}`, addressData);
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -86,7 +88,7 @@ export const updateAddressService = async (axiosClient, addressId, addressData) 
 
 export const deleteAddressService = async (axiosClient, addressId) => {
     try {
-        const response = await axiosClient.delete(`user/address/${addressId}`);
+        const response = await axiosClient.delete(`/user/address/${addressId}`);
         return { data: response.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
@@ -117,5 +119,17 @@ export const getUserAddresses = async (axiosClient, userId) => {
             return { error: error.response.data.message };
         }
         return { error: error.message || "Failed to get addresses" };
+    }
+};
+
+export const deleteUserService = async (axiosClient, userId) => {
+    try {
+        const response = await axiosClient.delete(`user/${userId}`);
+        return { data: response.data };
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            return { error: error.response.data.message };
+        }
+        return { error: error.message || "Failed to delete user" };
     }
 };

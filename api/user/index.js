@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService, saveAddressService, getUserAddresses } from "./user.api";
+import { getCurrentUser, editUser, loginUserService, registerUserService, forgotPasswordService, setDefaultAddressService, updateAddressService, deleteAddressService, saveAddressService, getUserAddresses, deleteUserService } from "./user.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -182,5 +182,20 @@ export const useGetUserAddresses = (userId) => {
     queryFn: () => getUserAddresses(axiosClient, userId),
     enabled: !!userId,
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useDeleteUser = () => {
+  const axiosClient = useAxiosClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.DELETE_USER],
+    mutationFn: (userId) => deleteUserService(axiosClient, userId),
+    onSuccess: (data) => {
+      console.log("User disabled successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Failed to disable user:", error.message);
+    },
   });
 };
