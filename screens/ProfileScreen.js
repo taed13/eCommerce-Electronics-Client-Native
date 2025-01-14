@@ -186,7 +186,7 @@ const ProfileScreen = () => {
                     )}
                     <Text
                       style={styles.orderInfo}
-                      numberOfLines={2}
+                      numberOfLines={1}
                       ellipsizeMode="tail"
                     >
                       {order.order_items[0]?.productId?.product_name || "Sản phẩm không có tên"}

@@ -15,3 +15,13 @@ export const addToCart = async (axiosClient, cartData) => {
     throw new Error(error.response?.data?.message || "Failed to add to cart");
   }
 };
+
+export const deleteProductFromCart = async (axiosClient, cartItemId) => {
+  console.log('cartItemId', cartItemId);
+  try {
+    const response = await axiosClient.delete(`user/delete-product-cart/${cartItemId}`);
+    return { data: response.data };
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to delete product from cart");
+  }
+};
