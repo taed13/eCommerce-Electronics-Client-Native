@@ -28,6 +28,7 @@ import { colors } from "../constants/color";
 import { useGetUserAddresses } from "../api/user";
 import { useFetchLatestProducts, useFetchPopularProducts, useFetchSpecialProducts } from "../api/product";
 import { useGetAllBlogs } from "../api/blog";
+import { useGetAllBanners } from "../api/banner";
 
 const HomeScreen = () => {
   const list = [
@@ -123,6 +124,8 @@ const HomeScreen = () => {
       image: "https://m.media-amazon.com/images/I/61JCIqSyWzL._SR1236,1080_.jpg",
     },
   ];
+  const backgroundColors = ["#baddf1", "#ebd2ca", "#c8e5e0", "#eee2d4", "#ebdbdb"];
+
 
   const dispatch = useDispatch();
   const [selectedAddress, setSelectedAdress] = useState("");
@@ -141,14 +144,14 @@ const HomeScreen = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % banners.length;
+        const nextIndex = (prevIndex + 1) % productBanner?.data.length;
         scrollViewRef.current.scrollTo({ x: nextIndex * width, animated: true });
         return nextIndex;
       });
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [banners.length, width]);
+  }, [productBanner?.data, width]);
 
   const getProducts = () => {
     dispatch(getAllProducts());
@@ -162,8 +165,9 @@ const HomeScreen = () => {
   const { data: latestProducts, isLoading: isLoadingLatest } = useFetchLatestProducts();
   const { data: specialProducts, isLoading: isLoadingSpecial } = useFetchSpecialProducts();
   const { data: allBlogs, isLoading: isLoadingAllBlogs } = useGetAllBlogs();
+  const { data: productBanner, isLoading: isLoadingBanner } = useGetAllBanners();
 
-  console.log('allBlogs', allBlogs);
+  // console.log('allBlogs', allBlogs);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -276,7 +280,7 @@ const HomeScreen = () => {
             </ScrollView>
           </>
           {/* Banner Image */}
-          <>
+          {/* <>
             <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 2, marginTop: 15 }} />
             <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} pagingEnabled>
               {banners?.map((item, index) => (
@@ -287,10 +291,62 @@ const HomeScreen = () => {
                 />
               ))}
             </ScrollView>
+          </> */}
+          {/* Product Banner */}
+          <>
+            <ScrollView ref={scrollViewRef} horizontal showsHorizontalScrollIndicator={false} pagingEnabled>
+              {productBanner?.data?.map((item, index) => (
+                <View
+                  style={{
+                    width: Dimensions.get("window").width,
+                    height: 300,
+                    backgroundColor: backgroundColors[index % backgroundColors.length],
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 20,
+                  }}
+                  key={index}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 16, color: "#666", textAlign: "left" }}>
+                      {item?.product?.product_brand?.map((brand) => brand?.title)?.join(" | ")}
+                    </Text>
+                    <Text style={{ fontSize: 30, fontWeight: "bold", color: "#041E42", textAlign: "left", width: 200, marginBottom: 20 }}>
+                      {item?.product?.product_name}
+                    </Text>
+                    <Text style={{ fontSize: 34, fontWeight: "normal", color: "#041E42", textAlign: "left" }}>
+                      {item?.product?.product_after_price?.toLocaleString()}₫
+                    </Text>
+                    {item?.product?.discount && (
+                      <Text style={{ fontSize: 16, color: "#666", textAlign: "left", textDecorationLine: "line-through" }}>
+                        Giá gốc: {item?.product?.product_price?.toLocaleString()}₫
+                      </Text>
+                    )}
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: colors.red,
+                        padding: 10,
+                        borderRadius: 10,
+                        width: 150,
+                        marginTop: 10,
+                      }}
+                      onPress={() => navigation.navigate("Info", { id: item?.product?._id })}
+                    >
+                      <Text style={{ color: "white", textAlign: "center", fontWeight: "bold" }}>Xem chi tiết</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Image
+                    style={{ width: "80%", height: undefined, aspectRatio: 1, resizeMode: "contain", position: 'absolute', right: '-30%' }}
+                    source={{ uri: item?.product.product_images[0]?.url }}
+                  />
+                </View>
+              ))}
+            </ScrollView>
           </>
           {/* Special Products */}
           <>
-            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginBottom: 5 }} />
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Sản phẩm đặc biệt</Text>
             <FlatList
               data={specialProducts?.data?.slice(0, 6)}

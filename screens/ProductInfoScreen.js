@@ -16,10 +16,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AntDesign,
   MaterialCommunityIcons,
-  Ionicons,
   FontAwesome,
-  EvilIcons,
-  Entypo,
   Octicons,
 } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -27,6 +24,7 @@ import RenderHtml from "react-native-render-html";
 
 import Loading from "../components/Loading";
 import ProductReviewForm from "../components/ProductReviewForm";
+import ProductReviewUpdateForm from "../components/ProductReviewUpdateForm";
 
 import { colors } from "../constants/color";
 
@@ -34,8 +32,8 @@ import { useFetchProduct, useFetchProducts, useFetchSpecialProducts } from "../a
 import { useCheckProductInOrder } from "../api/order";
 import { useAddToCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
+import { useEditProductRating } from "../api/product";
 import HeaderSearchInput from "../components/HeaderSearchInput";
-import { fontSize } from "../constants/dimensions";
 
 const ProductInfoScreen = () => {
   const navigation = useNavigation();
@@ -47,6 +45,11 @@ const ProductInfoScreen = () => {
   const [isInOrder, setIsInOrder] = useState(null);
   const [isCheckingOrder, setIsCheckingOrder] = useState(true);
   const [selectedColor, setSelectedColor] = useState(null);
+
+  const [editCommentId, setEditCommentId] = useState(null);
+  const [editComment, setEditComment] = useState("");
+  const [editRating, setEditRating] = useState(0);
+
   const { data: specialProducts, isLoading: isLoadingSpecial } = useFetchSpecialProducts();
 
   const defaultAddress = currentUser?.addresses?.find(
@@ -62,14 +65,10 @@ const ProductInfoScreen = () => {
     useFetchProducts();
   const { fetchCheckProductInOrder } = useCheckProductInOrder();
   const { mutate: addToCart, isLoading: isLoadingAddToCart } = useAddToCart();
+  const { mutate: editRatingProduct, isLoading } = useEditProductRating();
 
   const fetchProductData = async () => {
     await fetchProduct(productId);
-    const allProducts = await fetchProducts();
-    const filteredSpecialProducts = allProducts.filter((item) =>
-      item.product_tags?.some((tag) => tag.name.toLowerCase() === "special")
-    );
-    setSpecialProducts(filteredSpecialProducts.slice(0, 4));
   };
 
   useEffect(() => {
@@ -192,6 +191,30 @@ const ProductInfoScreen = () => {
 
     return { displayPrice, discountText };
   }, [productData]);
+
+  const updateComment = (updatedReview) => {
+    console.log("Updating comment with data:", { star: editRating, comment: editComment });
+
+    editRatingProduct(
+      { productId: productData._id, ratingId: editCommentId, data: { star: editRating, comment: editComment } },
+      {
+        onSuccess: () => {
+          Alert.alert("Thành công", "Đánh giá đã được cập nhật!");
+          setEditCommentId(null);
+          setEditComment("");
+          setEditRating(0);
+          setReviews((prevReviews) =>
+            prevReviews.map((review) =>
+              review._id === editCommentId ? { ...review, ...updatedReview } : review
+            )
+          );
+        },
+        onError: (error) => {
+          Alert.alert("Lỗi", error.message || "Không thể cập nhật đánh giá.");
+        },
+      }
+    );
+  };
 
   return (
     <>
@@ -456,38 +479,58 @@ const ProductInfoScreen = () => {
                 key={`review-${rating?._id || index}`}
                 style={styles.reviewCard}
               >
-                {/* Tên người đăng và số sao */}
-                <View style={styles.reviewHeader}>
-                  <Text style={styles.reviewerName}>
-                    {rating?.postedBy?.name || "Ẩn danh"}
-                  </Text>
-                  <View style={styles.reviewStarsContainer}>
-                    {[...Array(5)].map((_, i) => (
-                      <AntDesign
-                        key={`rating-star-${i}`}
-                        name={i < rating?.star ? "star" : "staro"}
-                        size={18}
-                        color={i < rating?.star ? colors.yellow : "#ddd"}
-                      />
-                    ))}
-                    <Text style={styles.reviewStarCount}>{`${rating?.star} sao`}</Text>
-                  </View>
-                </View>
-                {/* Ngày đăng */}
-                <Text style={styles.reviewDate}>
-                  Đã viết vào{" "}
-                  <Text style={styles.italicText}>
-                    {new Date(rating?.postedAt).toLocaleDateString("vi-VN", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </Text>
-                {/* Nội dung đánh giá */}
-                <Text style={styles.reviewComment}>
-                  {rating?.comment || "Không có nhận xét."}
-                </Text>
+                {editCommentId === rating?._id ? (
+                  <ProductReviewUpdateForm
+                    initialStarRating={editRating}
+                    initialComment={editComment}
+                    onSubmit={updateComment}
+                    onCancel={() => setEditCommentId(null)}
+                  />
+                ) : (
+                  <>
+                    <View style={styles.reviewHeader}>
+                      <Text style={styles.reviewerName}>
+                        {rating?.postedBy?.name || "Ẩn danh"}
+                      </Text>
+                      <View style={styles.reviewStarsContainer}>
+                        {[...Array(5)].map((_, i) => (
+                          <AntDesign
+                            key={`rating-star-${i}`}
+                            name={i < rating?.star ? "star" : "staro"}
+                            size={18}
+                            color={i < rating?.star ? colors.yellow : "#ddd"}
+                          />
+                        ))}
+                        <Text style={styles.reviewStarCount}>{`${rating?.star} sao`}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.reviewDate}>
+                      Đã viết vào{" "}
+                      <Text style={styles.italicText}>
+                        {new Date(rating?.postedAt).toLocaleDateString("vi-VN", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </Text>
+                    </Text>
+                    <Text style={styles.reviewComment}>
+                      {rating?.comment || "Không có nhận xét."}
+                    </Text>
+                    {currentUser?._id === rating?.postedBy?._id && (
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => {
+                          setEditCommentId(rating?._id);
+                          setEditComment(rating.comment);
+                          setEditRating(rating.star);
+                        }}
+                      >
+                        <Text style={styles.editButtonText}>Sửa</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
               </View>
             ))
           ) : (
@@ -846,6 +889,56 @@ const styles = {
     fontSize: 20,
     color: "green",
     fontWeight: "semi-bold",
+  },
+  editButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 5,
+  },
+  editButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  reviewForm: {
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+  },
+  reviewFormTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 5,
+    height: 100,
+    textAlignVertical: "top",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 10,
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+  },
+  updateButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold",
   },
 };
 

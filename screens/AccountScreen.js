@@ -3,9 +3,14 @@ import { Text, View, StyleSheet, Alert, ScrollView } from "react-native";
 import { colors } from "../config/constants";
 import Cell from "../components/Cell";
 import Header from "../components/Header";
-import { useLogout } from "../api/user";
+import { useGetCurrentUser, useLogout } from "../api/user";
+import { useDeleteUser } from "../api/user";
 
 const AccountScreen = ({ navigation }) => {
+    const { data, isLoading, error } = useGetCurrentUser();
+    const { mutate: disableUser, isUserDeleteLoading } = useDeleteUser();
+
+    const currentUser = data?.data;
     const { logout } = useLogout();
 
     const onSignOut = async () => {
@@ -18,8 +23,16 @@ const AccountScreen = ({ navigation }) => {
     };
 
     const deleteAccount = () => {
-        // deleteUser(auth?.currentUser).catch(error => console.log('Error deleting: ', error));
-        // deleteDoc(doc(database, 'users', auth?.currentUser.email));
+        disableUser(currentUser._id);
+        Alert.alert('Vô hiệu hóa tài khoản',
+            'Tài khoản của bạn đã được bị vô hiệu hóa.',
+            [
+                {
+                    text: "OK",
+                    onPress: () => { onSignOut() },
+                },
+            ],
+            { cancelable: false })
     };
 
     return (
@@ -54,16 +67,15 @@ const AccountScreen = ({ navigation }) => {
                 showForwardIcon={false}
             />
             <Cell
-                title='Xóa tài khoản'
+                title='Vô hiệu hóa tài khoản'
                 icon='trash-outline'
                 tintColor={colors.red}
                 onPress={() => {
-                    Alert.alert('Xóa tài khoản',
-                        'Bạn có chắc chắn muốn xóa tài khoản?',
-                        'Tất cả dữ liệu của bạn sẽ bị xóa và không thể khôi phục.',
+                    Alert.alert('Vô hiệu hóa tài khoản',
+                        'Bạn có chắc chắn muốn vô hiệu hóa tài khoản?',
                         [
                             {
-                                text: "Xóa tài khoản",
+                                text: "Vô hiệu hóa tài khoản",
                                 onPress: () => { deleteAccount() },
                             },
                             {
