@@ -4,6 +4,9 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Checkbox } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Swipeable } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
 
 import { CartItem } from "../components/CartItem";
 import Loading from "../components/Loading";
@@ -62,17 +65,55 @@ const CartScreen = () => {
     setSelectAll(!selectAll);
   };
 
+  const handleDeleteItem = (itemId) => {
+    alert("Sản phẩm đã được xóa khỏi giỏ hàng!");
+  };
+
+  const handleClearCart = () => {
+    if (listItems.length === 0) {
+      alert("Giỏ hàng trống, không có sản phẩm để xóa.");
+      return;
+    }
+    setSelectedItems([]);
+    alert("Tất cả sản phẩm trong giỏ hàng đã được xóa!");
+  };
+
+  const renderRightActions = (itemId) => (
+    <Animated.View style={{ backgroundColor: "red", flex: 1 }}>
+      <Pressable
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          width: 80,
+          height: "100%",
+          borderRadius: 8,
+        }}
+        onPress={() => handleRemoveItem(itemId)}
+      >
+        <AntDesign name="delete" size={24} color="white" />
+        <Text style={{ color: "white", fontWeight: "bold" }}>Xóa</Text>
+      </Pressable>
+    </Animated.View>
+  );
+
   const renderCartList = useMemo(() => {
     if (listItems.length > 0) {
       return (
         <View style={CartListStyle.orderList}>
           {listItems.map((item) => (
-            <CartItem
-              key={item._id}
-              item={item}
-              isChecked={selectedItems.includes(item._id)}
-              onToggleCheckbox={() => handleSelectItem(item._id)}
-            />
+            <GestureHandlerRootView key={item._id}>
+              <Swipeable
+                renderRightActions={() => renderRightActions(item._id)}
+                overshootRight={false}
+              >
+                <CartItem
+                  item={item}
+                  isChecked={selectedItems.includes(item._id)}
+                  onToggleCheckbox={() => handleSelectItem(item._id)}
+                  onDelete={(itemId) => handleDeleteItem(itemId)}
+                />
+              </Swipeable>
+            </GestureHandlerRootView>
           ))}
         </View>
       );
@@ -112,7 +153,6 @@ const CartScreen = () => {
     <>
       <View style={[WrapperContentStyle(insets.bottom, insets.top).content]}>
         <View style={{ backgroundColor: "#131921", padding: 10, flexDirection: "row", alignItems: "center" }}>
-
           <Pressable style={{ flexDirection: "row", alignItems: "center", backgroundColor: "white", borderRadius: 50, height: 40, flex: 1, paddingHorizontal: 10, }} onPress={() => { inputRef.current.focus(); }}>
             <AntDesign style={{ paddingRight: 5, }} name="search1" size={20} color="black" />
             <TextInput
@@ -170,6 +210,25 @@ const CartScreen = () => {
         >
           <Text style={{ fontSize: 15, color: 'white', fontWeight: '700' }}>{`Tiến hành đặt hàng (${selectedItems.length}) sản phẩm`}</Text>
         </TouchableOpacity>
+        {selectAll && selectedItems.length > 0 && (
+          <TouchableOpacity
+            onPress={handleClearCart}
+            style={{
+              backgroundColor: "red",
+              paddingVertical: 16,
+              borderRadius: 12,
+              justifyContent: "center",
+              alignItems: "center",
+              marginHorizontal: 10,
+              marginTop: 10,
+            }}
+          >
+            <Text style={{ fontSize: 15, color: 'white', fontWeight: '700' }}>
+              Xóa tất cả sản phẩm
+            </Text>
+          </TouchableOpacity>
+        )}
+
 
         <AddressBottomModal
           modalVisible={modalVisible}

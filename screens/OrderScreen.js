@@ -1,23 +1,50 @@
-import { View, ScrollView, StyleSheet, Text, Pressable, Image, SafeAreaView, Platform } from "react-native";
+import { View, ScrollView, StyleSheet, Text, Pressable, Image, SafeAreaView, Platform, Alert } from "react-native";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderSearchInput from "../components/HeaderSearchInput";
 import Loading from "../components/Loading";
-import { useGetOrderById } from "../api/order";
+import { useGetOrderById, useCancelOrder } from "../api/order";
 import Separator from "../components/Separator";
 
-const OrderScreen = ({ route }) => {
+const OrderScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
   const { orderId } = route.params;
 
   const { data: orderData, isLoading, error } = useGetOrderById(orderId);
+  const { mutate: cancelOrder, isLoading: isCancelling } = useCancelOrder();
 
   if (isLoading) return <Loading />;
   if (error) return <Text style={styles.noOrdersText}>Failed to fetch order details!</Text>;
 
   const order = orderData?.data;
 
-  console.log('order', order);
+  const isCancellable =
+    order?.order_status?.toLowerCase() !== "cancelled" &&
+    order?.order_status?.toLowerCase() !== "delivered";
+
+  const handleCancelOrder = () => {
+    Alert.alert(
+      "Xác nhận huỷ đơn hàng",
+      "Bạn có chắc chắn muốn huỷ đơn hàng này?",
+      [
+        { text: "Không", style: "cancel" },
+        {
+          text: "Có",
+          onPress: () => {
+            cancelOrder(orderId, {
+              onSuccess: () => {
+                Alert.alert("Thành công", "Đơn hàng đã được huỷ thành công!");
+                navigation.goBack();
+              },
+              onError: (err) => {
+                Alert.alert("Lỗi", err.message || "Không thể huỷ đơn hàng.");
+              },
+            });
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white", marginTop: Platform.OS === "android" ? 40 : 0 }}>
@@ -45,11 +72,20 @@ const OrderScreen = ({ route }) => {
           </View>
 
           {/* Cancel button */}
-          <View style={styles.cancelContainer}>
-            <Pressable style={styles.cancelButton}>
-              <Text style={styles.cancelText}>Huỷ đơn hàng</Text>
-            </Pressable>
-          </View>
+          {/* Hiển thị nút "Huỷ đơn hàng" nếu trạng thái cho phép */}
+          {isCancellable && (
+            <View style={styles.cancelContainer}>
+              <Pressable
+                style={styles.cancelButton}
+                onPress={handleCancelOrder}
+                disabled={isCancelling}
+              >
+                <Text style={styles.cancelText}>
+                  {isCancelling ? "Đang huỷ..." : "Huỷ đơn hàng"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         <View>
@@ -85,7 +121,7 @@ const OrderScreen = ({ route }) => {
                           key={idx}
                           style={[
                             styles.colorBox,
-                            { backgroundColor: color?.code || "#ccc" }, // Use color code for background
+                            { backgroundColor: color?.code || "#ccc" },
                           ]}
                         />
                       ))}

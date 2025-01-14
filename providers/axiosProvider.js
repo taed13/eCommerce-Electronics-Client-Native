@@ -8,7 +8,8 @@ import { useNavigation } from "@react-navigation/native";
 const AxiosContext = createContext(null);
 
 const AxiosProvider = ({ children }) => {
-  const navigate = useNavigation();
+  const navigation = useNavigation();
+
   const [axiosClient] = useState(() =>
     axios.create({
       baseURL: APP_CONFIG.BASE_URL,
@@ -18,6 +19,24 @@ const AxiosProvider = ({ children }) => {
       timeout: 60 * 1000,
     })
   );
+
+  const refreshTokenRequest = async () => {
+    try {
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      if (!refreshToken) throw new Error("No refresh token found");
+
+      const response = await axios.post(`${APP_CONFIG.BASE_URL}/user/refresh-token`, {
+        refreshToken,
+      });
+
+      const { accessToken } = response.data;
+      await AsyncStorage.setItem("authToken", accessToken);
+      return accessToken;
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const requestInterceptor = axiosClient.interceptors.request.use(
@@ -38,14 +57,22 @@ const AxiosProvider = ({ children }) => {
     const responseInterceptor = axiosClient.interceptors.response.use(
       (response) => response,
       async (error) => {
+        const originalRequest = error.config;
         const statusCode = error?.response?.status;
-        if (statusCode === 401) {
-          try {
+
+        if (statusCode === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          const newAccessToken = await refreshTokenRequest();
+
+          if (newAccessToken) {
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            return axiosClient(originalRequest);
+          } else {
             await AsyncStorage.removeItem("authToken");
-            navigate.navigate("Login");
-            // show toast error ("Session expired !!!!")
-          } catch (removeError) {
-            console.error("Failed to remove token:", removeError);
+            await AsyncStorage.removeItem("refreshToken");
+            navigation.navigate("Login");
+            return Promise.reject(new Error("Session expired. Please login again."));
           }
         }
 
@@ -57,7 +84,7 @@ const AxiosProvider = ({ children }) => {
       axiosClient.interceptors.request.eject(requestInterceptor);
       axiosClient.interceptors.response.eject(responseInterceptor);
     };
-  }, [axiosClient]);
+  }, [axiosClient, navigation]);
 
   return <AxiosContext.Provider value={{ axiosClient }}>{children}</AxiosContext.Provider>;
 };

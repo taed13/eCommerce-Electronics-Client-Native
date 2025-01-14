@@ -20,10 +20,6 @@ const ProductListScreen = () => {
   const finalData = useMemo(() => {
     if (!data) return [];
 
-    if (!filterValues.brand && !filterValues.category && !filterValues.tag && !filterValues.color && !filterValues.priceRange) {
-      return data;
-    }
-
     const result = [];
     const addedIds = new Set();
 
@@ -51,13 +47,12 @@ const ProductListScreen = () => {
           isPriceValid = true;
       }
 
-      if (
-        isPriceValid &&
-        (!filterValues.brand || item.product_brand[0]._id === filterValues.brand) &&
-        (!filterValues.category || item.product_category[0]._id === filterValues.category) &&
-        (!filterValues.tag || item.product_tags.some(tag => tag._id === filterValues.tag)) &&
-        (!filterValues.color || item.product_color.some(color => color._id === filterValues.color))
-      ) {
+      const isBrandValid = filterValues.brand.length === 0 || filterValues.brand.includes(item.product_brand[0]._id);
+      const isCategoryValid = filterValues.category.length === 0 || filterValues.category.includes(item.product_category[0]._id);
+      const isTagValid = filterValues.tag.length === 0 || item.product_tags.some(tag => filterValues.tag.includes(tag._id));
+      const isColorValid = filterValues.color.length === 0 || item.product_color.some(color => filterValues.color.includes(color._id));
+
+      if (isPriceValid && isBrandValid && isCategoryValid && isTagValid && isColorValid) {
         if (!addedIds.has(item._id)) {
           result.push(item);
           addedIds.add(item._id);
@@ -83,14 +78,21 @@ const ProductListScreen = () => {
   };
 
   const handlePressBrand = useCallback((item, key) => {
-    setFilterValues((pre) => {
-      if (pre[key] === item._id) {
+    setFilterValues((prev) => {
+      const selected = prev[key];
+      const isSelected = selected.includes(item._id);
+
+      if (isSelected) {
         return {
-          ...pre,
-          [key]: undefined,
+          ...prev,
+          [key]: selected.filter((id) => id !== item._id),
         };
       }
-      return { ...pre, [key]: item._id };
+
+      return {
+        ...prev,
+        [key]: [...selected, item._id],
+      };
     });
   }, []);
 
@@ -150,20 +152,20 @@ const ProductListScreen = () => {
         <View>
           <Text style={BottomSheetStyle.label}>Hãng</Text>
           <View style={BottomSheetStyle.brand}>
-            {dataUnique.brands.map((item, index) => {
-              return (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handlePressBrand(item, "brand")}
-                  style={[
-                    BottomSheetStyle.btnBrand,
-                    filterValues.brand === item._id && BottomSheetStyle.btnBrandActive,
-                  ]}
-                >
-                  <Text style={[filterValues.brand === item._id && BottomSheetStyle.btnTextActive]}>{item.title}</Text>
-                </TouchableOpacity>
-              );
-            })}
+            {dataUnique.brands.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handlePressBrand(item, "brand")}
+                style={[
+                  BottomSheetStyle.btnBrand,
+                  filterValues.brand.includes(item._id) && BottomSheetStyle.btnBrandActive,
+                ]}
+              >
+                <Text style={[filterValues.brand.includes(item._id) && BottomSheetStyle.btnTextActive]}>
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
         <View>
@@ -237,7 +239,7 @@ const ProductListScreen = () => {
               <MaterialCommunityIcons name="flask-empty-remove-outline" size={48} color="black" />
               <Text>Không có sản phẩm phù hợp với bộ lọc</Text>
               <TouchableOpacity style={ProductListScreenStyle.btnReset} onPress={handleReset}>
-                <Text>Reset filter</Text>
+                <Text>Xoá bộ lọc</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -253,10 +255,10 @@ const ProductListScreen = () => {
               <View>{renderBrand}</View>
               <View style={BottomSheetStyle.btnActionWrapper}>
                 <TouchableOpacity style={[BottomSheetStyle.btnAction]} onPress={handleReset}>
-                  <Text style={[BottomSheetStyle.btnActionText]}>Reset</Text>
+                  <Text style={[BottomSheetStyle.btnActionText]}>Xoá bộ lọc</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[BottomSheetStyle.btnAction, BottomSheetStyle.btnApply]} onPress={handleApply}>
-                  <Text style={[BottomSheetStyle.btnActionText, BottomSheetStyle.btnApplyText]}>Apply filter</Text>
+                  <Text style={[BottomSheetStyle.btnActionText, BottomSheetStyle.btnApplyText]}>Áp dụng bộ lọc</Text>
                 </TouchableOpacity>
               </View>
             </View>

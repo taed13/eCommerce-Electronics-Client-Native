@@ -1,7 +1,7 @@
-export const DEFAULT_VALUE_FILTER = {
-  brand: undefined,
-  tag: undefined,
-  color: undefined,
-  category: undefined,
-  priceRange: undefined,
-};
+const [filterValues, setFilterValues] = useState({
+  brand: [],
+  category: [],
+  tag: [],
+  color: [],
+  priceRange: "",
+});
