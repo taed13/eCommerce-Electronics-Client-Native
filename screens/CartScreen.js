@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
+import { Text, View, ScrollView, Pressable, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Checkbox } from "react-native-paper";
@@ -13,10 +13,10 @@ import Loading from "../components/Loading";
 
 import { colors } from "../config/constants";
 
-import { useGetMyCart } from "../api/cart";
+import { useGetMyCart, useDeleteProductFromCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
 import AddressBottomModal from "../components/AddressBottomModal";
-import { TouchableOpacity } from "react-native";
+import Toast from "react-native-toast-message";
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -24,6 +24,7 @@ const CartScreen = () => {
 
   const { data, isLoading, refetch, error } = useGetMyCart();
   const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUserData } = useGetCurrentUser();
+  const { mutate: deleteProductFromCart, isLoading: isDeleting } = useDeleteProductFromCart();
 
   const defaultAddress =
     currentUserData?.data?.addresses?.find((address) => address.default === true) || undefined;
@@ -66,7 +67,39 @@ const CartScreen = () => {
   };
 
   const handleDeleteItem = (itemId) => {
-    alert("Sản phẩm đã được xóa khỏi giỏ hàng!");
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?",
+      [
+        { text: "Không", style: "cancel" },
+        {
+          text: "Có",
+          onPress: () => {
+            deleteProductFromCart(
+              itemId,
+              {
+                onSuccess: () => {
+                  Toast.show({
+                    type: "success",
+                    text1: "Thành công",
+                    text2: "Sản phẩm khỏi giỏ hàng!",
+                  })
+                  refetch();
+                },
+                onError: (error) => {
+                  Toast.show({
+                    type: "error",
+                    text1: "Lỗi",
+                    text2: error.message,
+                  })
+                  refetch();
+                },
+              }
+            );
+          },
+        },
+      ]
+    );
   };
 
   const handleClearCart = () => {
@@ -110,7 +143,9 @@ const CartScreen = () => {
                   item={item}
                   isChecked={selectedItems.includes(item._id)}
                   onToggleCheckbox={() => handleSelectItem(item._id)}
-                  onDelete={(itemId) => handleDeleteItem(itemId)}
+                  onDelete={() => {
+                    handleDeleteItem(item._id);
+                  }}
                 />
               </Swipeable>
             </GestureHandlerRootView>

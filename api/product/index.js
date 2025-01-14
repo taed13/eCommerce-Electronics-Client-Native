@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { getAllProduct, getLatestProducts, getPopularProducts, getProduct, getProducts, getSpecialProducts } from "./product.api";
+import { getAllProduct, getLatestProducts, getPopularProducts, getProduct, getProducts, getSpecialProducts, updateProductRating } from "./product.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "../../config/common";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MUTAION_KEYS, QUERY_KEYS } from "../../config/common";
 
 export const useFetchProduct = () => {
   const axiosClient = useAxiosClient();
@@ -87,5 +87,23 @@ export const useFetchSpecialProducts = () => {
     queryKey: [QUERY_KEYS.GET_SPECIAL_PRODUCTS],
     queryFn: () => getSpecialProducts(axiosClient),
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useEditProductRating = () => {
+  const axiosClient = useAxiosClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.UPDATE_PRODUCT_RATING],
+    mutationFn: ({ productId, ratingId, data }) =>
+      updateProductRating(axiosClient, { productId, ratingId, data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEYS.GET_POPULAR_PRODUCTS]);
+      queryClient.invalidateQueries([QUERY_KEYS.GET_LATEST_PRODUCTS]);
+    },
+    onError: (error) => {
+      console.error("Error updating product rating:", error.message);
+    },
   });
 };

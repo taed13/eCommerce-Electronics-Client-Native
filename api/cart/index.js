@@ -1,6 +1,6 @@
 import { useAxiosClient } from "../../providers/axiosProvider";
-import { addToCart, getMyCart } from "./cart.api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { addToCart, deleteProductFromCart, getMyCart } from "./cart.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS, MUTAION_KEYS } from "../../config/common";
 
 export const useGetMyCart = () => {
@@ -25,3 +25,19 @@ export const useAddToCart = () => {
     },
   });
 };
+
+export const useDeleteProductFromCart = () => {
+  const axiosClient = useAxiosClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.DELETE_PRODUCT_FROM_CART],
+    mutationFn: (cartItemId) => deleteProductFromCart(axiosClient, cartItemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEYS.GET_CART]);
+    },
+    onError: (error) => {
+      console.error("Error removing product from cart:", error.message);
+    },
+  });
+}

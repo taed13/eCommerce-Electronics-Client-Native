@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getMyOrder, checkProductInOrder, getOrderById, cancelOrder } from "./order.api";
+import { getMyOrder, checkProductInOrder, getOrderById, cancelOrder, reorderOrder } from "./order.api";
 import { useAxiosClient } from "../../providers/axiosProvider";
 import { MUTAION_KEYS, QUERY_KEYS } from "../../config/common";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,9 +60,27 @@ export const useCancelOrder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries([QUERY_KEYS.GET_MY_ORDER]);
       queryClient.invalidateQueries([QUERY_KEYS.GET_ORDER_BY_ID]);
+      queryClient.invalidateQueries([QUERY_KEYS.GET_CART]);
     },
     onError: (error) => {
       console.error("Error cancelling order:", error.message);
+    },
+  });
+};
+
+export const useReorderOrder = () => {
+  const axiosClient = useAxiosClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: [MUTAION_KEYS.REORDER_ORDER],
+    mutationFn: (orderId) => reorderOrder(axiosClient, orderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries([QUERY_KEYS.GET_CART]);
+      queryClient.invalidateQueries([QUERY_KEYS.GET_MY_ORDER]);
+    },
+    onError: (error) => {
+      console.error("Error reordering order:", error.message);
     },
   });
 };

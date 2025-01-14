@@ -74,3 +74,19 @@ export const getSpecialProducts = async (axiosClient = useAxiosClient()) => {
     return { error: error.message || "Failed to get special products" };
   }
 };
+
+export const updateProductRating = async (axiosClient, { productId, ratingId, data }) => {
+  try {
+    const response = await axiosClient.patch(
+      `product/products/${productId}/ratings/${ratingId}`,
+      data
+    );
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error(error.message || "Failed to update product rating");
+  }
+};
+

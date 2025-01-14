@@ -3,8 +3,9 @@ import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderSearchInput from "../components/HeaderSearchInput";
 import Loading from "../components/Loading";
-import { useGetOrderById, useCancelOrder } from "../api/order";
+import { useGetOrderById, useCancelOrder, useReorderOrder } from "../api/order";
 import Separator from "../components/Separator";
+import Toast from "react-native-toast-message";
 
 const OrderScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -12,6 +13,7 @@ const OrderScreen = ({ route, navigation }) => {
 
   const { data: orderData, isLoading, error } = useGetOrderById(orderId);
   const { mutate: cancelOrder, isLoading: isCancelling } = useCancelOrder();
+  const { mutate: reorder, isLoading: isReordering } = useReorderOrder();
 
   if (isLoading) return <Loading />;
   if (error) return <Text style={styles.noOrdersText}>Failed to fetch order details!</Text>;
@@ -21,6 +23,10 @@ const OrderScreen = ({ route, navigation }) => {
   const isCancellable =
     order?.order_status?.toLowerCase() !== "cancelled" &&
     order?.order_status?.toLowerCase() !== "delivered";
+
+  const isReorderable = ["shipped", "delivered", "cancelled"].includes(
+    order?.order_status?.toLowerCase()
+  );
 
   const handleCancelOrder = () => {
     Alert.alert(
@@ -44,6 +50,30 @@ const OrderScreen = ({ route, navigation }) => {
         },
       ]
     );
+  };
+
+  const handleReorder = () => {
+    Alert.alert("Xác nhận mua lại", "Bạn có chắc chắn muốn đặt lại đơn hàng này?", [
+      { text: "Không", style: "cancel" },
+      {
+        text: "Có",
+        onPress: () => {
+          reorder(orderId, {
+            onSuccess: () => {
+              Toast.show({
+                type: "success",
+                text1: "Thành công",
+                text2: "Sản phẩm được thêm lại vào giỏ hàng!",
+              })
+              navigation.navigate("Cart");
+            },
+            onError: (err) => {
+              Alert.alert("Lỗi", err.message || "Không thể thêm lại sản phẩm.");
+            },
+          });
+        },
+      },
+    ]);
   };
 
   return (
@@ -82,6 +112,21 @@ const OrderScreen = ({ route, navigation }) => {
               >
                 <Text style={styles.cancelText}>
                   {isCancelling ? "Đang huỷ..." : "Huỷ đơn hàng"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* Reorder button */}
+          {isReorderable && (
+            <View style={styles.reorderContainer}>
+              <Pressable
+                style={styles.reorderButton}
+                onPress={handleReorder}
+                disabled={isReordering}
+              >
+                <Text style={styles.reorderText}>
+                  {isReordering ? "Đang thêm lại..." : "Mua lại đơn hàng"}
                 </Text>
               </Pressable>
             </View>
@@ -465,5 +510,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#d9534f",
+  },
+  reorderContainer: {
+    marginTop: 16,
+    alignItems: "flex-end",
+  },
+  reorderButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#008E97",
+    borderRadius: 4,
+  },
+  reorderText: {
+    color: "white",
+    fontWeight: "600",
   },
 });

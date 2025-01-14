@@ -54,3 +54,19 @@ export const cancelOrder = async (axiosClient, orderId) => {
     return { error: error.message || "Failed to cancel order" };
   }
 };
+
+export const reorderOrder = async (axiosClient, orderId) => {
+  if (!orderId) {
+    return { error: "Order ID is required" };
+  }
+
+  try {
+    const response = await axiosClient.post(`order/reorder/${orderId}`);
+    return { data: response.data };
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      return { error: error.response.data.message };
+    }
+    return { error: error.message || "Failed to reorder order" };
+  }
+};
