@@ -1,7 +1,7 @@
-const [filterValues, setFilterValues] = useState({
+export const DEFAULT_VALUE_FILTER = {
   brand: [],
   category: [],
   tag: [],
   color: [],
   priceRange: "",
-});
+};
