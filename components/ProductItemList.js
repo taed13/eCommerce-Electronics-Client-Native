@@ -8,11 +8,13 @@ import SoldOut from "../assets/sold-out-png-4.png";
 const ProductItemList = ({ item }) => {
   const navigation = useNavigation();
 
-  const discountLabel = item.product_after_price
+  const discountLabel = item.discount
     ? item.discount.discount_type === "percentage"
       ? `-${item.discount.discount_value}%`
       : `-${item.discount.discount_value.toLocaleString()}₫`
     : null;
+
+  const displayPrice = item.discount ? item.product_after_price : item.product_price;
 
   return (
     <TouchableOpacity
@@ -48,13 +50,13 @@ const ProductItemList = ({ item }) => {
                 Đã bán {item?.product_sold}
               </Text>}
           </View>
-          {item.product_after_price ? (
+          {item.discount ? (
             <View style={ProductItemListStyle.priceContainer}>
-              <Text style={ProductItemListStyle.newPrice}>{item.product_after_price.toLocaleString()}₫</Text>
+              <Text style={ProductItemListStyle.newPrice}>{displayPrice.toLocaleString()}₫</Text>
               <Text style={ProductItemListStyle.originalPrice}>Giá gốc: {item.product_price.toLocaleString()}₫</Text>
             </View>
           ) : (
-            <Text style={[ProductItemListStyle.price]}>{item.product_price.toLocaleString()}₫</Text>
+            <Text style={[ProductItemListStyle.price]}>{displayPrice.toLocaleString()}₫</Text>
           )}
         </View>
         {item.product_quantity === 0 && (

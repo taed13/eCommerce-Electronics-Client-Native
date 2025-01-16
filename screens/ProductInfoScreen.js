@@ -28,11 +28,10 @@ import ProductReviewUpdateForm from "../components/ProductReviewUpdateForm";
 
 import { colors } from "../constants/color";
 
-import { useFetchProduct, useFetchProducts, useFetchSpecialProducts } from "../api/product";
+import { useFetchProduct, useFetchProducts, useFetchSpecialProducts, useEditProductRating } from "../api/product";
 import { useCheckProductInOrder } from "../api/order";
 import { useAddToCart } from "../api/cart";
 import { useGetCurrentUser } from "../api/user";
-import { useEditProductRating } from "../api/product";
 import HeaderSearchInput from "../components/HeaderSearchInput";
 
 const ProductInfoScreen = () => {
@@ -196,13 +195,14 @@ const ProductInfoScreen = () => {
     console.log("Updating comment with data:", { star: editRating, comment: editComment });
 
     editRatingProduct(
-      { productId: productData._id, ratingId: editCommentId, data: { star: editRating, comment: editComment } },
+      { productId: productData._id, ratingId: editCommentId, data: updatedReview },
       {
         onSuccess: () => {
           Alert.alert("Thành công", "Đánh giá đã được cập nhật!");
           setEditCommentId(null);
           setEditComment("");
           setEditRating(0);
+          fetchProductData();
           setReviews((prevReviews) =>
             prevReviews.map((review) =>
               review._id === editCommentId ? { ...review, ...updatedReview } : review
@@ -481,6 +481,7 @@ const ProductInfoScreen = () => {
               >
                 {editCommentId === rating?._id ? (
                   <ProductReviewUpdateForm
+                    key={editCommentId}
                     initialStarRating={editRating}
                     initialComment={editComment}
                     onSubmit={updateComment}

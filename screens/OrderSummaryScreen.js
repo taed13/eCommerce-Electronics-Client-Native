@@ -23,10 +23,12 @@ import AddressBottomModal from "../components/AddressBottomModal";
 import { UserType } from "../UserContext";
 import { useGetUserAddresses } from "../api/user";
 
+const FREE_SHIPPING_THRESHOLD = 9990000;
+
 const OrderSummaryScreen = ({ route }) => {
   const { cartData } = route.params;
-  // const { userAsyncStore } = useUserAsyncStore();
-  // console.log({ userAsyncStore });
+  console.log('cartData', cartData)
+
   const currentUser = useSelector((state) => state.user.currentUser);
   const { userId, setUserId } = useContext(UserType);
   const { data: addresses, refetch } = useGetUserAddresses(userId);
@@ -42,6 +44,8 @@ const OrderSummaryScreen = ({ route }) => {
   const { apply, isLoading: isApplying } = useApplyDiscount();
   const { calculate } = useCalculateShippingFee();
 
+  const { mutate: calculateFee, isLoading: isCalculatingShippingFee, error: shippingError } = useCalculateShippingFee();
+
   const [isOpenPayment, setIsOpenPayment] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
@@ -53,18 +57,18 @@ const OrderSummaryScreen = ({ route }) => {
 
   const myAddress = currentUser ? currentUser.addresses.filter((item) => item.default === true) : undefined;
 
-  useEffect(() => {
-    if (myAddress?.[0] && calculatedAddress.current !== myAddress[0]) {
-      handleCalculateShippingFee();
-      calculatedAddress.current = myAddress[0];
-    }
-  }, [myAddress]);
+  // useEffect(() => {
+  //   if (myAddress?.[0] && calculatedAddress.current !== myAddress[0]) {
+  //     handleCalculateShippingFee();
+  //     calculatedAddress.current = myAddress[0];
+  //   }
+  // }, [myAddress]);
 
-  useEffect(() => {
-    if (myAddress?.[0] && !shippingFee) {
-      handleCalculateShippingFee();
-    }
-  }, [myAddress, shippingFee]);
+  // useEffect(() => {
+  //   if (myAddress?.[0] && !shippingFee) {
+  //     handleCalculateShippingFee();
+  //   }
+  // }, [myAddress, shippingFee]);
 
   const {
     mutate: mutateCreateOrder,
@@ -127,31 +131,66 @@ const OrderSummaryScreen = ({ route }) => {
     }
   };
 
-  const handleCalculateShippingFee = useCallback(async () => {
-    if (!myAddress?.[0]) {
+  // const handleCalculateShippingFee = useCallback(async () => {
+  //   if (!myAddress?.[0]) {
+  //     alert("Vui lòng chọn địa chỉ giao hàng.");
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     provinceName: myAddress[0].province.name,
+  //     districtName: myAddress[0].district.full_name,
+  //     wardName: myAddress[0].ward.full_name,
+  //   };
+
+  //   try {
+  //     const result = await calculate(payload);
+
+  //     if (result?.data?.total) {
+  //       setShippingFee(result.data.total);
+  //     } else {
+  //       setShippingFee(0);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error calculating shipping fee:", err);
+  //     alert("Lỗi khi tính phí vận chuyển. Vui lòng thử lại!");
+  //   }
+  // }, [myAddress]);
+
+  useEffect(() => {
+    if (total >= FREE_SHIPPING_THRESHOLD) {
+      setShippingFee(0);
+    } else if (defaultAddress && calculatedAddress.current !== defaultAddress) {
+      handleCalculateShippingFee();
+      calculatedAddress.current = defaultAddress;
+    }
+  }, [total, defaultAddress]);
+
+  const handleCalculateShippingFee = useCallback(() => {
+    if (!defaultAddress) {
       alert("Vui lòng chọn địa chỉ giao hàng.");
       return;
     }
 
     const payload = {
-      provinceName: myAddress[0].province.name,
-      districtName: myAddress[0].district.full_name,
-      wardName: myAddress[0].ward.full_name,
+      provinceName: defaultAddress.province.name,
+      districtName: defaultAddress.district.full_name,
+      wardName: defaultAddress.ward.full_name,
     };
 
-    try {
-      const result = await calculate(payload);
-
-      if (result?.data?.total) {
-        setShippingFee(result.data.total);
-      } else {
+    calculateFee(payload, {
+      onSuccess: (data) => {
+        setShippingFee(data.data.total || 0);
+      },
+      onError: (err) => {
+        console.error("Error calculating shipping fee:", err);
+        alert("Lỗi khi tính phí vận chuyển. Vui lòng thử lại!");
         setShippingFee(0);
-      }
-    } catch (err) {
-      console.error("Error calculating shipping fee:", err);
-      alert("Lỗi khi tính phí vận chuyển. Vui lòng thử lại!");
-    }
-  }, [myAddress]);
+      },
+    });
+  }, [defaultAddress]);
+
+  const totalAfterDiscount = appliedDiscount ? appliedDiscount.total : total;
 
   const hanldeCheckout = async () => {
     const prepareOrderData = {
@@ -165,16 +204,32 @@ const OrderSummaryScreen = ({ route }) => {
       },
       checkoutInfo: {
         totalPrice: total + shippingFee,
-        totalPriceAfterDiscount: appliedDiscount ? appliedDiscount.total : total,
+        totalPriceAfterDiscount: totalAfterDiscount + shippingFee,
         feeShip: shippingFee,
-        discountApplied: appliedDiscount ? appliedDiscount.discountAmount : 0,
+        discountApplied: appliedDiscount?.discountAmount || 0,
       },
       estimatedDeliveryDate: new Date(),
       // order_status: "Ordered",
       trackingNumber: `TRK${Math.floor(Math.random() * 1000000)}`,
     };
 
-    await mutateCreateOrder(prepareOrderData);
+    mutateCreateOrder(prepareOrderData, {
+      onSuccess: (data) => {
+        console.log("Order created successfully:", data);
+        Toast.show({
+          type: "success",
+          text1: "Đặt hàng thành công",
+          text2: "Bạn sẽ được chuyển đến trang thanh toán.",
+        });
+      },
+      onError: (error) => {
+        Toast.show({
+          type: "error",
+          text1: "Lỗi đặt hàng",
+          text2: error?.response?.data?.message || "Có lỗi xảy ra khi đặt hàng.",
+        });
+      },
+    });
   };
 
   const hanldeClose = () => {
@@ -267,7 +322,11 @@ const OrderSummaryScreen = ({ route }) => {
 
               <View style={OrderSummaryScreenStyle.summaryItem}>
                 <Text style={OrderSummaryScreenStyle.label}>Phí vận chuyển: </Text>
-                <Text>₫{shippingFee.toLocaleString()}</Text>
+                {isCalculatingShippingFee ? (
+                  <Text>Đang tính...</Text>
+                ) : (
+                  <Text>₫{shippingFee.toLocaleString()}</Text>
+                )}
               </View>
 
               <View style={OrderSummaryScreenStyle.summaryItem}>
