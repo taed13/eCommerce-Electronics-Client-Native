@@ -15,6 +15,9 @@ import { LogBox } from "react-native";
 LogBox.ignoreLogs([
   'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation',
   'IMGElement: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.',
+  'TNodeChildrenRenderer: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.',
+  'MemoizedTNodeRenderer: Support for defaultProps will be removed from memo components in a future major release. Use JavaScript default parameters instead.',
+  'TRenderEngineProvider: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.',
 ]);
 
 const queryClient = new QueryClient();
