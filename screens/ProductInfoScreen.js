@@ -365,13 +365,27 @@ const ProductInfoScreen = () => {
 
           <View style={[styles.productColorRow, { marginVertical: 10 }]}>
             <Text style={styles.productInfoLabel}>Số lượng: </Text>
-            <TextInput
-              style={styles.quantityInput}
-              value={quantity.toString()}
-              onChangeText={handleQuantityChange}
-              keyboardType="numeric"
-              maxLength={productData?.product_quantity}
-            />
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={() => setQuantity((prev) => Math.max(prev - 1, 1))}
+              >
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <TextInput
+                style={styles.quantityInput}
+                value={quantity.toString()}
+                onChangeText={handleQuantityChange}
+                keyboardType="numeric"
+                maxLength={productData?.product_quantity}
+              />
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={() => setQuantity((prev) => Math.min(prev + 1, productData?.product_quantity))}
+              >
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.shippingInfoContainer}>
@@ -940,6 +954,33 @@ const styles = {
     color: "white",
     textAlign: "center",
     fontWeight: "bold",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  quantityButton: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  quantityInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 5,
+    borderRadius: 5,
+    height: 40,
+    width: 70,
+    fontSize: 18,
+    textAlign: "center",
+    marginHorizontal: 10,
   },
 };
 

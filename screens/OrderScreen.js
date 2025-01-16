@@ -176,11 +176,6 @@ const OrderScreen = ({ route, navigation }) => {
               </View>
             ))}
           </View>
-
-
-          <Pressable style={styles.trackButton}>
-            <Text style={styles.trackButtonText}>Theo dõi lô hàng</Text>
-          </Pressable>
         </View>
 
         <View><Text style={styles.paymentInfoMation}>Thông tin thanh toán</Text></View>
