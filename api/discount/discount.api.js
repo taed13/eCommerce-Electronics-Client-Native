@@ -15,7 +15,7 @@ export const applyDiscount = async (axiosClient = useAxiosClient(), data) => {
 export const calculateShippingFee = async (axiosClient = useAxiosClient(), data) => {
     try {
         const response = await axiosClient.post("discount/shipping/calculate", data);
-        return { data: response.data };
+        return { data: response.data.data };
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
             return { error: error.response.data.message };

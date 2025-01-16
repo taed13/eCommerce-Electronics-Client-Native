@@ -167,8 +167,6 @@ const HomeScreen = () => {
   const { data: allBlogs, isLoading: isLoadingAllBlogs } = useGetAllBlogs();
   const { data: productBanner, isLoading: isLoadingBanner } = useGetAllBanners();
 
-  // console.log('allBlogs', allBlogs);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -270,7 +268,11 @@ const HomeScreen = () => {
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {list.map((item, index) => (
-                <TouchableOpacity key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity
+                  key={index}
+                  style={{ margin: 10, justifyContent: "center", alignItems: "center" }}
+                  onPress={() => navigation.navigate("ProductList", { categoryName: item.name })}
+                >
                   <Image style={{ width: 70, height: 80, resizeMode: "contain" }} source={{ uri: item.image }} />
                   <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "500", marginTop: 3 }}>
                     {item?.name}
@@ -483,7 +485,15 @@ const HomeScreen = () => {
             <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>Từ các thương hiệu hàng đầu</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {brands.map((brand, index) => (
-                <TouchableOpacity key={index} style={{ margin: 10, justifyContent: "center", alignItems: "center" }}>
+                <TouchableOpacity
+                  key={index}
+                  style={{ margin: 10, justifyContent: "center", alignItems: "center" }}
+                  onPress={() =>
+                    navigation.navigate("ProductList", {
+                      brandName: brand.name,
+                    })
+                  }
+                >
                   <Image style={{ width: 90, height: 90, resizeMode: "contain" }} source={{ uri: brand.image }} />
                   <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "500", marginTop: 3 }}>
                     {brand.name}
@@ -556,6 +566,11 @@ const HomeScreen = () => {
               }}
             />
           </>
+          {/* ĐIỆN THOẠI NỔI BẬT NHẤT */}
+          {/* <>
+            <Text style={{ height: 1, borderColor: "#ddd", borderWidth: 1, marginTop: 15, marginBottom: 5 }} />
+            <Text style={{ padding: 10, fontSize: 22, fontWeight: "bold" }}>ĐIỆN THOẠI NỔI BẬT NHẤT</Text>
+          </> */}
         </ScrollView>
       </SafeAreaView>
 

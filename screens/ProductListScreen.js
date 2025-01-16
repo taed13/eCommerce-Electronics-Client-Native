@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useGetAllProduct } from "../api/product";
 import ProductItemList from "../components/ProductItemList";
@@ -10,12 +10,41 @@ import { colors } from "../constants/color";
 import { DEFAULT_VALUE_FILTER } from "../constants/common";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useRoute } from "@react-navigation/native";
 
 const ProductListScreen = () => {
   const insets = useSafeAreaInsets();
   const { data } = useGetAllProduct();
+  const route = useRoute();
   const bottomSheetModalRef = useRef(null);
   const [filterValues, setFilterValues] = useState(DEFAULT_VALUE_FILTER);
+
+  useEffect(() => {
+    if (route.params?.categoryName) {
+      console.log('route.params?.categoryName', route.params?.categoryName);
+      const selectedCategory = dataUnique.categories.find((c) => c.title === route.params.categoryName);
+      if (selectedCategory) {
+        setFilterValues((prev) => ({
+          ...prev,
+          category: [selectedCategory._id],
+        }));
+      }
+    }
+  }, [route.params?.categoryName, dataUnique]);
+  
+
+  useEffect(() => {
+    if (route.params?.brandName) {
+      console.log('route.params?.brandName', route.params?.brandName);
+      const selectedBrand = dataUnique.brands.find((b) => b.title === route.params.brandName);
+      if (selectedBrand) {
+        setFilterValues((prev) => ({
+          ...prev,
+          brand: [selectedBrand._id],
+        }));
+      }
+    }
+  }, [route.params?.brandName, dataUnique]);
 
   const finalData = useMemo(() => {
     if (!data) return [];
@@ -24,7 +53,8 @@ const ProductListScreen = () => {
     const addedIds = new Set();
 
     data.forEach((item) => {
-      const price = item.product_after_price || item.product_price;
+      const price =
+        item.discount && item.product_after_price ? item.product_after_price : item.product_price;
       let isPriceValid = true;
 
       switch (filterValues.priceRange) {
@@ -47,10 +77,15 @@ const ProductListScreen = () => {
           isPriceValid = true;
       }
 
-      const isBrandValid = filterValues.brand.length === 0 || filterValues.brand.includes(item.product_brand[0]._id);
-      const isCategoryValid = filterValues.category.length === 0 || filterValues.category.includes(item.product_category[0]._id);
-      const isTagValid = filterValues.tag.length === 0 || item.product_tags.some(tag => filterValues.tag.includes(tag._id));
-      const isColorValid = filterValues.color.length === 0 || item.product_color.some(color => filterValues.color.includes(color._id));
+      const isBrandValid =
+      filterValues.brand.length === 0 || filterValues.brand.includes(item.product_brand[0]._id);    
+      const isCategoryValid =
+      filterValues.category.length === 0 || filterValues.category.includes(item.product_category[0]._id);
+    
+      const isTagValid =
+        filterValues.tag.length === 0 || filterValues.tag.some((tagId) => item.product_tags.some((tag) => tag._id === tagId));
+      const isColorValid =
+        filterValues.color.length === 0 || filterValues.color.some((colorId) => item.product_color.some((color) => color._id === colorId));
 
       if (isPriceValid && isBrandValid && isCategoryValid && isTagValid && isColorValid) {
         if (!addedIds.has(item._id)) {
@@ -169,7 +204,7 @@ const ProductListScreen = () => {
           </View>
         </View>
         <View>
-          <Text style={BottomSheetStyle.label}>Category</Text>
+          <Text style={BottomSheetStyle.label}>Danh mục</Text>
           <View style={BottomSheetStyle.brand}>
             {dataUnique.categories.map((item, index) => {
               return (
@@ -178,7 +213,7 @@ const ProductListScreen = () => {
                   onPress={() => handlePressBrand(item, "category")}
                   style={[
                     BottomSheetStyle.btnBrand,
-                    filterValues.category === item._id && BottomSheetStyle.btnBrandActive,
+                    filterValues.category.includes(item._id) && BottomSheetStyle.btnBrandActive,
                   ]}
                 >
                   <Text style={[filterValues.category === item._id && BottomSheetStyle.btnTextActive]}>
@@ -197,7 +232,7 @@ const ProductListScreen = () => {
                 <TouchableOpacity
                   key={index}
                   onPress={() => handlePressBrand(item, "tag")}
-                  style={[BottomSheetStyle.btnBrand, filterValues.tag === item._id && BottomSheetStyle.btnBrandActive]}
+                  style={[BottomSheetStyle.btnBrand, filterValues.tag.includes(item._id) && BottomSheetStyle.btnBrandActive]}
                 >
                   <Text style={[filterValues.tag === item._id && BottomSheetStyle.btnTextActive]}>{item.name}</Text>
                 </TouchableOpacity>
@@ -206,16 +241,20 @@ const ProductListScreen = () => {
           </View>
         </View>
         <View>
-          <Text style={BottomSheetStyle.label}>Color</Text>
+          <Text style={BottomSheetStyle.label}>Màu sắc</Text>
           <View style={BottomSheetStyle.brand}>
             {dataUnique.colors.map((item, index) => {
               return (
                 <TouchableOpacity
                   key={index}
                   onPress={() => handlePressBrand(item, "color")}
-                  style={[BottomSheetStyle.btnColor, { backgroundColor: item.code }]}
+                  style={[
+                    BottomSheetStyle.btnColor,
+                    { backgroundColor: item.code },
+                    filterValues.color.includes(item._id) && { borderColor: "#008E97", borderWidth: 2 },
+                  ]}
                 >
-                  {filterValues.color === item._id && <Feather name="check" size={20} color={colors.darkGray} />}
+                  {filterValues.color.includes(item._id) && <Feather name="check" size={20} color={colors.darkGray} />}
                 </TouchableOpacity>
               );
             })}

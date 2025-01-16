@@ -8,6 +8,7 @@ const ProductReviewUpdateForm = ({ initialStarRating, initialComment, onSubmit, 
     const [comment, setComment] = useState(initialComment);
 
     useEffect(() => {
+        console.log("Initial values updated:", { initialStarRating, initialComment });
         setStarRating(initialStarRating);
         setComment(initialComment);
     }, [initialStarRating, initialComment]);
